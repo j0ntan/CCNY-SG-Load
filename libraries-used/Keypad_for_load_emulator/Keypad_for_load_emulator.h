@@ -1,167 +1,204 @@
-//#include "..\MuShield\MuxShield.h"
-#include "Arduino.h"
+//--------------------Preprocessor directives--------------------//
+
+/*
+ Refer to the documentation for the working principles of the 
+keypad and to see how the Arduino accepts keypresses. The currently 
+installed lab setup uses pins 30-33 & 34-37 for ROW1-ROW4 &
+COL1-COL4, respectively. */
+// Assign the ROW1-ROW4, COL1-COL4 keypad pins here:
+#define ROW1 30
+#define ROW2 31
+#define ROW3 32
+#define ROW4 33
+
+#define COL1 34
+#define COL2 35
+#define COL3 36
+#define COL4 37
 
 
-//---------------------------------------------------------------//
+//--------------------------------------------------------------//
 //-----------------------Global Variables-----------------------//
-//---------------------------------------------------------------//
+//--------------------------------------------------------------//
 
+// Stores the Arduino pin numbers that connect to the keypad.
+unsigned int keypad_row_pins[4] = {ROW1, ROW2, ROW3, ROW4};
+unsigned int keypad_col_pins[4] = {COL1, COL2, COL3, COL4};
 
-/* Holds the Arduino pin numbers that connect to the keypad. 
-Assign the Arduino digital input pins for reading inputs
-from the keypad L lines. */
-int keypad_L_pins[4] = {30, 31, 32, 33}; // use with push button keypad
-//int keypad_L_pins[4] = {2, 3, 4, 5};     // use with flat membrane keypad
-
-// Assign the Mux shield digital output pins
-// (row 3, column i) for writing to the keypad R lines.
-int keypad_R_pins[4] = {34, 35, 36, 37};
-//int keypad_R_pins[4] = {6, 7, 8, 9};
-
-// Used to keep track of pressed buttons
-// by their rows and column status
+/*
+Used to keep track of pressed buttons by their rows and 
+column status. False or 0 means the key is not pressed. When 
+the key is pressed and the keypad pins are read, these values 
+change to True or 1. */
 bool keypad_row_pressed[4] = {0, 0, 0, 0};
-bool keypad_col_pressed[4][4] = {
+bool keypad_button_pressed[4][4] = {
   {0, 0, 0, 0}, {0, 0, 0, 0},
-  {0, 0, 0, 0}, {0, 0, 0, 0}
-}; // this variable stores columns pressed for each row
+  {0, 0, 0, 0}, {0, 0, 0, 0}};
 
-// Used to store the sequence of pressed keys
-// and operate relays after a SEND(#) input.
-// Max of 7 values for the case of an input
-// A11 B12 C13 D8* where all the relays are turned on.
-char inputSequence[14] = {'?', '?', '?', '?',
-                          '?', '?', '?', '?',
-						  '?', '?', '?', '?',
-                          '?', '?'
-                         };
+/*
+Used to store characters according to the keys that are 
+pressed and operate relays after an ENTER(#) key is pressed.
+Max of 12 values for the case of the input "A16 B16 C16 D8#" 
+(without spaces) where all the relays are turned on. */
+char inputSequence[12] = {
+  '?', '?', '?', '?',
+  '?', '?', '?', '?',
+  '?', '?', '?', '?'};
 
 // Used to keep track of stored valid inputs.
 int inputCount = 0;
 
-// Stores values of changes made by the user based on the input.
-// First 3 values correspond to number of resistors turned on for 
-// each AC phase. Last value is for DC load. A value of 0 means that
-// line will have 0 resistors connected. A value of -1 means that line
-// will remain unchanged. 
+/*
+Stores the state of the relays AFTER the user passed some input
+sequence. The user enters some input on the keypad, it gets stored
+in this array, and then it gets processed and passed to the shift
+registers so that it activates the relays.
+First 3 values correspond to number of resistors turned on for 
+each AC phase. Last value is for DC load. 
+Values can be either:
+1-16 - that phase (or DC) will have this many resistors connected.
+   0 - that phase (or DC) will have no resistors connected. 
+  -1 - that phase (or DC) did not receive a value, it will keep its
+       previous state and remain unchanged, and 
+       nothing will be sent to the shift registers or relays. */ 
 int desiredState[4] = {-1,-1,-1,-1};
 
-// Stores the number of resistors turned on for each line. 
-// Values range from 0-16.
+/*
+Similar to the desiredState array, except that it stores the number
+of resistors turned on for each phase (or DC). 
+Values range from 0-16. */
 int currentState[4] = {0,0,0,0};
 
-//---------------------------------------------------------------//
+//--------------------------------------------------------------//
 //---------------------Global Variables end---------------------//
-//---------------------------------------------------------------//
+//--------------------------------------------------------------//
 
 
 
 
 
-
-
-
-
-
-
-
-
-//---------------------------------------------------------------//
+//--------------------------------------------------------------//
 //---------------------Function Definitions---------------------//
-//---------------------------------------------------------------//
-void initializeKeypadIO(void) {
+//--------------------------------------------------------------//
 
-  // Initialize Arduino input pins for keypad
+void initialize_keypad_pins(void) {
+  /*
+  This function assigns the Arduino INPUT and OUTPUT pins connected
+  to the keypad pins. Also, sets the initial state of OUTPUT pins to
+  LOW state (becuase, by default, no keys are pressed when the Arduino 
+  is initially powered on). */
+
+  // Initialize Arduino input pins for keypad.
   for (int i = 0; i < 4; i++)
-    pinMode(keypad_L_pins[i], INPUT_PULLUP);
+    pinMode(keypad_row_pins[i], INPUT_PULLUP);
 
-  // Initialize Arduino ouput pins for keypad
+  // Initialize Arduino ouput pins for keypad to LOW state.
   for (int i = 0; i < 4; i++) {
-    pinMode(keypad_R_pins[i], OUTPUT);
-    digitalWrite(keypad_R_pins[i],0);
+    pinMode(keypad_col_pins[i], OUTPUT);
+    digitalWrite(keypad_col_pins[i],0);
   }
   Serial.println("Keypad Initialized.");
 }
-// Use this for manually inputting the Keypad pins
-void initializeKeypadIO(int L1, int L2, int L3, int L4,
-                        int R1, int R2, int R3, int R4) {
 
-  // Initialize Arduino input pins for keypad
-  pinMode(L1, INPUT_PULLUP);
-  pinMode(L2, INPUT_PULLUP);
-  pinMode(L3, INPUT_PULLUP);
-  pinMode(L4, INPUT_PULLUP);
+bool detect_button_press(void) {
+  /*
+  This function checks if any of the keypad row pins have changed
+  from HIGH to LOW, indicating that button has been pushed. If a
+  button was pressed, a True value for that button's row will be
+  stored in the array 'keypad_row_pressed'. */
+  
+  keypad_row_pressed[0] = !digitalRead(keypad_row_pins[0]);
+  keypad_row_pressed[1] = !digitalRead(keypad_row_pins[1]);
+  keypad_row_pressed[2] = !digitalRead(keypad_row_pins[2]);
+  keypad_row_pressed[3] = !digitalRead(keypad_row_pins[3]);
 
-  // Initialize Arduino ouput pins for keypad
-  pinMode(R1, OUTPUT);
-  pinMode(R2, OUTPUT);
-  pinMode(R3, OUTPUT);
-  pinMode(R4, OUTPUT);
-  digitalWrite(R1, 0);
-  digitalWrite(R2, 0);
-  digitalWrite(R3, 0);
-  digitalWrite(R4, 0);
-    
-  Serial.println("Keypad Initialized.");
-}
-
-bool detectButtonPress(void) {
-  keypad_row_pressed[0] = !digitalRead(keypad_L_pins[0]);
-  keypad_row_pressed[1] = !digitalRead(keypad_L_pins[1]);
-  keypad_row_pressed[2] = !digitalRead(keypad_L_pins[2]);
-  keypad_row_pressed[3] = !digitalRead(keypad_L_pins[3]);
-
+  // Return True if 1 or more row pins are set to True.
   return keypad_row_pressed[0] || keypad_row_pressed[1] ||
          keypad_row_pressed[2] || keypad_row_pressed[3];
-
 }
 
-void findWhichKeys(void) {
-  for (int i = 0; i < 4; i++) {
-    if (keypad_row_pressed[i]) {
-      for (int j = 0; j < 4; j++) {
-        digitalWrite(keypad_R_pins[j], HIGH);
-        if (digitalRead(keypad_L_pins[i]))
-          keypad_col_pressed[i][j] = 1;
+void identify_pressed_buttons_row_and_col(void) {
+  /*
+  This function finds the row and column of the pressed buttons
+  by toggling the column pins and reading the row pins. Refer 
+  to the documentation for more details on this method. Buttons 
+  that are pressed will have a True value stored in the 4x4
+  array 'keypad_button_pressed'. */
+  
+  // Begin by looking at first row pins.
+  for (int row = 0; row < 4; row++) {
+    if (keypad_row_pressed[row]) {
+      
+      // Begin looking at each column pin within a row.
+      for (int col = 0; col < 4; col++) {
+        
+        // Begin toggling and recording row pin changes.
+        digitalWrite(keypad_col_pins[col], HIGH);
+        if (digitalRead(keypad_row_pins[row]))
+          keypad_button_pressed[row][col] = true;
         else
-          keypad_col_pressed[i][j] = 0;
-        digitalWrite(keypad_R_pins[j], LOW);
+          keypad_button_pressed[row][col] = false;
+        digitalWrite(keypad_col_pins[col], LOW);
+        
         // use this line to print 4x4 results
-        //Serial.print(keypad_col_pressed[i][j]),Serial.print(" ");
+        //Serial.print(keypad_button_pressed[row][col]);
+        //Serial.print(" ");
+        }
+      }
+    else {
+      for (int col = 0; col < 4; col++) {
+        keypad_button_pressed[row][col] = false;
+        // use this line to print 4x4 results
+        //Serial.print(keypad_button_pressed[row][col])
+        //Serial.print(" ");
       }
     }
-    else
-      for (int j = 0; j < 4; j++) {
-        keypad_col_pressed[i][j] = 0;
-        // use this line to print 4x4 results
-        //Serial.print(keypad_col_pressed[i][j]),Serial.print(" ");
-      }
     // use this line to print 4x4 results
     //Serial.println();
   }
 }
 
-char getKeyChar(void) {
-  int keypressCount = 0;
-  int keyID = 0;
-  char keyChar = '?';
-  for (int i = 0; i < 4; i++)
-    for (int j = 0; j < 4; j++)
-      if (keypad_col_pressed[i][j])
-        keypressCount++;
+char get_key_char(void) {
+  /*
+  This function uses the array 'keypad_button_pressed' to find the
+  alphanumeric character that the user intended to enter. There are
+  16 elements in this 4x4 keypad. This function assigns an ID
+  to each element in a (row,column) pair. The layout of the currently
+  installed keypad and its corresponding ID are as follows: 
+  (Layout)    (ID numbers)
+  1 2 3 A      1  2  3  4
+  4 5 6 B      5  6  7  8
+  7 8 9 C      9 10 11 12
+  * 0 # D     13 14 15 16
+  Using the assigned ID number, we can just match the correct
+  alphanumeric character. For the case where more than one button
+  has been pressed, the function returns the '!' character so that
+  other functions can receive this information. */
 
-  // If one key is pressed, get the keyID
-  if (keypressCount == 1) {
-    for (int i = 0; i < 4; i++)
-      for (int j = 0; j < 4; j++)
-        if (keypad_col_pressed[i][j]) {
-          keyID = i * 4 + (j + 1);
-          break;
-        }
+  // Find out how many buttons were pressed and its (row,col) values.
+  int buttons_pressed = 0;
+  int row = 0, col = 0;
+  for (int temp_row = 0; temp_row < 4; temp_row++)
+    for (int temp_col = 0; temp_col < 4; temp_col++)
+      if (keypad_button_pressed[temp_row][temp_col]) {
+        buttons_pressed++;
+        row = temp_row;
+        col = temp_col;
+        /*
+        NOTE: The variables 'row' and 'col' are used later to get the
+        ID for the pressed button. If more than one button is pressed
+        then these variables will change multiple times. But this 
+        doesn't matter because in that case we return the character 
+        '!' by default, there is no need to use 'row' or 'col'. */
+      }
 
-    // Using the keyID, find the corresponding
-    // keypad charactaer.
-    switch (keyID) {
+  // If only one button is pressed, get the key_ID
+  if (buttons_pressed == 1) {
+    // Calculate key_ID using the layout shown above.
+    int key_ID = row * 4 + (col + 1);
+
+    // Return the alphanumeric character correctly matched with key_ID.
+    switch (key_ID) {
       case 1: return '1';
       case 2: return '2';
       case 3: return '3';
@@ -178,32 +215,44 @@ char getKeyChar(void) {
       case 14: return '0';
       case 15: return '#';
       case 16: return 'D';
-      default: return '?';
+      default: return '?'; // Something is wrong if this is returned.
     }
   }
   else
-    // More than one key was pressed. Indicate this by
-    // returning the '!' character.
-    keyChar = '!';
-  return keyChar;
+    // More than one key was pressed so we return the '!' character.
+    return '!';
 }
 
-void storeKeyInput(char keyInput) {
+void store_keypresses(char keyInput) {
+  /*
+  This function stores a single keypress to an array so that the Arduino
+  can keep track of the complete input sequence and display it back to 
+  the user. */
+  
+  // This is the case of more than one simultaneous button press.
   if (keyInput == '!') {
-    // More than one keypress has been input.
-    // Notify the user and don't change the sequence.
+    // In this case, just print a message and ignore the input.
     Serial.println("Multiple keypress detected.");
     Serial.println("Input sequence unchanged");
   }
   else {
-    // Check that the first input is a letter.
+    /*
+    Check that the first keypress is a letter. Otherwise, ignore the 
+    keypress until a letter has been pressed. This is just so that the 
+    format of the input sequence follows a structure, such as 
+    'letter' 'number' 'other letter' 'other number' 'etc'. */
     if (inputCount == 0 &&
-        keyInput != 'A' && keyInput != 'B' && keyInput != 'C' && keyInput != 'D'
-       )
+        keyInput != 'A' && keyInput != 'B' && 
+        keyInput != 'C' && keyInput != 'D' )
       Serial.println("First input must be ABC or D");
     else {
       inputSequence[inputCount] = keyInput;
-      if (inputCount != 12)
+      if (inputCount < 11)
+        /*
+        Variable advances the position for storing inputs in the array. 
+        When 'inputCount' reaches 11, the last character in 
+        'inputSequence' will just be written over for any additional 
+        keypresses. */
         inputCount++;
     }
   }
@@ -215,27 +264,36 @@ void storeKeyInput(char keyInput) {
   Serial.println();
 }
 
-bool checkForENTER(char keyChar) {
+bool check_keypress_ENTER(char keyChar) {
+  /*
+  Simply checks if the key that was pressed is the ENTER key. In our 
+  case, we designated the '#' key to be the ENTER key. */
   if (keyChar == '#')
     return true;
   else
     return false;
 }
 
-bool checkForValidInput(void) {
-  int letterCount = 0;
-  int Acount = 0;
-  int Bcount = 0;
-  int Ccount = 0;
-  int Dcount = 0;
-  int NumCount = 0;
-  // Used to count digit frequency (0-9) in input
-  int DigitCount[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-  int tensCount = 0;
+bool check_inputSequence_valid(void) {
+  int letterCount = 0;  // counts how many total letters
+  int Acount = 0;       // counts letter A occurence
+  int Bcount = 0;       // ...
+  int Ccount = 0;       // ...
+  int Dcount = 0;       // counts letter D occurence
+  int NumCount = 0;     // counts occurence of numbers
+
+  
+  /* Each values corresponds to the occurence of a single digit number.
+  For example, the first value records how many zeros are in 
+  inputSequence. The next value records how many 1's there are, etc. */
+  int DigitCount[10] = {0, 0, 0, 0, 0, 
+                        0, 0, 0, 0, 0};
+  int tensCount = 0; // Increases when the number 1 is followed by 
+                     // another number, i.e. 11, 12, ..., 16.
   int invalidChars = 0;
 
-  for ( int i = 0; i < 14; i++) {
-    // Count the frequency of input chars
+  // Count the occurence of letters and numbers.
+  for ( int i = 0; i < 12; i++) {
     switch (inputSequence[i]) {
       case 'A': Acount++; letterCount++; break;
       case 'B': Bcount++; letterCount++; break;
@@ -258,7 +316,7 @@ bool checkForValidInput(void) {
     }
 
     // Count the frequency of the numbers 10-16
-    if (i < 12 && inputSequence[i] == '1' &&
+    if (i < 11 && inputSequence[i] == '1' &&
         ( inputSequence[i + 1] == '0' ||  inputSequence[i + 1] == '1' ||
           inputSequence[i + 1] == '2' ||  inputSequence[i + 1] == '3' ||
           inputSequence[i + 1] == '4' ||  inputSequence[i + 1] == '5' ||
@@ -267,9 +325,10 @@ bool checkForValidInput(void) {
        )
       tensCount++;
 
-    // Check that a number doesn't follow a number
-    // except for 1 followed by 0-6.
-    if (i < 12 && inputSequence[i] == '1' &&
+    /*
+    Check that a number doesn't follow another number
+    except for 1 followed by 0-6. */
+    if (i < 11 && inputSequence[i] == '1' &&
         (inputSequence[i + 1] == '7' || inputSequence[i + 1] == '8' ||
          inputSequence[i + 1] == '9') ) {
       Serial.println("Numbers not valid, must be within 0-16.");
@@ -277,7 +336,10 @@ bool checkForValidInput(void) {
       return false;
     }
     else if (
-      i < 12 && (
+      /*
+      Check for other invalid combination of two-digit numbers, in the
+      range of 20-99. */
+      i < 11 && (
         inputSequence[i] == '0' || inputSequence[i] == '2' ||
         inputSequence[i] == '3' || inputSequence[i] == '4' ||
         inputSequence[i] == '5' || inputSequence[i] == '6' ||
@@ -295,18 +357,16 @@ bool checkForValidInput(void) {
     }
   }
 
-
-
-
-  // Check that there are no invalid characters
-  // in the input sequence. (Still not implemented)
+  /*
+  Check that there are no invalid characters
+  in the input sequence. (Still not implemented) */
   if (invalidChars > 0) {
     Serial.println("Invalid Characters detected");
     Serial.println("Re-enter input sequence.");
     return false;
   }
   
-  // Check for a max of 4 letters (ABCD) and 8 numbers (16,16,16,16)
+  // Check for a max of 4 letters (ABCD) and 7 numbers (16,16,16,8)
   else if (letterCount > 4 || NumCount > 8) {
     Serial.println("Too many letters or numbers.");
     Serial.println("Re-enter input sequence.");
@@ -340,10 +400,11 @@ bool checkForValidInput(void) {
 
   // Check that a balanced input must be ABC $ or ABCD $
   // or ABC $ D $, where $ is some number 0-16, in that order.
+  // NOTE: Consider re-writing this else if statement.
   else if (Acount == 1 && Bcount == 1 && Ccount == 1) {
     if (inputSequence[1] != 'A' && inputSequence[1] != 'B' &&
         inputSequence[1] != 'C' && inputSequence[1] != 'D' )
-        ; // There is some number in second char in sequence.
+        ; // There is a number in second char in sequence.
     else {
       if (inputSequence[0] != 'A' || inputSequence[1] != 'B' ||
           inputSequence[2] != 'C') {
@@ -353,7 +414,7 @@ bool checkForValidInput(void) {
       }
     }
   }
-  
+    
   return true;
 }
 
@@ -820,7 +881,18 @@ void readAllSerialInput(void) {
   Serial.println();
 }
 
-
-//---------------------------------------------------------------//
+//--------------------------------------------------------------//
 //-------------------Function Definitions end-------------------//
-//---------------------------------------------------------------//
+//--------------------------------------------------------------//
+
+
+//--------------Preprocessor directives terminators--------------//
+#undef ROW1
+#undef ROW2
+#undef ROW3
+#undef ROW4
+
+#undef COL1
+#undef COL2
+#undef COL3
+#undef COL4

@@ -1,11 +1,9 @@
-#include "Arduino.h"
 /*
 Include these libraries in main sketch
 #include <Wire.h>
 #include <LCD.h>
 #include <LiquidCrystal_I2C.h>
-#include "LCD20x04.h"
-*/
+#include "LCD20x04.h" */
 
 #define I2C_ADDR 0x27 // <<----- Add your address here. Find it from I2C Scanner
 #define BACKLIGHT_PIN 3
@@ -163,4 +161,14 @@ void LCDprintInputSequence(char inputSequence[14]) {
   }
 }
 
+void LCDprintInvalidInput(void) {
+  clearRows(0), clearRows(1), clearRows(2), clearRows(3);
 
+  lcd.setCursor(10 - sizeof("Invalid input.") / 2, 1);
+  lcd.print("Invalid input.");
+
+  lcd.setCursor(10 - sizeof("Re-enter sequence.") / 2, 2);
+  lcd.print("Re-enter sequence.");
+
+  delay(1500);
+}
