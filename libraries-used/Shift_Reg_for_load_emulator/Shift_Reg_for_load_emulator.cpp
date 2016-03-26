@@ -63,7 +63,7 @@ initialize(bool *serial_data_array) {
   _serial_data_array = serial_data_array;
   _serial_data_is_bytes = false;
   
-  Serial.println("Shift Reg: Shift Registers Initialized.");
+  Serial.println(F("Shift Reg: Shift Registers Initialized."));
 }
 
 void Shift_Registers::
@@ -99,7 +99,7 @@ initialize(byte *serial_data_array) {
   _serial_byte_array = serial_data_array;
   _serial_data_is_bytes = true;
   
-  Serial.println("Shift Reg: Shift Registers Initialized."); 
+  Serial.println(F("Shift Reg: Shift Registers Initialized.")); 
 }
 
 void Shift_Registers::
@@ -142,7 +142,7 @@ send_serial_data() {
   // After sending serial data, keep pin low to reduce pwr consumption.
   digitalWrite(_serial_data,    LOW);
   
-  Serial.println("Shift Reg: Finished sending.");
+  Serial.println(F("Shift Reg: Finished sending."));
 }
 
 void Shift_Registers::
@@ -150,5 +150,5 @@ trigger_output() {
   digitalWrite(_output_clk, HIGH);
   delay(OUTPUT_CLK_DELAY);
   digitalWrite(_output_clk,  LOW);
-  Serial.println("Shift Reg: Outputs are activated.");
+  Serial.println(F("Shift Reg: Outputs are activated."));
 }

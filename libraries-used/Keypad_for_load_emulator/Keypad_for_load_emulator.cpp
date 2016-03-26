@@ -51,7 +51,7 @@ initialize() {
   _printed_keys[14] = '*';
   _printed_keys[15] = '#';
   
-  Serial.println("Keypad initialized.");
+  Serial.println(F("Keypad initialized."));
 }
 
 bool Keypad::
@@ -70,12 +70,12 @@ find_pressed_key() {
   toggle_keys(keys_are_pressed);
   
   if (_keypress_count > 1) {
-    Serial.println("Multiple");
+    Serial.println(F("Multiple"));
     _pressed_key_char = '!'; 
   }  
   else {
     _pressed_key_char = find_single_key();
-    Serial.print("Pressed: "); Serial.println(_pressed_key_char);
+    Serial.print(F("Pressed: ")); Serial.println(_pressed_key_char);
   }
   pause_until_stopped_pressing();
   return _pressed_key_char;

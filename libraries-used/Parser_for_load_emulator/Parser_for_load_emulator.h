@@ -14,12 +14,14 @@ public:
   bool shift_reg_data  [48]; // Bool values for 3-phase AC
   byte shift_reg_bytes [6]; // Byte values for 3-phase AC
   int DC_value;
+  String load_idle_status;
 
 private:
   void source_correction(void);
   void parse_data(void);
   void create_shift_reg_data(void);
   void create_shift_reg_bytes(void);
+  void update_load_idle_status(void);
  
   const int _max_size = INPUT_STR_MAX_SIZE;
   String _input_str;

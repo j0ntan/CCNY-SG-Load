@@ -22,14 +22,14 @@ keypress will set the interrupt flag to move on to the next
 message to be displayed on the LCD. */
 
 // Use for Arduino Mega board
-#define INTERRUPT_READ1 30
-#define INTERRUPT_READ2 31
-#define INTERRUPT_READ3 32
-#define INTERRUPT_READ4 33
-#define INTERRUPT_WRITE1 34
-#define INTERRUPT_WRITE2 35
-#define INTERRUPT_WRITE3 36
-#define INTERRUPT_WRITE4 37
+#define INTERRUPT_READ1 37
+#define INTERRUPT_READ2 36
+#define INTERRUPT_READ3 35
+#define INTERRUPT_READ4 34
+#define INTERRUPT_WRITE1 33
+#define INTERRUPT_WRITE2 32
+#define INTERRUPT_WRITE3 31
+#define INTERRUPT_WRITE4 30
 
 /*
 // Use for Arduino Uno board
@@ -49,13 +49,14 @@ public:
   Liquid_Crystal_Display();
   void initialize(void);
   void show_caution_message(void);
-  void show_message(String);
+  void show_message(String message);
+  void show_message(String message, String speed);
   
 private:
   void clear_display(void);
   void clear_row(int row);
     
-  bool _interrupt_flag;
+  bool _interrupt_flag;    
 };
 
 #endif

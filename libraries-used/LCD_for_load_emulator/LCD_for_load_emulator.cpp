@@ -15,7 +15,7 @@ Liquid_Crystal_Display(){}
 
 void Liquid_Crystal_Display::
 clear_display(void) {
-  Serial.println("LCD: Clearing display.");
+  Serial.println(F("LCD: Clearing display."));
   Serial.println();
   
   clear_row(0);
@@ -48,13 +48,13 @@ show_message(String full_message) {
   digitalWrite(INTERRUPT_WRITE3, LOW);
   digitalWrite(INTERRUPT_WRITE4, LOW);
   
-  Serial.println("LCD: Showing message");
-  Serial.println("********************");
+  Serial.println(F("LCD: Showing message"));
+  Serial.println(F("********************"));
   Serial.println(full_message.substring( 0,20)); 
   Serial.println(full_message.substring(20,40));
   Serial.println(full_message.substring(40,60)); 
   Serial.println(full_message.substring(60));
-  Serial.println("********************");
+  Serial.println(F("********************"));
   Serial.println();
   
   my_lcd.setCursor (0, 0);
@@ -82,8 +82,71 @@ show_message(String full_message) {
 }
 
 void Liquid_Crystal_Display::
+show_message(String full_message, String speed) {
+  _interrupt_flag = false;
+  
+  // Setup for the (keypad) interrupt pins.
+  pinMode(INTERRUPT_READ1, INPUT_PULLUP);
+  pinMode(INTERRUPT_READ2, INPUT_PULLUP);
+  pinMode(INTERRUPT_READ3, INPUT_PULLUP);
+  pinMode(INTERRUPT_READ4, INPUT_PULLUP);
+  pinMode(INTERRUPT_WRITE1, OUTPUT);
+  pinMode(INTERRUPT_WRITE2, OUTPUT);
+  pinMode(INTERRUPT_WRITE3, OUTPUT);
+  pinMode(INTERRUPT_WRITE4, OUTPUT);
+  digitalWrite(INTERRUPT_WRITE1, LOW);
+  digitalWrite(INTERRUPT_WRITE2, LOW);
+  digitalWrite(INTERRUPT_WRITE3, LOW);
+  digitalWrite(INTERRUPT_WRITE4, LOW);
+  
+  Serial.println(F("LCD: Showing message"));
+  Serial.println(F("********************"));
+  Serial.println(full_message.substring( 0,20)); 
+  Serial.println(full_message.substring(20,40));
+  Serial.println(full_message.substring(40,60)); 
+  Serial.println(full_message.substring(60));
+  Serial.println(F("********************"));
+  Serial.println();
+  
+  my_lcd.setCursor (0, 0);
+  my_lcd.print(full_message.substring( 0,20));
+  my_lcd.setCursor (0, 1);
+  my_lcd.print(full_message.substring(20,40));
+  my_lcd.setCursor (0, 2);
+  my_lcd.print(full_message.substring(40,60));
+  my_lcd.setCursor (0, 3);
+  my_lcd.print(full_message.substring(60));
+  
+  int i = 0, interval_count;
+  if (speed == "slow") {
+    interval_count = 40;
+  }
+  else if (speed == "fast") {
+    interval_count = 20;
+  }
+  else if (speed == "faster") {
+    interval_count = 15;
+  }
+  else {
+    interval_count = 30; // normal speed
+  }
+  while(_interrupt_flag == false) {
+    if (i < interval_count && 
+       (digitalRead(INTERRUPT_READ1) && digitalRead(INTERRUPT_READ2) &&
+        digitalRead(INTERRUPT_READ3) && digitalRead(INTERRUPT_READ4))) {
+    }
+    else {
+      _interrupt_flag = true;
+      //Serial.println("LCD: Displayed message interrupted.");
+    }
+    delay(100);
+    i++;
+  }
+}
+
+void Liquid_Crystal_Display::
 show_caution_message(void) {
-  Serial.println("LCD: Showing \"CAUTION\" message ;)");
+  Serial.println(F("LCD: Showing \"CAUTION\" message ;)"));
   
   String caution;  
   caution  = "                    ";
@@ -104,7 +167,8 @@ show_caution_message(void) {
   caution += "                    ";
   show_message(caution);
   
-  Serial.println("LCD: User has been warned about potential bears :D");
+  Serial.print(F("LCD: User has been warned about potential bears :D"));
+  Serial.println();
   Serial.println();
 }
 

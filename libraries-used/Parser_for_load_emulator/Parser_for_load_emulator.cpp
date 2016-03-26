@@ -14,6 +14,12 @@ Parser() {
     shift_reg_bytes[i / 8] = 0x0; 
   }
   DC_value = 0;
+  
+  load_idle_status  = "Load status         ";
+  load_idle_status += "A:0  B:0  C:0       ";
+  load_idle_status += "DC:0                ";
+  load_idle_status += "                    ";
+  
 }
 
 void Parser::
@@ -33,6 +39,7 @@ parse(String input_str) {
   parse_data();
   create_shift_reg_data();
   create_shift_reg_bytes();
+  update_load_idle_status();
 }
 
 void Parser::
@@ -43,18 +50,18 @@ source_correction() {
     
     _input_str.remove(_input_str_len - 1);
     _input_str_len--;
-    Serial.println("Parser: Removed ENTER ('#') char.");
-    Serial.print("Parser: Parsing the given input, ");
+    Serial.println(F("Parser: Removed ENTER ('#') char."));
+    Serial.print(F("Parser: Parsing the given input, "));
     Serial.println(_input_str);
     Serial.println();
   }
   else if (_input_str[_input_str_len - 1] == '*' &&
            _input_str_len > 1) {
-    Serial.println("Parser: Canceling input, nothing to parse.");
+    Serial.println(F("Parser: Canceling input, nothing to parse."));
   }
   else if (_input_str[_input_str_len - 1] == '*' &&
            _input_str_len == 1) {
-    Serial.println("Parser: Resetting relays.");
+    Serial.println(F("Parser: Resetting relays."));
   }
 }
 
@@ -249,7 +256,7 @@ create_shift_reg_data() {
 
 void Parser::
 create_shift_reg_bytes() {
-  Serial.println("Parser: Shift register byte values are");
+  Serial.println(F("Parser: Shift register byte values are"));
   byte temp_byte;
   for (int i = 0; i < 6;  i++) {
     temp_byte = B00000000;
@@ -260,4 +267,58 @@ create_shift_reg_bytes() {
     }
     Serial.println(temp_byte, BIN);
   }
+}
+
+void Parser::
+update_load_idle_status(void) {
+  load_idle_status  = "Load status         ";
+  
+  
+  load_idle_status += "A:";
+  if (_A_value < 10) {
+    load_idle_status += char(_A_value + 48);
+    load_idle_status += "  ";
+  }
+  else {
+    load_idle_status += "1";
+    load_idle_status += char((_A_value - 10) + 48);
+    load_idle_status += " ";
+  }
+  
+  load_idle_status += "B:";
+  if (_B_value < 10) {
+    load_idle_status += char(_B_value + 48);
+    load_idle_status += "  ";
+  }
+  else {
+    load_idle_status += "1";
+    load_idle_status += char((_B_value - 10) + 48);
+    load_idle_status += " ";
+  }
+  
+  load_idle_status += "C:";
+  if (_C_value < 10) {
+    load_idle_status += char(_C_value + 48);
+    load_idle_status += "  ";
+  }
+  else {
+    load_idle_status += "1";
+    load_idle_status += char((_C_value - 10) + 48);
+    load_idle_status += " ";
+  }
+  int len = load_idle_status.length();
+  for (int i = 0; i < 40 - len; i++) {
+    load_idle_status += " ";
+  }
+    
+  
+  load_idle_status += "DC:";
+  load_idle_status += char(_D_value + 48);
+  len = load_idle_status.length();
+  for (int i = 0; i < 60 - len; i++) {
+    load_idle_status += " ";
+  }
+  
+  
+  load_idle_status += "                    ";
 }

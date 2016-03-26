@@ -15,8 +15,8 @@ respectively. */
 #define SHIFT_REG_CLR   4   // or MASTER_RESET
 
 // Assign the delay values, in milliseconds, for both clocks
-#define SHIFT_REG_CLK_DELAY 10
-#define OUTPUT_CLK_DELAY 10
+#define SHIFT_REG_CLK_DELAY 1
+#define OUTPUT_CLK_DELAY 1
 
 // Set to 0 or 1 to Turn OFF or ON active low outputs, respectively
 #define ACTIVE_LOW 1
