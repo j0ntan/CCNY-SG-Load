@@ -68,7 +68,7 @@ source_correction() {
 void Parser::
 parse_data() {
   
-  // Case for resetting relays.
+  // Case for cancelling input sequence.
   if (_input_str[_input_str_len - 1] == '*' &&
       _input_str_len > 1) {
     _input_str.remove(0);
@@ -96,12 +96,25 @@ parse_data() {
     }
   }
   
-
+  /*
+  NOTE ON NUMERICAL VALUES ARRAY:
+  When assigning values to the individual phases or DC value, we use
+  the numercal values array to convert the numerical characters in the
+  input sequence into their corresponding integer values. This is fine
+  when the characters are 0 or 2-9, but when it is 1 it requires better
+  handling. This is becuase it can refer to the numerical value of the
+  number one or the tens digit in the numbers 10-16. For that reason,
+  we look at three cases when assigning number values:
+  when the character
+  1. is 0 or 2-9 (or, equivalently, not equal to 1)
+  2. is equal to 1 followed by a letter
+  3. is equal to 1 followed by another number
+ */
 
   // A, B, and C are all present in input
   if (_A_state && _B_state && _C_state) {
     // case for ABC#
-    if (_B_pos == (_A_pos + 1))  {  
+    if (_B_pos == (_A_pos + 1) && _C_pos == (_B_pos + 1))  {
       if (_numerical_values[_C_pos + 1] != 1) {
         _A_value = _numerical_values[_C_pos + 1];
         _B_value = _A_value;
@@ -118,6 +131,64 @@ parse_data() {
         _A_value = 10 + _numerical_values[_C_pos + 2];
         _B_value = _A_value;
         _C_value = _A_value;
+      }
+    }
+    // case for AB#C#
+    else if (_B_pos == (_A_pos + 1) && _C_pos != (_B_pos + 1))  {
+      // assign A & B values
+      if (_numerical_values[_B_pos + 1] != 1) {
+        _A_value = _numerical_values[_B_pos + 1];
+        _B_value = _numerical_values[_B_pos + 1];
+      }
+      else if (_numerical_values[_B_pos + 1] == 1 &&
+              _C_pos == (_B_pos + 2)) {
+        _A_value = 1;
+        _B_value = 1;
+      }
+      else {
+        _A_value = 10 + _numerical_values[_B_pos + 2];
+        _B_value = 10 + _numerical_values[_B_pos + 2];
+      }
+      // assign C value
+      if (_numerical_values[_C_pos + 1] != 1) {
+        _C_value = _numerical_values[_C_pos + 1];
+      }
+      else if (_numerical_values[_C_pos + 1] == 1 &&
+             ((_C_pos + 1) == (_input_str_len - 1) ||
+              _D_pos == (_C_pos + 2)) ) {
+        _C_value = 1;
+      }
+      else {
+        _C_value = 10 + _numerical_values[_C_pos + 2];
+      }
+    }
+    // case for A#BC#
+    else if (_B_pos != (_A_pos + 1) && _C_pos == (_B_pos + 1))  {
+      // assign B & C values
+      if (_numerical_values[_C_pos + 1] != 1) {
+        _B_value = _numerical_values[_C_pos + 1];
+        _C_value = _numerical_values[_C_pos + 1];
+      }
+      else if (_numerical_values[_C_pos + 1] == 1 &&
+             ((_C_pos + 1) == (_input_str_len - 1) ||
+              _D_pos == (_C_pos + 2))) {
+        _B_value = 1;
+        _C_value = 1;
+      }
+      else {
+        _B_value = 10 + _numerical_values[_C_pos + 2];
+        _C_value = 10 + _numerical_values[_C_pos + 2];
+      }
+      // assign A value
+      if (_numerical_values[_A_pos + 1] != 1) {
+        _A_value = _numerical_values[_A_pos + 1];
+      }
+      else if (_numerical_values[_A_pos + 1] == 1 &&
+               _B_pos  == (_A_pos + 2)) {
+        _A_value = 1;
+      }
+      else {
+        _A_value = 10 + _numerical_values[_A_pos + 2];
       }
     }
     // case for A#B#C#
