@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<data>
+  <loop>false</loop>
+  <repeat_times>1</repeat_times>
+  <repeat_period>5000</repeat_period>
+  <frames_list>
+    <frame name="ABC12">
+      <payload>7E00090101ACDC00414243317E</payload>
+    </frame>
+    <frame name="AB3C6">
+      <payload>7E000A0101ACDC00414233433646</payload>
+    </frame>
+    <frame name="A3BC6 ">
+      <payload>7E000A0101ACDC00413342433646</payload>
+    </frame>
+    <frame name="A1B2C3">
+      <payload>7E000B0101ACDC0041314232433319</payload>
+    </frame>
+  </frames_list>
+</data>
