@@ -32,9 +32,9 @@ LoadEmuXBee xb = LoadEmuXBee(Serial1);
 void setup() {
   Serial.begin(19200);
 
-  //keypad.set_pins(4,5,6,7,10,11,12,13); // for Arduino Uno connection
-  keypad.set_pins(37, 36, 35, 34, 33, 32, 31, 30);  // for Arduino Mega connection
-  keypad.initialize();
+  //keypad.setPins(4,5,6,7,10,11,12,13); // for Arduino Uno connection
+  keypad.setPins(37, 36, 35, 34, 33, 32, 31, 30);  // for Arduino Mega connection
+  keypad.begin();
 
   shift_reg.set_Arduino_pins(7, 6, 5, 4);
   shift_reg.initialize(parser.shift_reg_data);
@@ -43,6 +43,7 @@ void setup() {
   lcd.initialize();
   lcd.show_message(parser.load_idle_status, "faster");
 
+  // pins for DC relays:
   pinMode(22, OUTPUT);
   pinMode(23, OUTPUT);
   digitalWrite(22, LOW);
@@ -51,10 +52,10 @@ void setup() {
 }
 
 void loop() {
-  if (keypad.check_any_press()) {
+  if (keypad.wasPressed()) {
     while ( input_handler.ENTER_or_CANCEL_pressed == false ) {
-      if (keypad.check_any_press()) {
-        input_handler.accept_keypress( keypad.find_pressed_key() );
+      if (keypad.wasPressed()) {
+        input_handler.accept_keypress( keypad.getKey() );
         if (input_handler.show_error_msg == true) {
           lcd.show_message( input_handler.LCD_status, "fast" );
           input_handler.show_error_msg = false; // reset after showing msg once

@@ -15,8 +15,35 @@ Keypad() {
 }
 
 void Keypad::
-set_pins(int R1, int R2, int R3, int R4, 
-         int C1, int C2, int C3, int C4) {
+begin() {
+  pinMode(_row1, INPUT_PULLUP);
+  pinMode(_row2, INPUT_PULLUP);
+  pinMode(_row3, INPUT_PULLUP);
+  pinMode(_row4, INPUT_PULLUP);
+
+  pinMode(_col1, OUTPUT);
+  pinMode(_col2, OUTPUT);
+  pinMode(_col3, OUTPUT);
+  pinMode(_col4, OUTPUT);
+  digitalWrite(_col1, 0);
+  digitalWrite(_col2, 0);
+  digitalWrite(_col3, 0);
+  digitalWrite(_col4, 0);
+
+  // Stores an array of chars in this order: [0-9, A-D, *, #]
+  for (int i = 0; i < 10; i++)
+    _printed_keys[i] = char(i + int('0'));
+  for (int i = 0; i < 4; i++)
+    _printed_keys[i + 10] = char(i + int('A'));
+  _printed_keys[14] = '*';
+  _printed_keys[15] = '#';
+
+  Serial.println(F("Keypad: Has begun."));
+}
+
+void Keypad::
+begin(int R1, int R2, int R3, int R4,
+      int C1, int C2, int C3, int C4) {
   _row1 = R1;
   _row2 = R2;
   _row3 = R3;
@@ -25,10 +52,7 @@ set_pins(int R1, int R2, int R3, int R4,
   _col2 = C2;
   _col3 = C3;
   _col4 = C4;
-}
 
-void Keypad::
-initialize() {
   pinMode(_row1, INPUT_PULLUP);
   pinMode(_row2, INPUT_PULLUP);
   pinMode(_row3, INPUT_PULLUP);
@@ -51,18 +75,18 @@ initialize() {
   _printed_keys[14] = '*';
   _printed_keys[15] = '#';
   
-  Serial.println(F("Keypad: Initialized."));
+  Serial.println(F("Keypad: Has begun."));
 }
 
 bool Keypad::
-check_any_press(void) {
+isPressed(void) {
   _key_is_pressed = !digitalRead(_row1) || !digitalRead(_row2) ||
                     !digitalRead(_row3) || !digitalRead(_row4);
   return _key_is_pressed; 
 }
 
 char Keypad::
-find_pressed_key() {
+getKey() {
   bool keys_are_pressed[4][4] = { {0,0,0,0}, {0,0,0,0},
                                   {0,0,0,0}, {0,0,0,0} };  
 
@@ -74,10 +98,14 @@ find_pressed_key() {
   }  
   else {
     _pressed_key_char = find_single_key();
-    Serial.print(F("Keypad: Pressed "));
-    Serial.println(_pressed_key_char);
   }
-  pause_until_stopped_pressing();
+
+  heldStatus = false;
+  pause_until_threshold();
+
+  Serial.print(F("Keypad: Pressed "));
+  Serial.println(_pressed_key_char);
+  Serial.println();
   return _pressed_key_char;
 }
 
@@ -115,9 +143,17 @@ toggle_keys(bool (&keys_are_pressed)[4][4]) {
 }
 
 void Keypad::
-pause_until_stopped_pressing() {
-  while (check_any_press())
+pause_until_threshold() {
+  _ms_held = 0;
+  while (isPressed()) {
     delay(10);
+    _ms_held += 10;
+    if (_ms_held == HOLD_THRESHOLD) {
+      Serial.println(F("Keypad: Button held."));
+      heldStatus = true;
+      break;
+    }
+  }
 }
 
 char Keypad::
