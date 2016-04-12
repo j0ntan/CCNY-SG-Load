@@ -31,7 +31,7 @@ clear_row(int row) {
 }
 
 void Liquid_Crystal_Display:: 
-show_message(String full_message) {
+showMessage(String full_message) {
   _interrupt_flag = false;
   
   // Setup for the (keypad) interrupt pins.
@@ -82,7 +82,7 @@ show_message(String full_message) {
 }
 
 void Liquid_Crystal_Display::
-show_message(String full_message, String speed) {
+showMessage(String full_message, String speed) {
   _interrupt_flag = false;
   
   // Setup for the (keypad) interrupt pins.
@@ -127,6 +127,10 @@ show_message(String full_message, String speed) {
   else if (speed == "faster") {
     interval_count = 15;
   }
+  else if (speed == "static") {
+    interval_count = 0;
+    _interrupt_flag = true;
+  }
   else {
     interval_count = 30; // normal speed
   }
@@ -153,19 +157,19 @@ show_caution_message(void) {
   caution += "     Caution!!      ";
   caution += "    !!Caution!!     ";
   caution += "                    ";
-  show_message(caution);
+  showMessage(caution);
 
   caution  = "                    ";
   caution += "    Grizzly bear    ";
   caution += "      inside!!      ";
   caution += "                    ";
-  show_message(caution);
+  showMessage(caution);
 
   caution  = "                    ";
   caution += "       DO NOT       ";
   caution += "       OPEN!!       ";
   caution += "                    ";
-  show_message(caution);
+  showMessage(caution);
   
   Serial.print(F("LCD: User has been warned about potential bears :D"));
   Serial.println();
@@ -173,7 +177,7 @@ show_caution_message(void) {
 }
 
 void Liquid_Crystal_Display::
-initialize(void) {
+begin(void) {
   Serial.println("LCD: Begin initialization.");
   
   _interrupt_flag = false;
@@ -191,7 +195,7 @@ initialize(void) {
   init_str += "   Smart Grid Lab   ";
   init_str += "  Prof. A. Mohamed  ";
   init_str += "      ST 6/643      ";
-  show_message(init_str);
+  showMessage(init_str);
   
   // Show 'caution' message at random initializations :)
   randomSeed(analogRead(0));
@@ -204,7 +208,7 @@ initialize(void) {
   init_str += "  Ready for input.  ";
   init_str += "                    ";
   init_str += "                    ";
-  show_message(init_str);
+  showMessage(init_str);
   
 
   Serial.println("LCD: LCD initialized.");

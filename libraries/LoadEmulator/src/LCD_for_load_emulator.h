@@ -21,7 +21,6 @@ Pins on the Arduino that connect to keypad. Used so that any
 keypress will set the interrupt flag to move on to the next
 message to be displayed on the LCD. */
 
-// Use for Arduino Mega board
 #define INTERRUPT_READ1 37
 #define INTERRUPT_READ2 36
 #define INTERRUPT_READ3 35
@@ -31,28 +30,16 @@ message to be displayed on the LCD. */
 #define INTERRUPT_WRITE3 31
 #define INTERRUPT_WRITE4 30
 
-/*
-// Use for Arduino Uno board
-#define INTERRUPT_READ1 13
-#define INTERRUPT_READ2 12
-#define INTERRUPT_READ3 11
-#define INTERRUPT_READ4 10
-#define INTERRUPT_WRITE1 7
-#define INTERRUPT_WRITE2 6
-#define INTERRUPT_WRITE3 5
-#define INTERRUPT_WRITE4 4
-*/
-
 class Liquid_Crystal_Display 
 {
 public:
   Liquid_Crystal_Display();
-  void initialize(void);
-  void show_caution_message(void);
-  void show_message(String message);
-  void show_message(String message, String speed);
+  void begin(void);
+  void showMessage(String message);
+  void showMessage(String message, String speed);
   
 private:
+  void show_caution_message(void);
   void clear_display(void);
   void clear_row(int row);
     

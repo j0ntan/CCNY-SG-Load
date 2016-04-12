@@ -32,16 +32,15 @@ LoadEmuXBee xb = LoadEmuXBee(Serial1);
 void setup() {
   Serial.begin(19200);
 
-  //keypad.setPins(4,5,6,7,10,11,12,13); // for Arduino Uno connection
-  keypad.setPins(37, 36, 35, 34, 33, 32, 31, 30);  // for Arduino Mega connection
+  //keypad.begin(4,5,6,7,10,11,12,13); // for Arduino Uno connection
   keypad.begin();
 
   shift_reg.set_Arduino_pins(7, 6, 5, 4);
   shift_reg.initialize(parser.shift_reg_data);
   //shift_reg.initialize(parser.shift_reg_bytes);
   
-  lcd.initialize();
-  lcd.show_message(parser.load_idle_status, "faster");
+  lcd.begin();
+  lcd.showMessage(parser.load_idle_status, "faster");
 
   // pins for DC relays:
   pinMode(22, OUTPUT);
@@ -57,12 +56,12 @@ void loop() {
       if (keypad.wasPressed()) {
         input_handler.accept_keypress( keypad.getKey() );
         if (input_handler.show_error_msg == true) {
-          lcd.show_message( input_handler.LCD_status, "fast" );
+          lcd.showMessage( input_handler.LCD_status, "fast" );
           input_handler.show_error_msg = false; // reset after showing msg once
           //lcd.show_message( input_handler.input_sequence, "faster" );
         }
         else if ( input_handler.ENTER_or_CANCEL_pressed == false ) {
-          lcd.show_message( input_handler.input_sequence, "faster" );
+          lcd.showMessage( input_handler.input_sequence, "faster" );
         }
       }
     }
@@ -77,8 +76,8 @@ void loop() {
     shift_reg.trigger_output();
     Activate_DC(parser.DC_value);
 
-    lcd.show_message( input_handler.LCD_status, "faster" );
-    lcd.show_message( parser.load_idle_status, "faster" );
+    lcd.showMessage( input_handler.LCD_status, "faster" );
+    lcd.showMessage( parser.load_idle_status, "faster" );
   }
   else if (Serial.available() > 0) {
     input_handler.accept_serial_port_input();
@@ -87,8 +86,8 @@ void loop() {
     shift_reg.send_serial_data();
     shift_reg.trigger_output();
 
-    lcd.show_message( input_handler.LCD_status );
-    lcd.show_message( parser.load_idle_status );
+    lcd.showMessage( input_handler.LCD_status );
+    lcd.showMessage( parser.load_idle_status );
   }
   else if (xb.received_data()) {
     xb.grab_data();
@@ -98,8 +97,8 @@ void loop() {
     shift_reg.send_serial_data();
     shift_reg.trigger_output();
 
-    lcd.show_message( input_handler.LCD_status );
-    lcd.show_message( parser.load_idle_status );
+    lcd.showMessage( input_handler.LCD_status );
+    lcd.showMessage( parser.load_idle_status );
   }
 }
 
