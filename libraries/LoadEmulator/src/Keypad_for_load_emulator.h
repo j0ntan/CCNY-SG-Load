@@ -3,14 +3,14 @@
 
 #include "Arduino.h"
 
-#define ROW1_PIN 30
-#define ROW2_PIN 31
-#define ROW3_PIN 32
-#define ROW4_PIN 33
-#define COL1_PIN 34
-#define COL2_PIN 35
-#define COL3_PIN 36
-#define COL4_PIN 37
+#define ROW1_PIN 37
+#define ROW2_PIN 36
+#define ROW3_PIN 35
+#define ROW4_PIN 34
+#define COL1_PIN 33
+#define COL2_PIN 32
+#define COL3_PIN 31
+#define COL4_PIN 30
 
 #define SENSITIVITY  80    // Milliseconds between reads.
                            // Lower is more sensitive.

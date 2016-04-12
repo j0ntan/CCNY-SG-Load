@@ -51,14 +51,13 @@ initialize() {
   _printed_keys[14] = '*';
   _printed_keys[15] = '#';
   
-  Serial.println(F("Keypad initialized."));
+  Serial.println(F("Keypad: Initialized."));
 }
 
 bool Keypad::
 check_any_press(void) {
   _key_is_pressed = !digitalRead(_row1) || !digitalRead(_row2) ||
                     !digitalRead(_row3) || !digitalRead(_row4);
-  delay(SENSITIVITY);
   return _key_is_pressed; 
 }
 
@@ -75,7 +74,8 @@ find_pressed_key() {
   }  
   else {
     _pressed_key_char = find_single_key();
-    Serial.print(F("Pressed: ")); Serial.println(_pressed_key_char);
+    Serial.print(F("Keypad: Pressed "));
+    Serial.println(_pressed_key_char);
   }
   pause_until_stopped_pressing();
   return _pressed_key_char;
@@ -117,7 +117,7 @@ toggle_keys(bool (&keys_are_pressed)[4][4]) {
 void Keypad::
 pause_until_stopped_pressing() {
   while (check_any_press())
-    delay(SENSITIVITY);
+    delay(10);
 }
 
 char Keypad::
