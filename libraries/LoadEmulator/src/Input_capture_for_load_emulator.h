@@ -20,6 +20,8 @@ public:
   void captureXBee(String xb_in);
   void captureDSpace(void);
 
+  // shared functions
+  bool isValid();
   // shared variables
   String captureStatus;
   String inputString;
@@ -28,5 +30,13 @@ public:
 private:
   // Keypad functions
   void reset_keypad_vars();
+
+  // shared functions
+  void reset_shared_vars();
+  void check_numbers_range(int num);
+  // shared variables
+  bool _Reset_flag;
+  int _counter;
+  bool _numbers_outof_range;
 };
 #endif
