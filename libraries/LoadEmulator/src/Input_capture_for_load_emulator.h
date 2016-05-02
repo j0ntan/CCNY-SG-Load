@@ -20,7 +20,7 @@ public:
   void captureSerialMonitor(void);
 
   // XBee functions
-  void linkXBee(HardwareSerial& serial);
+  void linkXBee(HardwareSerial *serial);
   bool XBeeGotData(void);
   void captureXBee(void);
 
@@ -40,6 +40,8 @@ private:
 
   // XBee functions
   void send_confirmation();
+  // XBee variables
+  HardwareSerial *_HardSerial;
 
   // shared functions
   void reset_shared_vars();

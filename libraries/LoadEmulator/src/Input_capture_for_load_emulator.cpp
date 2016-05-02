@@ -105,6 +105,54 @@ captureSerialMonitor(void) {
   captureStatus += "                    ";
 }
 
+// XBee functions
+void InputCapture::
+linkXBee(HardwareSerial *serial) {
+  _HardSerial = serial;
+  _HardSerial->begin(9600); // keep default baud rate for now
+}
+
+bool InputCapture::
+XBeeGotData(void) {
+  if (_HardSerial->available() > 0) {
+    Serial.println(F("XBee: Incoming data."));
+
+    return true;
+  }
+  else return false;
+}
+
+void InputCapture::
+captureXBee(void) {
+  delay(6); // allow time for buffer to receive XBee data
+  inputString = "";
+  while(_HardSerial->available() > 1) {
+    inputString += char(_HardSerial->read());
+    delay(1); // allow time for serial read execution
+  }
+  _HardSerial->read(); // read & discard the \CRLF byte from buffer
+
+  Serial.print(F("XBee: The received data is \""));
+  Serial.print(inputString);
+  Serial.println(F("\"")); Serial.println();
+
+  captureStatus  = "                    ";
+  captureStatus += " XBee received:     ";
+  captureStatus += inputString;
+  for (int i = 0; i < (20 - inputString.length()); i++) {
+    captureStatus += " ";
+  }
+  captureStatus += "                    ";
+
+  send_confirmation();
+}
+
+void InputCapture::
+send_confirmation() {
+  // Not yet implemented
+  _HardSerial->println("Input was received.");
+}
+
 // shared functions
 void InputCapture::
 reset_shared_vars() {
