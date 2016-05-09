@@ -1,6 +1,6 @@
 /*
   Author: Jonathan Gamboa
-  Date: 3/16/2016
+  Date: 5/3/2016
   Institution: Smart Grid Lab, City College of New York
 
   New control system for the load bank uses Shift Registers instead 
@@ -13,21 +13,18 @@
   the keypad, the LCD, the shift registers, an input handler, and a parser
   to interface user input with the hardware. */
 
-#include <Input_handler_for_load_emulator.h>
+#include <Input_capture_for_load_emulator.h>
 #include <Keypad_for_load_emulator.h>
 #include <LCD_for_load_emulator.h>
 #include <Parser_for_load_emulator.h>
-#include <Shift_Reg_for_load_emulator.h>
-#include <XBee_for_load_emulator.h>
+#include <shift_reg_for_load_emulator.h>
 
 
 Keypad keypad;
-Input_handler input_handler;
+InputCapture myInput;
 Parser parser;
-Shift_Registers shift_reg;
+Shift_Registers shiftReg;
 Liquid_Crystal_Display lcd;
-LoadEmuXBee xb = LoadEmuXBee(Serial1);
-
 
 void setup() {
   Serial.begin(19200);
@@ -35,12 +32,14 @@ void setup() {
   //keypad.begin(4,5,6,7,10,11,12,13); // for Arduino Uno connection
   keypad.begin();
 
-  shift_reg.set_Arduino_pins(7, 6, 5, 4);
-  shift_reg.initialize(parser.shift_reg_data);
-  //shift_reg.initialize(parser.shift_reg_bytes);
+  myInput.linkXBee(&Serial3);
+
+  shiftReg.set_Arduino_pins(7, 6, 5, 4);
+  shiftReg.initialize(parser.shift_reg_data);
+  //shiftReg.initialize(parser.shiftReg_bytes);
   
   lcd.begin();
-  lcd.showMessage(parser.load_idle_status, "faster");
+  lcd.showMessage(parser.load_idle_status, "static");
 
   // pins for DC relays:
   pinMode(22, OUTPUT);
@@ -51,56 +50,70 @@ void setup() {
 }
 
 void loop() {
-  if (keypad.wasPressed()) {
-    while ( input_handler.ENTER_or_CANCEL_pressed == false ) {
-      if (keypad.wasPressed()) {
-        input_handler.accept_keypress( keypad.getKey() );
-        if (input_handler.show_error_msg == true) {
-          lcd.showMessage( input_handler.LCD_status, "fast" );
-          input_handler.show_error_msg = false; // reset after showing msg once
-          //lcd.show_message( input_handler.input_sequence, "faster" );
-        }
-        else if ( input_handler.ENTER_or_CANCEL_pressed == false ) {
-          lcd.showMessage( input_handler.input_sequence, "faster" );
+  if (keypad.isPressed()) {
+    myInput.setKeypadActive();
+    while ( myInput.stillTakingKeypresses ) {
+      if (keypad.isPressed()) {
+        myInput.captureKeypress(keypad.heldStatus, keypad.getKey());
+        lcd.showMessage(myInput.captureStatus, "static");
+        while (keypad.isPressed()) {
+          // do nothing until key is depressed
         }
       }
     }
-    //Serial.print("My sequence is: "); // for debugging
-    Serial.println(input_handler.input_sequence);
-    // Reset this value for the next input sequence.
-    input_handler.ENTER_or_CANCEL_pressed = false;
+    lcd.showMessage(myInput.captureStatus, "fast");
+    if (myInput.isValid()) {
 
-    //input_handler.input_sequence = input_handler.input_sequence
-    parser.parse(input_handler.input_sequence);
-    shift_reg.send_serial_data();
-    shift_reg.trigger_output();
-    Activate_DC(parser.DC_value);
+      parser.parse(myInput.inputString);
+      lcd.showMessage(parser.load_idle_status, "static");
 
-    lcd.showMessage( input_handler.LCD_status, "faster" );
-    lcd.showMessage( parser.load_idle_status, "faster" );
+      shiftReg.send_serial_data();
+      shiftReg.trigger_output();
+      Activate_DC(parser.DC_value);
+    }
+    else {
+      lcd.showMessage(myInput.captureStatus, "slow");
+      lcd.showMessage(parser.load_idle_status, "static");
+    }
   }
   else if (Serial.available() > 0) {
-    input_handler.accept_serial_port_input();
-    
-    parser.parse(input_handler.input_sequence);
-    shift_reg.send_serial_data();
-    shift_reg.trigger_output();
+    myInput.captureSerialMonitor();
 
-    lcd.showMessage( input_handler.LCD_status );
-    lcd.showMessage( parser.load_idle_status );
+    if (myInput.isValid()) {
+      lcd.showMessage(myInput.captureStatus, "fast");
+
+      parser.parse(myInput.inputString);
+      lcd.showMessage(parser.load_idle_status, "static");
+
+      shiftReg.send_serial_data();
+      shiftReg.trigger_output();
+      Activate_DC(parser.DC_value);
+    }
+    else {
+      lcd.showMessage(myInput.captureStatus, "slow");
+      lcd.showMessage(parser.load_idle_status, "static");
+    }
   }
-  else if (xb.received_data()) {
-    xb.grab_data();
-    input_handler.accept_XBee_input(xb.input_sequence);
+  
+  else if (myInput.XBeeGotData()) {
+    myInput.captureXBee();
 
-    parser.parse(input_handler.input_sequence);
-    shift_reg.send_serial_data();
-    shift_reg.trigger_output();
+    if (myInput.isValid()) {
+      lcd.showMessage(myInput.captureStatus, "fast");
 
-    lcd.showMessage( input_handler.LCD_status );
-    lcd.showMessage( parser.load_idle_status );
+      parser.parse(myInput.inputString);
+      lcd.showMessage(parser.load_idle_status, "static");
+
+      shiftReg.send_serial_data();
+      shiftReg.trigger_output();
+      Activate_DC(parser.DC_value);
+    }
+    else {
+      lcd.showMessage(myInput.captureStatus, "slow");
+      lcd.showMessage(parser.load_idle_status, "static");
+    }
   }
-}
+} // end of loop()
 
 void Activate_DC(int DC_value) {
   switch (DC_value) {
