@@ -3,6 +3,9 @@
 
 #include "Arduino.h"
 
+/*
+Refer to report for names of keypad pins + connection to Arduino input
+pins. */
 #define ROW1_PIN 37
 #define ROW2_PIN 36
 #define ROW3_PIN 35
@@ -12,11 +15,13 @@
 #define COL3_PIN 31
 #define COL4_PIN 30
 
-#define SENSITIVITY  80    // Milliseconds between reads.
-                           // Lower is more sensitive.
+/*
+Milliseconds between reads. Lower is more sensitive. */
+#define SENSITIVITY  80
 
-#define HOLD_THRESHOLD 800   // <-- threshold in milliseconds
-                            // Defines PRESS(button) vs HOLD(button).
+/*
+Threshold in milliseconds. Defines HOLD(button) vs PRESS(button). */
+#define HOLD_THRESHOLD 800
 
 class Keypad
 {

@@ -5,6 +5,9 @@
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 
+/*
+Create object instance that directly controls the LCD. This object
+provides the methods used to write messages on the LCD. */
 LiquidCrystal_I2C my_lcd(I2C_ADDR, En_pin, 
                          Rw_pin, Rs_pin, 
                          D4_pin, D5_pin, D6_pin, D7_pin)
@@ -15,6 +18,8 @@ Liquid_Crystal_Display(){}
 
 void Liquid_Crystal_Display::
 clear_display(void) {
+  /*
+  This function clears the display by sending 4 blank rows to the LCD. */
   Serial.println(F("LCD: Clearing display."));
   Serial.println();
   
@@ -26,14 +31,23 @@ clear_display(void) {
 
 void Liquid_Crystal_Display::
 clear_row(int row) {
+  /*
+  This function clears a row of characters on the LCD by sending a line
+  that contains 20 spaces. */
   my_lcd.setCursor(0, row);
   my_lcd.print("                    ");
 }
 
 void Liquid_Crystal_Display:: 
 showMessage(String full_message) {
+  /*
+  This function takes a string that contains the four lines of text that
+  is to be displayed on the LCD. The string is displayed on the LCD and
+  a short pause follows so that the message can be read before the next
+  instruction. This display time can be interrupted and cut
+  short by pressing a button on the keypad. */
   _interrupt_flag = false;
-  
+
   // Setup for the (keypad) interrupt pins.
   pinMode(INTERRUPT_READ1, INPUT_PULLUP);
   pinMode(INTERRUPT_READ2, INPUT_PULLUP);
@@ -47,7 +61,7 @@ showMessage(String full_message) {
   digitalWrite(INTERRUPT_WRITE2, LOW);
   digitalWrite(INTERRUPT_WRITE3, LOW);
   digitalWrite(INTERRUPT_WRITE4, LOW);
-  
+
   Serial.println(F("LCD: Showing message"));
   Serial.println(F("********************"));
   Serial.println(full_message.substring( 0,20)); 
@@ -56,7 +70,8 @@ showMessage(String full_message) {
   Serial.println(full_message.substring(60));
   Serial.println(F("********************"));
   Serial.println();
-  
+
+  // Send message within string to LCD.
   my_lcd.setCursor (0, 0);
   my_lcd.print(full_message.substring( 0,20));
   my_lcd.setCursor (0, 1);
@@ -65,7 +80,8 @@ showMessage(String full_message) {
   my_lcd.print(full_message.substring(40,60));
   my_lcd.setCursor (0, 3);
   my_lcd.print(full_message.substring(60));
-  
+
+  // Pause until display time is finished or interrupt occurs.
   int i = 0;
   while(_interrupt_flag == false) {
     if (i < INTERVAL_COUNT && 
@@ -74,7 +90,6 @@ showMessage(String full_message) {
     }
     else {
       _interrupt_flag = true;
-      //Serial.println("LCD: Displayed message interrupted.");
     }
     delay(100);
     i++;
@@ -83,6 +98,13 @@ showMessage(String full_message) {
 
 void Liquid_Crystal_Display::
 showMessage(String full_message, String speed) {
+  /*
+  This function takes a string that contains the four lines of text that
+  is to be displayed on the LCD. The string is displayed on the LCD and
+  a short pause follows so that the message can be read before the next
+  instruction. This display time is determined by a second string that
+  contains the desired speed. This display time can be interrupted and
+  cut short by pressing a button on the keypad. */
   _interrupt_flag = false;
   
   // Setup for the (keypad) interrupt pins.
@@ -107,7 +129,8 @@ showMessage(String full_message, String speed) {
   Serial.println(full_message.substring(60));
   Serial.println(F("********************"));
   Serial.println();
-  
+
+  // Send message within string to LCD.
   my_lcd.setCursor (0, 0);
   my_lcd.print(full_message.substring( 0,20));
   my_lcd.setCursor (0, 1);
@@ -117,6 +140,7 @@ showMessage(String full_message, String speed) {
   my_lcd.setCursor (0, 3);
   my_lcd.print(full_message.substring(60));
   
+  // Set interval_count based on desired speed.
   int i = 0, interval_count;
   if (speed == "slow") {
     interval_count = 40;
@@ -134,6 +158,8 @@ showMessage(String full_message, String speed) {
   else {
     interval_count = 30; // normal speed
   }
+
+  // Pause until display time is finished or interrupt occurs.
   while(_interrupt_flag == false) {
     if (i < interval_count && 
        (digitalRead(INTERRUPT_READ1) && digitalRead(INTERRUPT_READ2) &&
@@ -150,6 +176,9 @@ showMessage(String full_message, String speed) {
 
 void Liquid_Crystal_Display::
 show_caution_message(void) {
+  /*
+  Shows a fun little message on the LCD about a bear inside the load ;) */
+  
   Serial.println(F("LCD: Showing \"CAUTION\" message ;)"));
   
   String caution;  
@@ -178,6 +207,8 @@ show_caution_message(void) {
 
 void Liquid_Crystal_Display::
 begin(void) {
+  /*
+  This function initializes the LCD and prints a start-up message. */
   Serial.println("LCD: Begin initialization.");
   
   _interrupt_flag = false;

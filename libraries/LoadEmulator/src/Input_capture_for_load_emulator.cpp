@@ -9,6 +9,7 @@ InputCapture() {
 // Keypad functions
 void InputCapture::
 setKeypadActive() {
+  // Set proper variabels to begin taking input.
   reset_keypad_vars();
   stillTakingKeypresses = true;
 }

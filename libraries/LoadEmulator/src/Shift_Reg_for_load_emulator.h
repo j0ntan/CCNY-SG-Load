@@ -8,7 +8,10 @@ Arduino and the relays. The currently installed lab setup uses the
 Arduino pins 4-7 for the Shift Register Clear, Shift Register Clock,
 Output Clock, and Data input pins of the shift register, 
 respectively. */
-// Default Arduino outputs for the shift register pins:
+/*
+Default Arduino outputs for the shift register pins.
+NOTE: Different manufacturers have different names for the same pin of the
+chip. Alternative possible names are provided below. */
 #define SERIAL_DATA     7   // or SERIAL_INPUT
 #define OUTPUT_CLK      6   // or STORAGE_REG_CLK
 #define SHIFT_REG_CLK   5
@@ -22,7 +25,6 @@ respectively. */
 #define ACTIVE_LOW 1
 
 #include "Arduino.h"
-
 
 
 class Shift_Registers
@@ -45,10 +47,9 @@ private:
   byte * _serial_byte_array;
   bool _serial_data_is_bytes;
   
-  //-------------Pins:-------------//
+  // Shift register pins
   int _serial_data, _shift_reg_clk;   // Only used when default pins
   int _output_clk, _shift_reg_clr;    // are changed with set_...();
-  
 };
 
 #endif

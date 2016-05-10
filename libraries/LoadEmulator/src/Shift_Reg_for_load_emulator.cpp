@@ -3,6 +3,9 @@
 
 Shift_Registers::
 Shift_Registers() {
+  /*
+  Assign default values to private class variables for the shift
+  register pins. */
   _serial_data = SERIAL_DATA;
   _output_clk = OUTPUT_CLK;
   _shift_reg_clk = SHIFT_REG_CLK;
@@ -13,6 +16,8 @@ Shift_Registers() {
 
 Shift_Registers::
 Shift_Registers(int IC_count) {
+  /*
+  Function is not used. Will probably be removed. */
   _serial_data = SERIAL_DATA;
   _output_clk = OUTPUT_CLK;
   _shift_reg_clk = SHIFT_REG_CLK;
@@ -23,6 +28,9 @@ Shift_Registers(int IC_count) {
 
 void Shift_Registers::
 set_Arduino_pins(int s_d, int o_clk, int SR_clk, int SR_clr) {
+  /*
+  This function is used to set the pins on the Arduino that control the
+  shift registers. This is for non-default values. */
   _serial_data = s_d;
   _output_clk = o_clk;
   _shift_reg_clk = SR_clk;
@@ -139,7 +147,7 @@ send_serial_data() {
     }
   }
   
-  // After sending serial data, keep pin low to reduce pwr consumption.
+  // keep pin low during idle state
   digitalWrite(_serial_data,    LOW);
   
   Serial.println(F("Shift Reg: Finished sending."));
@@ -147,6 +155,7 @@ send_serial_data() {
 
 void Shift_Registers::
 trigger_output() {
+  // send data to shift registers and activate output
   digitalWrite(_output_clk, HIGH);
   delay(OUTPUT_CLK_DELAY);
   digitalWrite(_output_clk,  LOW);

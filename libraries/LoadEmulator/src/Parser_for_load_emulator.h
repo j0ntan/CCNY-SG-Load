@@ -3,6 +3,9 @@
 
 #include "Arduino.h"
 
+/*
+Max size is determined by longest possible input sequence, e.g.
+A11B12C13D5* */
 #define INPUT_STR_MAX_SIZE 12
 
 class Parser
@@ -11,8 +14,8 @@ public:
   Parser();
   void parse(String);
   
-  bool shift_reg_data  [48]; // Bool values for 3-phase AC
-  byte shift_reg_bytes [6]; // Byte values for 3-phase AC
+  bool shift_reg_data  [48];  // Bool values for 3-phase AC
+  byte shift_reg_bytes [6];   // Byte values for 3-phase AC
   int DC_value;
   String load_idle_status;
 

@@ -71,11 +71,12 @@ void loop() {
       shiftReg.trigger_output();
       Activate_DC(parser.DC_value);
     }
-    else {
+    else {  // some error occurred with the input, display error message
       lcd.showMessage(myInput.captureStatus, "slow");
       lcd.showMessage(parser.load_idle_status, "static");
     }
-  }
+  } // end: if (keypad.isPressed())
+
   else if (Serial.available() > 0) {
     myInput.captureSerialMonitor();
 

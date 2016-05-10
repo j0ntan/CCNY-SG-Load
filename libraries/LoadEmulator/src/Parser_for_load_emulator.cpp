@@ -4,6 +4,8 @@
 
 Parser::
 Parser() {
+  /*
+  Initialize 3-phase + DC values and shift register data + byte values. */
   _A_value = 0;
   _B_value = 0;
   _C_value = 0;
@@ -32,9 +34,9 @@ parse(String input_str) {
   _A_pos = -1; _B_pos = -1;
   _C_pos = -1; _D_pos = -1;
 
-  
+
   _input_str = input_str;
-  
+
   source_correction();
   parse_data();
   create_shift_reg_data();
@@ -75,6 +77,10 @@ parse_data() {
     _input_str_len = 0;
   }
   
+  /*
+  Look at each character in the input string. If the character is
+  numerical, record the corresponding integer value in an array. If the character is a letter, record this by setting a flag true and recording
+  the position of this letter within the string. */
   for (int i = 0; i < _input_str_len; i++) {
     switch (_input_str[i])
     {
@@ -268,7 +274,8 @@ parse_data() {
         _C_value = 10 + _numerical_values[_C_pos + 2];
     }
   }
-  
+
+  // Set DC_value
   if (_D_state) {
     if (_numerical_values[_D_pos + 1] != 1)
       _D_value = _numerical_values[_D_pos + 1];
@@ -280,7 +287,8 @@ parse_data() {
     
     DC_value = _D_value;
   }    
-  
+
+  // RESET the load values
   if (_input_str == "*") {
     _A_value = 0;
     _B_value = 0;
@@ -299,8 +307,13 @@ parse_data() {
 
 void Parser::
 create_shift_reg_data() {
+  /*
+  This function creates an array of bool values that follows the state of
+  the relays for the 3-phases. The first 16 values correspond to the
+  ON/OFF state of the 16 relays in phase A. This is followed by the values
+  for relays in phase B, then C. */
   Serial.println("Parser: Shift register data values are");
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < 3; i++) { // i corresponds to the 3 phases
     for (int j = 0; j < 16; j++) {
       if (i == 0)
         if (j < _A_value)
@@ -327,6 +340,20 @@ create_shift_reg_data() {
 
 void Parser::
 create_shift_reg_bytes() {
+  /*
+  This function creates an array of bytes that follows the state of the
+  relays for the 3-phases. There are 2 bytes per phase, where each bit
+  corresponds to the ON/OFF state of a single relay. The mapping of a bit
+  to a relay for each phase is as follows:
+  byte:             1                         2
+  bits:   B7 B6 B5 B4 B3 B2 B1 B0   B7 B6 B5 B4 B3 B2 B1 B0
+  relay:   1  2  3  4  5  6  7  8    9 10 11 12 13 14 15 16
+
+  NOTE: This function is still incomplete. The array is not created yet
+  and instead of relying on the array of bools, it should determine the
+  relay states based on the integer class variables. This array is not
+  used in the main sketch at this moment. */
+
   Serial.println(F("Parser: Shift register byte values are"));
   byte temp_byte;
   for (int i = 0; i < 6;  i++) {
@@ -342,6 +369,9 @@ create_shift_reg_bytes() {
 
 void Parser::
 update_load_idle_status(void) {
+  /*
+  This function creates the string that contains the idle status of the
+  load relays after parsing, to be displayed on the LCD. */
   load_idle_status  = "Load status         ";
   
   

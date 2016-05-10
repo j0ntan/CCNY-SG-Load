@@ -4,6 +4,9 @@
 
 Keypad::
 Keypad() {
+  /*
+  Assign default values of Ardiuno row & column pins to private class
+  variables. */
   _row1 = ROW1_PIN;
   _row2 = ROW2_PIN;
   _row3 = ROW3_PIN;
@@ -16,11 +19,16 @@ Keypad() {
 
 void Keypad::
 begin() {
+  /*
+  Assign input pullup pins on Arduino for keypad row pins. */
   pinMode(_row1, INPUT_PULLUP);
   pinMode(_row2, INPUT_PULLUP);
   pinMode(_row3, INPUT_PULLUP);
   pinMode(_row4, INPUT_PULLUP);
 
+  /*
+  Assign output pins on Arduino for keypad column pins & set them
+  to a LOW initial/idle state. */
   pinMode(_col1, OUTPUT);
   pinMode(_col2, OUTPUT);
   pinMode(_col3, OUTPUT);
@@ -30,7 +38,9 @@ begin() {
   digitalWrite(_col3, 0);
   digitalWrite(_col4, 0);
 
-  // Stores an array of chars in this order: [0-9, A-D, *, #]
+  /*
+  Stores an array of chars in the order: [0,1,...,9,A,B,C,D,*,#]. These
+  are the characters that are printed on the physical keypad. */
   for (int i = 0; i < 10; i++)
     _printed_keys[i] = char(i + int('0'));
   for (int i = 0; i < 4; i++)
@@ -44,6 +54,9 @@ begin() {
 void Keypad::
 begin(int R1, int R2, int R3, int R4,
       int C1, int C2, int C3, int C4) {
+  /*
+  Assigns non-default values to row & column pins. Useful when testing
+  some code and using some convenient pins on the Arduino. */
   _row1 = R1;
   _row2 = R2;
   _row3 = R3;
@@ -53,11 +66,16 @@ begin(int R1, int R2, int R3, int R4,
   _col3 = C3;
   _col4 = C4;
 
+  /*
+  Assign input pullup pins on Arduino for keypad row pins. */
   pinMode(_row1, INPUT_PULLUP);
   pinMode(_row2, INPUT_PULLUP);
   pinMode(_row3, INPUT_PULLUP);
   pinMode(_row4, INPUT_PULLUP);
   
+  /*
+  Assign output pins on Arduino for keypad column pins & set them
+  to a LOW initial/idle state. */
   pinMode(_col1, OUTPUT);
   pinMode(_col2, OUTPUT);
   pinMode(_col3, OUTPUT);
@@ -67,7 +85,9 @@ begin(int R1, int R2, int R3, int R4,
   digitalWrite(_col3, 0);
   digitalWrite(_col4, 0);
   
-  // Stores an array of chars in this order: [0-9, A-D, *, #]
+  /*
+  Stores an array of chars in the order: [0,1,...,9,A,B,C,D,*,#]. These
+  are the characters that are printed on the physical keypad. */
   for (int i = 0; i < 10; i++)
     _printed_keys[i] = char(i + int('0'));
   for (int i = 0; i < 4; i++)
@@ -80,6 +100,9 @@ begin(int R1, int R2, int R3, int R4,
 
 bool Keypad::
 isPressed(void) {
+  /*
+  This function returns true when a key or multiple keys are pressed.
+  Refer to report for a description of how a press is detected. */
   _key_is_pressed = !digitalRead(_row1) || !digitalRead(_row2) ||
                     !digitalRead(_row3) || !digitalRead(_row4);
   return _key_is_pressed; 
@@ -87,9 +110,15 @@ isPressed(void) {
 
 char Keypad::
 getKey() {
+  /*
+  This function returns a character that corresponds to the key that was
+  pressed. When multiple keys are pressed, the character '!' is
+  returned. */
   bool keys_are_pressed[4][4] = { {0,0,0,0}, {0,0,0,0},
                                   {0,0,0,0}, {0,0,0,0} };  
 
+  /*
+  Keypad pins are toggled to determine how many keys were pressed. */
   toggle_keys(keys_are_pressed);
   
   if (_keypress_count > 1) {
@@ -100,6 +129,7 @@ getKey() {
     _pressed_key_char = find_single_key();
   }
 
+  // Detect a button HOLD event
   heldStatus = false;
   pause_until_threshold();
 
@@ -111,11 +141,15 @@ getKey() {
 
 void Keypad::
 toggle_keys(bool (&keys_are_pressed)[4][4]) {
+  /*
+  This function toggles certain keypad output pins to determine which
+  keys have been pressed. Refer to the report for a detailed description
+  of this algorithm. */
   int rows[4] = {_row1, _row2, _row3, _row4};
   int cols[4] = {_col1, _col2, _col3, _col4};
   _keypress_count = 0;
 
-  
+  // Toggling occurs.
   for (int row_index = 0; row_index < 4; row_index++) {
     if (digitalRead(rows[row_index]) == 0)
       for (int col_index = 0; col_index < 4; col_index++) {
@@ -129,25 +163,20 @@ toggle_keys(bool (&keys_are_pressed)[4][4]) {
         digitalWrite(cols[col_index],  LOW);
       }
   }
-  
-  /*
-  // Use for debugging/display keypresses on serial monitor
-  for (int i = 0; i < 4; i++) {
-    for (int j = 0; j < 4; j++) {
-      Serial.print(keys_are_pressed[i][j]);
-      Serial.print(' ');
-    }
-  }
-  */
+
   delay(SENSITIVITY);
 }
 
 void Keypad::
 pause_until_threshold() {
+  /*
+  This function detects the event where a button has been held for a
+  longer time than the threshold value. At this event, a flag is set true
+  and the pressed key character is returned by the calling function. */
   _ms_held = 0;
   while (isPressed()) {
     delay(10);
-    _ms_held += 10;
+    _ms_held += 10; // keeps track of time in 10 ms increments
     if (_ms_held == HOLD_THRESHOLD) {
       Serial.println(F("Keypad: Button held."));
       heldStatus = true;
@@ -158,6 +187,11 @@ pause_until_threshold() {
 
 char Keypad::
 find_single_key() {
+  /*
+  This fucntion determines the character corresponding to a single keypad
+  press using the row and column as coordinates and a mapping to the
+  printed character on the keypad. Refer to report for a visual
+  description of this mapping. */
   switch (_row_pressed*4 + _col_pressed) {
     case 0: return '1';
     case 1: return '2';
@@ -175,6 +209,6 @@ find_single_key() {
     case 13: return '0';
     case 14: return '#';
     case 15: return 'D';
-    default: return '?';
+    default: return '?';  // case should not occur
   }
 }
