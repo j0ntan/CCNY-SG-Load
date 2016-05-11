@@ -62,7 +62,11 @@ void loop() {
       }
     }
     lcd.showMessage(myInput.captureStatus, "fast");
-    if (myInput.isValid()) {
+
+    if (myInput.inputString.length() == 0) {  // no change to the load
+      lcd.showMessage(parser.load_idle_status, "static");
+    }
+    else if (myInput.isValid()) { // the input is accepted and the relays are updated
 
       parser.parse(myInput.inputString);
       lcd.showMessage(parser.load_idle_status, "static");

@@ -24,19 +24,33 @@ captureKeypress(bool heldStatus, char keypress) {
   keypress to right results in correct execution. */
 
   if (keypress == '*') {
-    if (heldStatus == true) {
+    if (heldStatus == true && inputString.length() > 0  ) {
       // CANCEL input sequence
       reset_keypad_vars();
-      inputString = "A*";
+      //reset_shared_vars();
       stillTakingKeypresses = false;
       Serial.println(F("Input capture: Pressed CANCEL."));
-      captureStatus  = "                     ";
-      captureStatus += "Pressed CANCEL.      ";
-      captureStatus += "Resetting input.     ";
-      captureStatus += "                     ";
+      captureStatus  = "                    ";
+      captureStatus += "Pressed CANCEL.     ";
+      captureStatus += "Resetting input     ";
+      captureStatus += "sequence.           ";
+      inputString = "";
+      delay(250); // to prevent false keypress detection after a HOLD
     }
-    else {
-      if (inputString.length() > 0) {
+    else if (heldStatus == true && inputString.length() == 0) {
+      // Reset the load
+      reset_keypad_vars();
+      stillTakingKeypresses  = false;
+      Serial.println(F("Input capture: Pressed RESET."));
+      captureStatus  = "                    ";
+      captureStatus += " Pressed RESET.     ";
+      captureStatus += "Resetting relays.   ";
+      captureStatus += "                    ";
+
+      inputString = "*";
+      delay(250); // to prevent false keypress detection after a HOLD
+    }
+    else if (heldStatus == false && inputString.length() > 0) {
         // Erase last input from string
         Serial.println(F("Input capture: Pressed ERASE."));
         inputString.remove(inputString.length() - 1);
@@ -45,15 +59,14 @@ captureKeypress(bool heldStatus, char keypress) {
         captureStatus += inputString;
         captureStatus += "                    ";
         captureStatus += "                    ";
-      }
-      else {
-        // Cannot erase from empty string
-        Serial.println(F("Input seq: Cannot ERASE."));
-        captureStatus  = "                    ";
-        captureStatus += "    Cannot erase    ";
-        captureStatus += "   empty sequence.  ";
-        captureStatus += "                    ";
-      }
+    }
+    else if (heldStatus == false && inputString.length() == 0) {
+      // Cannot erase from empty string
+      Serial.println(F("Input seq: Cannot ERASE."));
+      captureStatus  = "                    ";
+      captureStatus += "    Cannot erase    ";
+      captureStatus += "   empty sequence.  ";
+      captureStatus += "                    ";
     }
   }
   else if (keypress == '#') {
