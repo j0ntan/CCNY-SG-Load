@@ -275,12 +275,12 @@ isValid() {
   }
 
   // Must follow: A before B, before C, before D
-  else if ( ((_A_pos > _B_pos) && _B_count > 0) ||
-            ((_A_pos > _C_pos) && _C_count > 0) ||
-            ((_A_pos > _D_pos) && _D_count > 0) ||
-            ((_B_pos > _C_pos) && _C_count > 0) ||
-            ((_B_pos > _D_pos) && _D_count > 0) ||
-            ((_C_pos > _D_pos) && _D_count > 0) ) {
+  else if ( ((_A_pos > _B_pos) && _A_count > 0 && _B_count > 0) ||
+            ((_A_pos > _C_pos) && _A_count > 0 && _C_count > 0) ||
+            ((_A_pos > _D_pos) && _A_count > 0 && _D_count > 0) ||
+            ((_B_pos > _C_pos) && _B_count > 0 && _C_count > 0) ||
+            ((_B_pos > _D_pos) && _B_count > 0 && _D_count > 0) ||
+            ((_C_pos > _D_pos) && _C_count > 0 && _D_count > 0) ) {
     Serial.println(F("Input capture: ABCD must be in order."));
     captureStatus  = "                    ";
     captureStatus += "    ABCD must be    ";

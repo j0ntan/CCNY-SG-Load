@@ -61,7 +61,7 @@ void loop() {
         }
       }
     }
-    lcd.showMessage(myInput.captureStatus, "fast");
+    lcd.showMessage(myInput.captureStatus, "faster");
 
     if (myInput.inputString.length() == 0) {  // no change to the load
       lcd.showMessage(parser.load_idle_status, "static");
@@ -85,7 +85,7 @@ void loop() {
     myInput.captureSerialMonitor();
 
     if (myInput.isValid()) {
-      lcd.showMessage(myInput.captureStatus, "fast");
+      lcd.showMessage(myInput.captureStatus, "faster");
 
       parser.parse(myInput.inputString);
       lcd.showMessage(parser.load_idle_status, "static");
