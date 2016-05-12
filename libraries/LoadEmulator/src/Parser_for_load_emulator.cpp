@@ -79,7 +79,8 @@ parse_data() {
   
   /*
   Look at each character in the input string. If the character is
-  numerical, record the corresponding integer value in an array. If the character is a letter, record this by setting a flag true and recording
+  numerical, record the corresponding integer value in an array. If the 
+  character is a letter, record this by setting a flag true and recording
   the position of this letter within the string. */
   for (int i = 0; i < _input_str_len; i++) {
     switch (_input_str[i])
@@ -294,6 +295,7 @@ parse_data() {
     _B_value = 0;
     _C_value = 0;
     _D_value = 0;
+    DC_value = 0;
   }
   
   // Print current values for each phase.
