@@ -99,13 +99,32 @@ void loop() {
       lcd.showMessage(parser.load_idle_status, "static");
     }
   }
-  
-  else if (myInput.XBeeGotData()) {
+
+  else if (myInput.XBeeGotData()&&0) {
     myInput.captureXBee();
 
     if (myInput.isValid()) {
       lcd.showMessage(myInput.captureStatus, "fast");
 
+      parser.parse(myInput.inputString);
+      lcd.showMessage(parser.load_idle_status, "static");
+
+      shiftReg.send_serial_data();
+      shiftReg.trigger_output();
+      Activate_DC(parser.DC_value);
+    }
+    else {
+      lcd.showMessage(myInput.captureStatus, "slow");
+      lcd.showMessage(parser.load_idle_status, "static");
+    }
+  }
+
+  else if (myInput.dSPACEavailable()) {
+    myInput.dSPACErxActive = true;
+
+    myInput.captureRXdSPACE();
+
+    if (myInput.isValid()) {
       parser.parse(myInput.inputString);
       lcd.showMessage(parser.load_idle_status, "static");
 

@@ -5,6 +5,8 @@
 
 #define SIZE 12 // max characters that will be stored/handled
 
+enum Phase {A, B, C, DC};
+
 class InputCapture
 {
 public:
@@ -20,14 +22,17 @@ public:
   void captureSerialMonitor(void);
 
   // XBee functions
-  void linkXBee(HardwareSerial *serial);
   bool XBeeGotData(void);
   void captureXBee(void);
 
-  // DSpace functions
-  void captureDSpace(void);
+  // dSPACE functions
+  bool dSPACEavailable(void);
+  void captureRXdSPACE(void);
+  //dSPACE variables
+  bool dSPACErxActive;
 
   // shared functions
+  void linkXBee(HardwareSerial *serial);
   bool isValid();
   // shared variables
   String captureStatus;
@@ -40,8 +45,17 @@ private:
 
   // XBee functions
   void send_confirmation();
-  // XBee variables
-  HardwareSerial *_HardSerial;
+
+  //dSPACE functions
+  void reset_dSPACE_vars(void);
+  int read_dSPACE_int(void);
+  void cancel_dSPACE(void);
+  void erase_last_dSPACE(void);
+  void reset_dSPACE(void);
+  void enter_dSPACE(void);
+  void request_dSPACE(Phase);
+  //dSPACE variables
+  int _previous_int, _current_int;
 
   // shared functions
   void reset_shared_vars();
@@ -50,5 +64,6 @@ private:
   bool _Reset_flag;
   int _counter;
   bool _numbers_outof_range;
+  HardwareSerial *_HardSerial;
 };
 #endif
