@@ -28,6 +28,8 @@ public:
   // dSPACE functions
   bool dSPACEavailable(void);
   void captureRXdSPACE(void);
+  void captureManBal();
+  void setProfile(int step);
   //dSPACE variables
   bool dSPACErxActive;
 
@@ -56,6 +58,7 @@ private:
   void request_dSPACE(Phase);
   //dSPACE variables
   int _previous_int, _current_int;
+  const String _profile[18];
 
   // shared functions
   void reset_shared_vars();

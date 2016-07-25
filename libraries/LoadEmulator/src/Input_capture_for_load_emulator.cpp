@@ -1,7 +1,8 @@
 #include "Input_capture_for_load_emulator.h"
 
 InputCapture::
-InputCapture() {
+InputCapture() :
+_profile({"0", "2", "4", "6", "8", "10", "12", "14", "16", "15", "13", "11", "9", "7", "5", "3", "1", "0"}) {
   reset_keypad_vars();
   reset_dSPACE_vars();
   reset_shared_vars();
@@ -289,6 +290,52 @@ captureRXdSPACE(void) {
   Serial.println("dSPACE: Going idle.\n");
 
   reset_dSPACE_vars();
+}
+
+void InputCapture::
+captureManBal(void) {
+  delay(100); // allow time for all serial data to arrive
+  inputString = "ABC";
+
+  while (_HardSerial->available() > 0) {
+    _current_int = read_dSPACE_int() - 29;
+
+    if (_current_int != _previous_int) {
+      _previous_int = _current_int;
+
+      Serial.print("dSPACE: Got value ");
+      Serial.println(_current_int);
+    }
+    delay(5); // allow time for all serial data to arrive
+  }
+
+  switch (_current_int) {
+        case 0: inputString += '0'; break;
+        case 1: inputString += '1'; break;
+        case 2: inputString += '2'; break;
+        case 3: inputString += '3'; break;
+        case 4: inputString += '4'; break;
+        case 5: inputString += '5'; break;
+        case 6: inputString += '6'; break;
+        case 7: inputString += '7'; break;
+        case 8: inputString += '8'; break;
+        case 9: inputString += '9'; break;
+        case 10: inputString += '10'; break;
+        case 11: inputString += '11'; break;
+        case 12: inputString += '12'; break;
+        case 13: inputString += '13'; break;
+        case 14: inputString += '14'; break;
+        case 15: inputString += '15'; break;
+        case 16: inputString += '16'; break;
+        default: break;
+  }
+
+  reset_dSPACE_vars();
+}
+
+void InputCapture::
+setProfile(int step) {
+  inputString = "ABC" + _profile[ step ];
 }
 
 // shared functions
