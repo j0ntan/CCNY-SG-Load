@@ -1,0 +1,49 @@
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+Display			KEYWORD1
+SDprofile		KEYWORD1
+ShiftRegister	KEYWORD1
+Encoder			KEYWORD1
+KeypadCol		KEYWORD1
+SerialCol		KEYWORD1
+dspaceCol		KEYWORD1
+dsProfileCol	KEYWORD1
+dsManualCol		KEYWORD1
+Scanner			KEYWORD1
+Parser			KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+showMessage		KEYWORD2
+isCollecting	KEYWORD2
+collectKeypress	KEYWORD2
+waitKeyRelease	KEYWORD2
+getInput		KEYWORD2
+getIdleState	KEYWORD2
+getColMsg		KEYWORD2
+getSpeed		KEYWORD2
+profileModeRequested	KEYWORD2
+openFile		KEYWORD2
+readLine		KEYWORD2
+getDelay		KEYWORD2
+collectInt		KEYWORD2
+scan			KEYWORD2
+parse			KEYWORD2
+encode			KEYWORD2
+outputData		KEYWORD2
+getACEncodedValues		KEYWORD2
+getDCValue		KEYWORD2
+getErrMsg		KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+Speed	LITERAL1
+STATIC	LITERAL1
+NORMAL	LITERAL1
+SLOW	LITERAL1
