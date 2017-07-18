@@ -1,0 +1,1 @@
+This directory contains frames that can be sent to an XBee device using the XCTU software by Digi. The frames contain a payload that is transmitted by the XBee device. This allows us to test different inputs by XBee transmission.

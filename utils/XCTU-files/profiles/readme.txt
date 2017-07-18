@@ -1,0 +1,1 @@
+This directory contains the XBee profiles for XBee devices connected to the Smart Grid Load and to a microgrid central controller (MGCC). Currently, the MGCC is a dSPACE controller. The current configuration uses the AT mode, for simplicity (refer to XBee docs regarding AT vs API mode). A future, more secure implementation will utilize the API mode with the built-in encryption.
