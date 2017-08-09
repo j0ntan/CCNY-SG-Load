@@ -1,0 +1,21 @@
+Sending these packets to the Arduino through an XBee should trigger the dSPACE input mode. This mode is used to manually control the load through the dSPACE controller that is hooked up to an XBee.
+
+A1B2C3D2, ENTER:
+17 17 17 17 17 17 1 1 1 1 18 18 2 2 2 2 2 19 19 19 19 19 19 19 19 19 3 3 3 20 20 20 20 20 20 20 20 20 2 2
+
+ABC4, ENTER:
+17 17 17 17 17 17 17 17 18 18 18 18 18 18 18 19 19 19 4 4 4 4
+
+RESET:
+23 23 23 23 23 23
+
+ABC4, CANCEL:
+17 17 17 17 17 17 17 17 18 18 18 18 18 18 18 19 19 19 4 4 4 4 21 21 21 21 21 21
+
+ABC4, ERASE, 8
+17 17 17 17 17 17 17 17 18 18 18 18 18 18 18 19 19 19 4 4 4 4 22 22 22 22 22 8 8 8 8 8 8 8
+
+dSPACE profile 1
+46 46 46 46 46 46 46 46 46 46 46 46 46 46 46 46 46 46 46 46
+47 47 47 47 47 47 47 47 47 47 47 47 47 47 47 47 47 47 47 47
+48 48 48 48 48 48 48 48 48 48 48 48 48 48 48 48 48 48 48 48
