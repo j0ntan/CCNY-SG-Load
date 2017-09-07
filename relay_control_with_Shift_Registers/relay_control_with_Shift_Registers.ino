@@ -62,5 +62,3 @@ void loop() {
   version of the code should be able to run without this delay. */
   delay(300);
 }
-
-

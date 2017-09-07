@@ -84,4 +84,3 @@ void loop()
 
   delay(5000);           // wait 5 seconds for next scan
 }
-
