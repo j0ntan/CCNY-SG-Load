@@ -85,11 +85,10 @@ void Liquid_Crystal_Display::
 show_caution_message(void) {
   Serial.println("LCD: Showing \"CAUTION\" message ;)");
   
-  
   String caution;  
   caution  = "                    ";
-  caution += "      Caution!      ";
-  caution += "     Caution!!!     ";
+  caution += "     Caution!!      ";
+  caution += "    !!Caution!!     ";
   caution += "                    ";
   show_message(caution);
 
@@ -101,7 +100,7 @@ show_caution_message(void) {
 
   caution  = "                    ";
   caution += "       DO NOT       ";
-  caution += "      OPEN!!!!      ";
+  caution += "       OPEN!!       ";
   caution += "                    ";
   show_message(caution);
   
