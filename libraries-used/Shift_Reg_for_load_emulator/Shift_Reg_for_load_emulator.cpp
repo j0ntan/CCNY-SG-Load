@@ -46,7 +46,7 @@ initialize(bool *serial_data_array) {
   // Set initial states of shift register pins.
   digitalWrite(_shift_reg_clk, LOW);
   digitalWrite(_output_clk,    LOW);
-  digitalWrite(_serial_data,   LOW);
+  digitalWrite(_serial_data,   LOW || ACTIVE_LOW);
   digitalWrite(_shift_reg_clr, HIGH);
   
   // Set relays to be in OFF state at startup.
@@ -83,7 +83,7 @@ initialize(byte *serial_data_array) {
   // Set initial states of ouptut pins.
   digitalWrite(_shift_reg_clk, LOW);
   digitalWrite(_output_clk,    LOW);
-  digitalWrite(_serial_data,   LOW);
+  digitalWrite(_serial_data,   LOW || ACTIVE_LOW);
   digitalWrite(_shift_reg_clr, HIGH);
   
   for (int i = 0; i < 48; i++) {
@@ -117,7 +117,7 @@ send_serial_data() {
     for (int i = 6 - 1; i > -1; i--) {
       for (int j = 0; j < 8; j++) {
         relay_state_bit = (*_serial_byte_array & (B00000001 << j)) >> j;
-        digitalWrite(_serial_data, relay_state_bit);
+        digitalWrite(_serial_data, relay_state_bit ^ ACTIVE_LOW);
       
         digitalWrite(_shift_reg_clk, HIGH);
         delay(SHIFT_REG_CLK_DELAY);
@@ -129,9 +129,8 @@ send_serial_data() {
       
   }
   else {
-    _serial_data_array += (_output_size - 1);
-    for (int i = _output_size - 1; i > -1; i--) {
-      digitalWrite(_serial_data, *_serial_data_array);
+    for (int i = _output_size - 1; i > -1; i--) {      
+      digitalWrite(_serial_data, *(_serial_data_array + i) ^ ACTIVE_LOW);
       
       digitalWrite(_shift_reg_clk, HIGH);
       delay(SHIFT_REG_CLK_DELAY);

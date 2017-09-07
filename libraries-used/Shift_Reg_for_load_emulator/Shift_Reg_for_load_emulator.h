@@ -18,7 +18,12 @@ respectively. */
 #define SHIFT_REG_CLK_DELAY 10
 #define OUTPUT_CLK_DELAY 10
 
-//#include "Arduino.h"
+// Set to 0 or 1 to Turn OFF or ON active low outputs, respectively
+#define ACTIVE_LOW 1
+
+#include "Arduino.h"
+
+
 
 class Shift_Registers
 {
