@@ -37,8 +37,15 @@ void setup() {
   shift_reg.set_Arduino_pins(7, 6, 5, 4);
   shift_reg.initialize(parser.shift_reg_data);
   //shift_reg.initialize(parser.shift_reg_bytes);
+  
   lcd.initialize();
   lcd.show_message(parser.load_idle_status, "faster");
+
+  pinMode(22, OUTPUT);
+  pinMode(23, OUTPUT);
+  digitalWrite(22, LOW);
+  digitalWrite(23, LOW);
+  
 }
 
 void loop() {
@@ -56,7 +63,7 @@ void loop() {
         }
       }
     }
-    Serial.print("My sequence is: ");
+    //Serial.print("My sequence is: "); // for debugging
     Serial.println(input_handler.input_sequence);
     // Reset this value for the next input sequence.
     input_handler.ENTER_or_CANCEL_pressed = false;
@@ -65,6 +72,7 @@ void loop() {
     parser.parse(input_handler.input_sequence);
     shift_reg.send_serial_data();
     shift_reg.trigger_output();
+    Activate_DC(parser.DC_value);
 
     lcd.show_message( input_handler.LCD_status, "faster" );
     lcd.show_message( parser.load_idle_status, "faster" );
@@ -78,5 +86,26 @@ void loop() {
 
     lcd.show_message( input_handler.LCD_status );
     lcd.show_message( parser.load_idle_status );
+  }
+}
+
+void Activate_DC(int DC_value) {
+  switch (DC_value) {
+    case 0:
+      digitalWrite(22, LOW);
+      digitalWrite(23, LOW);
+      break;
+    case 1:
+      digitalWrite(22, HIGH);
+      digitalWrite(23, LOW);
+      break;
+    case 2:
+      digitalWrite(22, HIGH);
+      digitalWrite(23, HIGH);
+      break;
+    default:
+      digitalWrite(22, LOW);
+      digitalWrite(23, LOW);
+      break;
   }
 }
