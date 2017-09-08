@@ -18,6 +18,7 @@
 #include "Parser_for_load_emulator.h"
 #include "Shift_Reg_for_load_emulator.h"
 #include "LCD_for_load_emulator.h"
+#include "XBee_for_load_emulator.h"
 
 
 Keypad keypad;
@@ -25,6 +26,7 @@ Input_handler input_handler;
 Parser parser;
 Shift_Registers shift_reg;
 Liquid_Crystal_Display lcd;
+LoadEmuXBee xb = LoadEmuXBee(Serial1);
 
 
 void setup() {
@@ -77,9 +79,20 @@ void loop() {
     lcd.show_message( input_handler.LCD_status, "faster" );
     lcd.show_message( parser.load_idle_status, "faster" );
   }
-  if (Serial.available() > 0) {
+  else if (Serial.available() > 0) {
     input_handler.accept_serial_port_input();
     
+    parser.parse(input_handler.input_sequence);
+    shift_reg.send_serial_data();
+    shift_reg.trigger_output();
+
+    lcd.show_message( input_handler.LCD_status );
+    lcd.show_message( parser.load_idle_status );
+  }
+  else if (xb.received_data()) {
+    xb.grab_data();
+    input_handler.accept_XBee_input(xb.input_sequence);
+
     parser.parse(input_handler.input_sequence);
     shift_reg.send_serial_data();
     shift_reg.trigger_output();
