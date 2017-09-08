@@ -125,7 +125,7 @@ showMessage(String full_message, String speed) {
     interval_count = 20;
   }
   else if (speed == "faster") {
-    interval_count = 15;
+    interval_count = 6;
   }
   else if (speed == "static") {
     interval_count = 0;
@@ -195,7 +195,7 @@ begin(void) {
   init_str += "   Smart Grid Lab   ";
   init_str += "  Prof. A. Mohamed  ";
   init_str += "      ST 6/643      ";
-  showMessage(init_str);
+  showMessage(init_str, "slow");
   
   // Show 'caution' message at random initializations :)
   randomSeed(analogRead(0));
@@ -208,7 +208,7 @@ begin(void) {
   init_str += "  Ready for input.  ";
   init_str += "                    ";
   init_str += "                    ";
-  showMessage(init_str);
+  showMessage(init_str, "faster");
   
 
   Serial.println("LCD: LCD initialized.");

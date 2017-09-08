@@ -26,9 +26,9 @@ captureKeypress(bool heldStatus, char keypress) {
     if (heldStatus == true) {
       // CANCEL input sequence
       reset_keypad_vars();
-      inputString = "*";
+      inputString = "A*";
       stillTakingKeypresses = false;
-      Serial.println(F("Input seq: Pressed CANCEL."));
+      Serial.println(F("Input capture: Pressed CANCEL."));
       captureStatus  = "                     ";
       captureStatus += "Pressed CANCEL.      ";
       captureStatus += "Resetting input.     ";
@@ -37,10 +37,10 @@ captureKeypress(bool heldStatus, char keypress) {
     else {
       if (inputString.length() > 0) {
         // Erase last input from string
-        Serial.println(F("Input seq: Pressed ERASE."));
+        Serial.println(F("Input capture: Pressed ERASE."));
         inputString.remove(inputString.length() - 1);
         captureStatus  = "Erased last input.  ";
-        captureStatus += "Input sequence:     ";
+        captureStatus += "Current sequence:     ";
         captureStatus += inputString;
         captureStatus += "                    ";
         captureStatus += "                    ";
@@ -59,10 +59,10 @@ captureKeypress(bool heldStatus, char keypress) {
     // ENTER finishes input sequence
     stillTakingKeypresses = false;
 
-    Serial.println(F("Input seq: Pressed ENTER."));
+    Serial.println(F("Input capture: Pressed ENTER."));
     captureStatus  = "                    ";
     captureStatus += "Pressed ENTER.      ";
-    captureStatus += "Activating relays.  ";
+    captureStatus += "                    ";
     captureStatus += "                    ";
   }
   else {
@@ -220,6 +220,15 @@ isValid() {
     return true;
   }
 
+  else if (_Reset_flag && inputString.length() > 1) {
+    Serial.print(F("Input capture: Pressed Cancel."));
+    Serial.println(F("Nothing to change."));
+    captureStatus  = "   Pressed Cancel.  ";
+    captureStatus += "  Resetting input   ";
+    captureStatus += "     sequence.      ";
+    captureStatus += "                    ";
+  }
+
   else if (inputString.length() > 11) {
     Serial.println(F("Input capture: Too many inputs."));
     captureStatus  = "                    ";
@@ -281,10 +290,10 @@ isValid() {
 
   else {
     Serial.println(F("Input capture: Input is validated."));
-    captureStatus  = "                    ";
-    captureStatus += "      Input is      ";
+    captureStatus  = "      Input is      ";
     captureStatus += "     validated.     ";
-    captureStatus += "                    ";
+    captureStatus += "     Activating     ";
+    captureStatus += "       output.      ";
 
     return true;
   }
