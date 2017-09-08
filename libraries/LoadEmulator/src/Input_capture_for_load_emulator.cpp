@@ -88,8 +88,21 @@ reset_keypad_vars(void) {
   inputString = "";
 }
 
+// Serial monitor functions
+void InputCapture::
+captureSerialMonitor(void) {
+  delay(6); // allow time for serial buffer to fill
   inputString = "";
-  captureStatus = "";
+  while (Serial.available() > 0) {
+    inputString += char(Serial.read());
+  }
+  int inputSize = inputString.length();
+  Serial.print(F("Input capture: Received serial input "));
+  Serial.println(inputString);
+  captureStatus  = "                    ";
+  captureStatus += "     Received a     ";
+  captureStatus += "    serial input.   ";
+  captureStatus += "                    ";
 }
 
 // shared functions

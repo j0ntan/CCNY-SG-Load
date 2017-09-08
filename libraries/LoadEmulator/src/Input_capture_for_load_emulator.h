@@ -16,8 +16,15 @@ public:
   // Keypad variables
   bool stillTakingKeypresses;
 
+  // Serial monitor functions
   void captureSerialMonitor(void);
-  void captureXBee(String xb_in);
+
+  // XBee functions
+  void linkXBee(HardwareSerial& serial);
+  bool XBeeGotData(void);
+  void captureXBee(void);
+
+  // DSpace functions
   void captureDSpace(void);
 
   // shared functions
@@ -30,6 +37,9 @@ public:
 private:
   // Keypad functions
   void reset_keypad_vars();
+
+  // XBee functions
+  void send_confirmation();
 
   // shared functions
   void reset_shared_vars();
