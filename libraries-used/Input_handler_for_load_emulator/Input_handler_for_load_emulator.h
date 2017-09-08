@@ -12,7 +12,7 @@ public:
   Input_handler();
   void accept_keypress(char keypress);
   void accept_serial_port_input(void);
-  void accecpt_XBee_input(void);
+  void accept_XBee_input(String xb_in);
     
   
   String LCD_status; 

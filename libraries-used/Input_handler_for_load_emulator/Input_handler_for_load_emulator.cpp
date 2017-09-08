@@ -119,8 +119,33 @@ accept_serial_port_input(void) {
 }
 
 void Input_handler::
-accecpt_XBee_input(void) {
-  // To be added in the future.
+accept_XBee_input(String xb_in) {
+  _temp_input = xb_in;
+  _temp_size = _temp_input.length();
+  Serial.print(F("Input handler: Received an XBee input "));
+  Serial.println(_temp_input);
+  LCD_status  = "                    ";
+  LCD_status += "    Received an     ";
+  LCD_status += "    XBee input.     ";
+  LCD_status += "                    ";
+
+  if (check_for_valid_serial_input() == true) {
+    Serial.println(F("Input handler: Sending XBee input."));
+    LCD_status  = "                    ";
+    LCD_status += "      Sending       ";
+    LCD_status += "     XBee input.    ";
+    LCD_status += "                    ";
+    input_sequence = _temp_input;
+  }
+  else {
+    /*
+    Pass a canceled input sequence upon failed validation.
+    Detailed error message will be displayed upon
+    validation fail. */
+    show_error_msg = true;
+    input_sequence = "A*";
+  }
+  clear_serial_vars();
 }
 
 
@@ -328,7 +353,7 @@ check_for_valid_serial_input (void) {
       case '*': _Reset_exists = true; break;
       default: 
         _counter = _temp_size; _illegal_char_exists = true;
-        _illegal_char = _temp_input[_counter] ;break;
+        _illegal_char = _temp_input[_counter]; break;
     }
     _counter++;
   }
