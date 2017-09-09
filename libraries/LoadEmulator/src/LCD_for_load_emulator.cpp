@@ -234,6 +234,13 @@ begin(void) {
     show_caution_message();
   }
   
+  // Show author & code version.
+  init_str  = "                    ";
+  init_str += "Author: J. Gamboa   ";
+  init_str += "Code version: 4.2   ";
+  init_str += "                    ";
+  showMessage(init_str, "faster");
+
   // End of startup messages.
   init_str  = "                    ";
   init_str += "  Ready for input.  ";
