@@ -1,29 +1,30 @@
-#include <Keypad_for_load_emulator.h>
+#include <Keypad.h>
 
-Keypad keypad;
+/*
+This example shows how a keypress is detected and read. The character
+corresponding to the pressed key is printed on the Serial Monitor and
+another messaage indicates if the pressed key was held down past a
+threshold time. */
+
+Keypad keypad; // use default pins
 
 void setup() {
   Serial.begin(19200);
-
-  keypad.begin();
-  //keypad.begin(1,2,3,4,5,6,7,8); // Use this instead to use non-default Arduino-keypad pins,
-                                   // replace numbers 1-8 to your connection pins.
-
   Serial.println("Ready.");
 }
 
 void loop() {
   if(keypad.isPressed()) {
-    keypad.getKey();
-    // Check serial monitor for indication of keypresses.
+    Serial.print("Pressed key: ");
+    Serial.println(keypad.getKey());
 
-    if(keypad.heldStatus) {
-      Serial.println("The button was held.");
-      Serial.println("Pausing for 2 seconds.");
-      delay(2000);
-      Serial.println("Finished pause.");
-      Serial.println();
-    }
-    delay(1);
+    if(keypad.isHeld()) Serial.print("Button was held\n");
+
+    Serial.println();
+
+    while(keypad.isPressed())
+      ;// Do nothing until key is released
+
+    delay(300); // guard time between presses
   }
 }
