@@ -1,8 +1,10 @@
 #include "Input_capture_for_load_emulator.h"
 
 InputCapture::
-InputCapture() {
+InputCapture() :
+_profile({"0", "2", "4", "6", "8", "10", "12", "14", "16", "15", "13", "11", "9", "7", "5", "3", "1", "0"}) {
   reset_keypad_vars();
+  reset_dSPACE_vars();
   reset_shared_vars();
 }
 
@@ -120,12 +122,6 @@ captureSerialMonitor(void) {
 }
 
 // XBee functions
-void InputCapture::
-linkXBee(HardwareSerial *serial) {
-  _HardSerial = serial;
-  _HardSerial->begin(9600); // keep default baud rate for now
-}
-
 bool InputCapture::
 XBeeGotData(void) {
   if (_HardSerial->available() > 0) {
@@ -167,7 +163,188 @@ send_confirmation() {
   _HardSerial->println("Input was received.");
 }
 
+// dSPACE
+void InputCapture::
+reset_dSPACE_vars(void) {
+  dSPACErxActive = false;
+  _previous_int = -1;
+  _current_int = -1;
+}
+
+int InputCapture::
+read_dSPACE_int(void) {
+  return _HardSerial->read();
+}
+
+void InputCapture::
+cancel_dSPACE(void) {
+  inputString = "A#";
+  while (dSPACEavailable()) {
+    Serial.println("dSPACE: Flushing buffer");
+    read_dSPACE_int();
+  }
+
+  Serial.println("dSPACE: Input sequence has been cancelled\n");
+}
+
+void InputCapture::
+erase_last_dSPACE(void) {
+  inputString.remove(inputString.length() - 1);
+  Serial.println("dSPACE: Erased last input in sequence");
+}
+
+void InputCapture::
+reset_dSPACE(void) {
+  dSPACErxActive = false;
+  inputString = "*";
+  while (dSPACEavailable()) {
+    Serial.println("dSPACE: Flushing buffer");
+    read_dSPACE_int();
+  }
+
+  Serial.println("dSPACE: Load is RESET\n");
+}
+
+void InputCapture::
+enter_dSPACE(void) {
+  dSPACErxActive = false;
+  while (dSPACEavailable()) {
+    Serial.println("dSPACE: Flushing buffer");
+    read_dSPACE_int();
+  }
+
+  Serial.println("dSPACE: Finished input sequence");
+  Serial.print("dSPACE: Input received is ");
+  Serial.println(inputString);
+  Serial.println();
+}
+
+void InputCapture::
+request_dSPACE(Phase x) {
+
+}
+
+
+
+bool InputCapture::
+dSPACEavailable(void) {
+  if (_HardSerial->available() > 0) {
+    Serial.println(F("dSPACE: Got data."));
+
+    return true;
+  }
+  else return false;
+} // finished
+
+void InputCapture::
+captureRXdSPACE(void) {
+  delay(100); // allow time for all serial data to arrive
+  inputString = "";
+
+  while (_HardSerial->available() > 0 && dSPACErxActive == true) {
+    _current_int = read_dSPACE_int();
+
+    if (_current_int != _previous_int) {
+      _previous_int = _current_int;
+
+      Serial.print("dSPACE: Got value ");
+      Serial.println(_current_int);
+
+      switch (_current_int) {
+        case 0: inputString += '0'; break;
+        case 1: inputString += '1'; break;
+        case 2: inputString += '2'; break;
+        case 3: inputString += '3'; break;
+        case 4: inputString += '4'; break;
+        case 5: inputString += '5'; break;
+        case 6: inputString += '6'; break;
+        case 7: inputString += '7'; break;
+        case 8: inputString += '8'; break;
+        case 9: inputString += '9'; break;
+        case 10: inputString += '10'; break;
+        case 11: inputString += '11'; break;
+        case 12: inputString += '12'; break;
+        case 13: inputString += '13'; break;
+        case 14: inputString += '14'; break;
+        case 15: inputString += '15'; break;
+        case 16: inputString += '16'; break;
+        case 17: inputString += 'A'; break;
+        case 18: inputString += 'B'; break;
+        case 19: inputString += 'C'; break;
+        case 20: inputString += 'D'; break;
+        case 21: cancel_dSPACE(); break;
+        case 22: erase_last_dSPACE(); break;
+        case 23: reset_dSPACE(); break;
+        case 24: enter_dSPACE(); break;
+        case 25: request_dSPACE(A); break;
+        case 26: request_dSPACE(B); break;
+        case 27: request_dSPACE(C); break;
+        case 28: request_dSPACE(DC); break;
+        default: break;
+      }
+    }
+    else;
+
+    delay(5); // allow time for all serial data to arrive
+  }
+  Serial.println("dSPACE: Going idle.\n");
+
+  reset_dSPACE_vars();
+}
+
+void InputCapture::
+captureManBal(void) {
+  delay(100); // allow time for all serial data to arrive
+  inputString = "ABC";
+
+  while (_HardSerial->available() > 0) {
+    _current_int = read_dSPACE_int() - 29;
+
+    if (_current_int != _previous_int) {
+      _previous_int = _current_int;
+
+      Serial.print("dSPACE: Got value ");
+      Serial.println(_current_int);
+    }
+    delay(5); // allow time for all serial data to arrive
+  }
+
+  switch (_current_int) {
+        case 0: inputString += '0'; break;
+        case 1: inputString += '1'; break;
+        case 2: inputString += '2'; break;
+        case 3: inputString += '3'; break;
+        case 4: inputString += '4'; break;
+        case 5: inputString += '5'; break;
+        case 6: inputString += '6'; break;
+        case 7: inputString += '7'; break;
+        case 8: inputString += '8'; break;
+        case 9: inputString += '9'; break;
+        case 10: inputString += '10'; break;
+        case 11: inputString += '11'; break;
+        case 12: inputString += '12'; break;
+        case 13: inputString += '13'; break;
+        case 14: inputString += '14'; break;
+        case 15: inputString += '15'; break;
+        case 16: inputString += '16'; break;
+        default: break;
+  }
+
+  reset_dSPACE_vars();
+}
+
+void InputCapture::
+setProfile(int step) {
+  inputString = "ABC" + _profile[ step ];
+}
+
 // shared functions
+void InputCapture::
+linkXBee(HardwareSerial *serial) {
+  _HardSerial = serial;
+  _HardSerial->begin(9600); // keep default baud rate for now
+}
+
 void InputCapture::
 reset_shared_vars() {
   _Reset_flag = false;

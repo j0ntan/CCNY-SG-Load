@@ -99,8 +99,8 @@ void loop() {
       lcd.showMessage(parser.load_idle_status, "static");
     }
   }
-  
-  else if (myInput.XBeeGotData()) {
+
+  else if (myInput.XBeeGotData()&&0) {
     myInput.captureXBee();
 
     if (myInput.isValid()) {
@@ -116,6 +116,54 @@ void loop() {
     else {
       lcd.showMessage(myInput.captureStatus, "slow");
       lcd.showMessage(parser.load_idle_status, "static");
+    }
+  }
+
+  else if (myInput.dSPACEavailable() && Serial3.peek() < 29 ) { // manual mode
+    myInput.dSPACErxActive = true;
+
+    myInput.captureRXdSPACE();
+
+    if (myInput.isValid()) {
+      parser.parse(myInput.inputString);
+      lcd.showMessage(parser.load_idle_status, "static");
+
+      shiftReg.send_serial_data();
+      shiftReg.trigger_output();
+      Activate_DC(parser.DC_value);
+    }
+    else {
+      lcd.showMessage(myInput.captureStatus, "slow");
+      lcd.showMessage(parser.load_idle_status, "static");
+    }
+  }
+
+  else if (myInput.dSPACEavailable() && Serial3.peek() < 45 ) { // manual bal mode
+    myInput.captureManBal();
+
+    parser.parse(myInput.inputString);
+    lcd.showMessage(parser.load_idle_status, "static");
+
+    shiftReg.send_serial_data();
+    shiftReg.trigger_output();
+    Activate_DC(parser.DC_value);
+  }
+
+  else if (myInput.dSPACEavailable()) { // load profile mode
+    int i = 0;
+    while(myInput.dSPACEavailable()) {
+      Serial3.read();
+    }
+    while( i < 18 ) {
+      myInput.setProfile( i++ );
+      parser.parse(myInput.inputString);
+      lcd.showMessage(parser.load_idle_status, "static");
+
+      shiftReg.send_serial_data();
+      shiftReg.trigger_output();
+      Activate_DC(parser.DC_value);
+      
+      delay(1500);
     }
   }
 } // end of loop()
