@@ -36,7 +36,7 @@ void Display::begin(uint8_t cols, uint8_t rows) {
     // Show author & code version.
     init_str  = F("                    ");
     init_str += F("Author: J. Gamboa   ");
-    init_str += F("Code version: 4.2   ");
+    init_str += F("Code version: 4.3   ");
     init_str += F("                    ");
     showMessage(init_str, Speed::FASTER);
 
