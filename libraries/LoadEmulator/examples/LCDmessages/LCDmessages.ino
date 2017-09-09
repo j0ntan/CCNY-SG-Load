@@ -1,82 +1,56 @@
-#include <LCD_for_load_emulator.h>
+#include <Display.h>
 
-Liquid_Crystal_Display lcd;
+/*
+This example shows how messages are displayed on the LCD module.
+
+The strings containing the messages should be formatted for a 4 x 20
+display.
+
+The duration of the display for a given message can be set to STATIC,
+SLOW, FAST, FASTER, or NORMAL, which is the default case. At the end of
+the duration, the proceeding instruction can be executed. For the STATIC
+case the duration is effectively zero, i.e. the message is displayed and
+the next instruction is immediately executed.
+
+The display duration can be interrupted by any input from two Serial
+ports, one of which is usually connected to an XBee, and from a connected
+keypad. */
+
+// Input sources that can interrupt display duration
+HardwareSerial &xbee = Serial3;       // create an alias
+Keypad keypad;                        // use default pins
+
+// pass input souces; use default pins
+Display disp(Serial, xbee, keypad);
 
 void setup() {
   Serial.begin(19200);
 
-  lcd.begin();
+  // pass number of cols & rows; an intro message gets displayed
+  disp.begin(20, 4);
 
-  /*
-    Strings to show different display speeds. The displayed messages
-  appear on the LCD for 3 seconds display time, on the normal speed,
-  and then allows the next functon to execute. The speed can be 
-  varied as slow, fast, or faster, where the display time varies as 
-  4 seconds, 2 seconds, and 1.5 seconds, respectively.
-    A special case is a static display, where there is no display time.
-  The message is shown on the LCD and the next function is immediately
-  allowed to execute. This is useful when displaying an idle state
-  message and immediately look for the next input. */
-  String normalMSG, slowMSG, fastMSG, fasterMSG, staticMSG, normalMSG2;
+  String msg;
 
-  /*
-  Strings must be 80 characters long in order to fit on the LCD, 
-  which has 4 rows with 20 characters on each row. */
-  normalMSG  = "                    ";
-  normalMSG += "   The first msg.   ";
-  normalMSG += "   Normal speed.    ";
-  normalMSG += "                    ";
-  
-  slowMSG  = "                    ";
-  slowMSG += "  The second msg.   ";
-  slowMSG += "    Slow speed.     ";
-  slowMSG += "                    ";
+  // using the F macro to reduce sketch size
+  msg  = F("                    ");
+  msg += F("Display test msg    ");
+  msg += F("Speed: NORMAL       ");
+  msg += F("                    ");
+  disp.showMessage(msg); // using the default NORMAL
 
-  fastMSG  = "                    ";
-  fastMSG += "   The third msg.   ";
-  fastMSG += "    Fast speed.     ";
-  fastMSG += "                    ";
-  
-  fasterMSG  = "                    ";
-  fasterMSG += "  The fourth msg.   ";
-  fasterMSG += "   Faster speed.    ";
-  fasterMSG += "                    ";
-  
-  staticMSG  = "                    ";
-  staticMSG += "  The fifth msg.    ";
-  staticMSG += "    Static msg.     ";
-  staticMSG += "                    ";
-  
-  normalMSG2  = "                    ";
-  normalMSG2 += "   The sixth msg.   ";
-  normalMSG2 += "   Normal speed.    ";
-  normalMSG2 += "                    ";
-  
-  /*
-  Ooen the serial monitor. An initialization message for the CCNY load
-  will appear. After this message, we can see the variable speeds for
-  displaying messages. */
-  Serial.println("Ready to show variable speeds.");
-  delay(4000);
-  lcd.showMessage(normalMSG);
-  lcd.showMessage(slowMSG, "slow");
-  lcd.showMessage(fastMSG, "fast");
-  lcd.showMessage(fasterMSG, "faster");
-  lcd.showMessage(staticMSG, "static");
-  Serial.println("Some other functions executing...");
-  delay(3500);
-  Serial.println("...");
-  delay(800);
-  Serial.println("...");
-  delay(800);
-  Serial.println("...");
-  delay(800);
-  Serial.println("...");
-  delay(800);
-  Serial.println();
-  lcd.showMessage(normalMSG2);
+  msg.replace(F("NORMAL"), F("FAST  "));
+  disp.showMessage(msg, Display::Speed::FAST);
 
-  Serial.println("Done showing messages.");
+  msg.replace(F("FAST  "), F("FASTER"));
+  disp.showMessage(msg, Display::Speed::FASTER);
+
+  msg.replace(F("FASTER"), F("SLOW  "));
+  disp.showMessage(msg, Display::Speed::SLOW);
+
+  msg.replace(F("SLOW  "), F("STATIC"));
+  disp.showMessage(msg, Display::Speed::STATIC);
+
+  Serial.println("End of example.");
 }
 
 void loop() {}

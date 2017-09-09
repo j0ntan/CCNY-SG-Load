@@ -1,9 +1,3 @@
-// source for this code found at:
-// http://playground.arduino.cc/Main/I2cScanner#.UwvAz_ldXD4
-
-
-
-
 // --------------------------------------
 // i2c_scanner
 //

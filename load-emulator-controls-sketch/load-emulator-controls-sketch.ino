@@ -1,190 +1,146 @@
-/*
-  Author: Jonathan Gamboa
-  Date: 5/3/2016
-  Institution: Smart Grid Lab, City College of New York
+// Author: Jonathan Gamboa
+// version: 4.3
+// Institution: Smart Grid Lab, City College of New York (ST 643)
 
-  New control system for the load bank uses Shift Registers instead 
-  of latches + MuxShield in order to reduce complexity and to avoid 
-  issues and malfunctions with the latch system.
+#include <LoadEmulator.h>
 
-  This version of the code will be optimized and will differ very much
-  from previous versions. Modularity is the main focus in building this
-  code. This control system can be thought of as containing modules for:
-  the keypad, the LCD, the shift registers, an input handler, and a parser
-  to interface user input with the hardware. */
+void processInput(const String &);      // function prototype
 
-#include <Input_capture_for_load_emulator.h>
-#include <Keypad_for_load_emulator.h>
-#include <LCD_for_load_emulator.h>
-#include <Parser_for_load_emulator.h>
-#include <shift_reg_for_load_emulator.h>
+HardwareSerial &xbee = Serial3;         // create an alias
+Keypad keypad;                          // use default pins
+Display disp(Serial, xbee, keypad);     // use default pins
+SDprofile sd;                           // record SD connected status
+ShiftRegister shiftReg(7, 5, 6, 4);     // chosen pins for shift register
 
-
-Keypad keypad;
-InputCapture myInput;
-Parser parser;
-Shift_Registers shiftReg;
-Liquid_Crystal_Display lcd;
+Encoder encoder;
 
 void setup() {
-  Serial.begin(19200);
+    Serial.begin(19200); Serial.setTimeout(10);
+    xbee.begin(9600); xbee.setTimeout(10);
+    shiftReg.begin();
 
-  //keypad.begin(4,5,6,7,10,11,12,13); // for Arduino Uno connection
-  keypad.begin();
+    disp.begin(20, 4);                  // pass num of cols and rows
 
-  myInput.linkXBee(&Serial3);
+    // initialize DC relays
+    pinMode(22, OUTPUT);
+    pinMode(23, OUTPUT);
+    digitalWrite(22, LOW);
+    digitalWrite(23, LOW);
 
-  shiftReg.set_Arduino_pins(7, 6, 5, 4);
-  shiftReg.initialize(parser.shift_reg_data);
-  //shiftReg.initialize(parser.shiftReg_bytes);
-  
-  lcd.begin();
-  lcd.showMessage(parser.load_idle_status, "static");
+    // Done with Arduino initialization, now check SD card
 
-  // pins for DC relays:
-  pinMode(22, OUTPUT);
-  pinMode(23, OUTPUT);
-  digitalWrite(22, LOW);
-  digitalWrite(23, LOW);
-  
+    if(sd.checkConnected()==false) {
+        String sdConnMsg;
+        sdConnMsg.concat( F("    SD card not     ") );
+        sdConnMsg.concat( F(" detected. Initial  ") );
+        sdConnMsg.concat( F("check failed. Please") );
+        sdConnMsg.concat( F("re-check connection.") );
+
+        disp.showMessage(sdConnMsg, Display::Speed::SLOW);
+    }
+
+    // Done all initializations, go into idle state
+    disp.showMessage(encoder.getIdleState(), Display::Speed::STATIC);
 }
 
 void loop() {
-  if (keypad.isPressed()) {
-    myInput.setKeypadActive();
-    while ( myInput.stillTakingKeypresses ) {
-      if (keypad.isPressed()) {
-        myInput.captureKeypress(keypad.heldStatus, keypad.getKey());
-        lcd.showMessage(myInput.captureStatus, "static");
-        while (keypad.isPressed()) {
-          // do nothing until key is depressed
+    if(keypad.isPressed()) {
+        KeypadCol kCol(keypad);
+        while(kCol.isCollecting())
+            if(keypad.isPressed()) {
+                kCol.collectKeypress();
+                disp.showMessage(kCol.getColMsg(), kCol.getSpeed()); // update display
+                kCol.waitKeyRelease();
+            } // else do nothing in-between keypresses, until done collecting
+
+        // send to scanner, etc...
+        if(kCol.getInput().length()) processInput(kCol.getInput());
+        else disp.showMessage(encoder.getIdleState(), Display::Speed::STATIC);
+    } // end if, check keypad source
+    else if(Serial.available()) {
+        // allow buffer time to fill
+        delay(10);
+
+        SerialCol serCol(Serial.readString());
+        disp.showMessage(serCol.getColMsg(), serCol.getSpeed()); // update display
+        processInput(serCol.getInput());
+    }
+    else if(xbee.available()) {
+        // allow buffer time to fill
+        delay(200);
+
+        if(xbee.available() < 12) { // dSPACE spams with data, User doesn't
+            SerialCol xbCol(xbee.readString());
+            disp.showMessage(xbCol.getColMsg(), xbCol.getSpeed()); // update display
+            processInput(xbCol.getInput());
         }
-      }
-    }
-    lcd.showMessage(myInput.captureStatus, "faster");
+        else {
+            dspaceCol dsCol(xbee);
+            if(dsCol.profileModeRequested()) {
+                dsProfileCol dsPCol(xbee, sd);
+                if(dsPCol.openFile()) {
+                    disp.showMessage(dsPCol.getColMsg(), dsPCol.getSpeed());// display file opened msg
 
-    if (myInput.inputString.length() == 0) {  // no change to the load
-      lcd.showMessage(parser.load_idle_status, "static");
-    }
-    else if (myInput.isValid()) { // the input is accepted and the relays are updated
+                    while(dsPCol.isCollecting())
+                        if(dsPCol.readLine()) {
+                            processInput(dsPCol.getInput());
+                            delay(dsPCol.getDelay());
+                        }
+                }
+                else {
+                    disp.showMessage(dsPCol.getColMsg(), dsPCol.getSpeed()); // display error msg
+                    disp.showMessage(encoder.getIdleState(), Display::Speed::STATIC);
+                }
+            }
+            else {
+                dsManualCol dsMC(xbee);
 
-      parser.parse(myInput.inputString);
-      lcd.showMessage(parser.load_idle_status, "static");
+                while(dsMC.isCollecting()) {
+                    dsMC.collectInt();
+                    disp.showMessage(dsMC.getColMsg(), dsMC.getSpeed());
+                }
 
-      shiftReg.send_serial_data();
-      shiftReg.trigger_output();
-      Activate_DC(parser.DC_value);
-    }
-    else {  // some error occurred with the input, display error message
-      lcd.showMessage(myInput.captureStatus, "slow");
-      lcd.showMessage(parser.load_idle_status, "static");
-    }
-  } // end: if (keypad.isPressed())
+                disp.showMessage(dsMC.getColMsg(), dsMC.getSpeed()); // display input or cancel msg
+                if(dsMC.getInput().length()) processInput(dsMC.getInput());
+                else disp.showMessage(encoder.getIdleState(), Display::Speed::STATIC);
+            }
+        } // end dspace collectors
+    } // end else if xbee avail
+}
 
-  else if (Serial.available() > 0) {
-    myInput.captureSerialMonitor();
 
-    if (myInput.isValid()) {
-      lcd.showMessage(myInput.captureStatus, "faster");
+void processInput(const String &input) {
+    Scanner scanner;
+        if(scanner.scan(input)) { // if scan successful
+            Parser parser;
+            if(parser.parse(scanner.getTokens())) { // if parse successful
+                encoder.encode(parser.getSwitchingValues());
 
-      parser.parse(myInput.inputString);
-      lcd.showMessage(parser.load_idle_status, "static");
-
-      shiftReg.send_serial_data();
-      shiftReg.trigger_output();
-      Activate_DC(parser.DC_value);
-    }
-    else {
-      lcd.showMessage(myInput.captureStatus, "slow");
-      lcd.showMessage(parser.load_idle_status, "static");
-    }
-  }
-
-  else if (myInput.XBeeGotData()&&0) {
-    myInput.captureXBee();
-
-    if (myInput.isValid()) {
-      lcd.showMessage(myInput.captureStatus, "fast");
-
-      parser.parse(myInput.inputString);
-      lcd.showMessage(parser.load_idle_status, "static");
-
-      shiftReg.send_serial_data();
-      shiftReg.trigger_output();
-      Activate_DC(parser.DC_value);
-    }
-    else {
-      lcd.showMessage(myInput.captureStatus, "slow");
-      lcd.showMessage(parser.load_idle_status, "static");
-    }
-  }
-
-  else if (myInput.dSPACEavailable() && Serial3.peek() < 29 ) { // manual mode
-    myInput.dSPACErxActive = true;
-
-    myInput.captureRXdSPACE();
-
-    if (myInput.isValid()) {
-      parser.parse(myInput.inputString);
-      lcd.showMessage(parser.load_idle_status, "static");
-
-      shiftReg.send_serial_data();
-      shiftReg.trigger_output();
-      Activate_DC(parser.DC_value);
-    }
-    else {
-      lcd.showMessage(myInput.captureStatus, "slow");
-      lcd.showMessage(parser.load_idle_status, "static");
-    }
-  }
-
-  else if (myInput.dSPACEavailable() && Serial3.peek() < 45 ) { // manual bal mode
-    myInput.captureManBal();
-
-    parser.parse(myInput.inputString);
-    lcd.showMessage(parser.load_idle_status, "static");
-
-    shiftReg.send_serial_data();
-    shiftReg.trigger_output();
-    Activate_DC(parser.DC_value);
-  }
-
-  else if (myInput.dSPACEavailable()) { // load profile mode
-    int i = 0;
-    while(myInput.dSPACEavailable()) {
-      Serial3.read();
-    }
-    while( i < 18 ) {
-      myInput.setProfile( i++ );
-      parser.parse(myInput.inputString);
-      lcd.showMessage(parser.load_idle_status, "static");
-
-      shiftReg.send_serial_data();
-      shiftReg.trigger_output();
-      Activate_DC(parser.DC_value);
-      
-      delay(1500);
-    }
-  }
-} // end of loop()
-
-void Activate_DC(int DC_value) {
-  switch (DC_value) {
-    case 0:
-      digitalWrite(22, LOW);
-      digitalWrite(23, LOW);
-      break;
-    case 1:
-      digitalWrite(22, HIGH);
-      digitalWrite(23, LOW);
-      break;
-    case 2:
-      digitalWrite(22, HIGH);
-      digitalWrite(23, HIGH);
-      break;
-    default:
-      digitalWrite(22, LOW);
-      digitalWrite(23, LOW);
-      break;
-  }
+                // Activate AC relays
+                shiftReg.outputData(encoder.getACEncodedValues(), 6);
+                // Activate DC relays
+                int relaysOn  = encoder.getDCValue();
+                switch(relaysOn) {
+                    case 0:
+                        digitalWrite(22, LOW);
+                        digitalWrite(23, LOW);
+                        break;
+                    case 1:
+                        digitalWrite(22, HIGH);
+                        digitalWrite(23, LOW);
+                        break;
+                    case 2:
+                        digitalWrite(22, HIGH);
+                        digitalWrite(23, HIGH);
+                        break;
+                };
+            }
+            else {
+                disp.showMessage(parser.getErrMsg(), Display::Speed::NORMAL);
+            }
+        }
+        else {
+            disp.showMessage(scanner.getErrMsg(), Display::Speed::NORMAL);
+        }
+    disp.showMessage(encoder.getIdleState(), Display::Speed::STATIC);
 }
