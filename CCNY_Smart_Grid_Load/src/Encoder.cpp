@@ -1,4 +1,4 @@
-#include "Encoder.h"
+#include "../include/Encoder.h"
 
 void Encoder::encode(const int *switchingValues) {
     /*

@@ -1,4 +1,4 @@
-#include "Collector.h"
+#include "../include/Collector.h"
 
 bool Collector::isCollecting() const {
     return _collectingStatus;

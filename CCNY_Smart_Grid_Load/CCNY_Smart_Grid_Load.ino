@@ -2,7 +2,7 @@
 // version: 4.3
 // Institution: Smart Grid Lab, City College of New York (ST 643)
 
-#include <LoadEmulator.h>
+#include "include/CCNY_Smart_Grid_Load.h"
 
 void processInput(const String &);      // function prototype
 

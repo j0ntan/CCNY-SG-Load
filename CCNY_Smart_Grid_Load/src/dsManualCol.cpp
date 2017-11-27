@@ -1,4 +1,4 @@
-#include "dsManualCol.h"
+#include "../include/dsManualCol.h"
 
 dsManualCol::dsManualCol(HardwareSerial &xbeeSer) :
         dspaceCol(xbeeSer) {

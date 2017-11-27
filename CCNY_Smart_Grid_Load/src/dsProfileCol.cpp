@@ -1,4 +1,4 @@
-#include "dsProfileCol.h"
+#include "../include/dsProfileCol.h"
 
 dsProfileCol::dsProfileCol(HardwareSerial &xbeeSer, SDprofile &sd) :
         dspaceCol(xbeeSer), _sd(sd) {

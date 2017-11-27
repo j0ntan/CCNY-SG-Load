@@ -1,4 +1,4 @@
-#include "dspaceCol.h"
+#include "../include/dspaceCol.h"
 
 dspaceCol::dspaceCol(HardwareSerial &xbeeSer) :
         _xbee(xbeeSer) {

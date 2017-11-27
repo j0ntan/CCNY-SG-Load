@@ -1,4 +1,4 @@
-#include "SerialCol.h"
+#include "../include/SerialCol.h"
 
 SerialCol::SerialCol(const String &serInput) {
     /*

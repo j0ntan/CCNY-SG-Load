@@ -1,4 +1,4 @@
-#include "KeypadCol.h"
+#include "../include/KeypadCol.h"
 KeypadCol::KeypadCol(Keypad &keypad) :
         _keypad(keypad) {
     /*
