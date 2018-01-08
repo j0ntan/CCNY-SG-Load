@@ -23,6 +23,7 @@ void loop() {
       if (hasNoParseErrors(analysis)) {
         parseNewRelayState(analysis, relay_state);
         ACRelayBits bits = encode(relay_state);
+        outputAllRelays(bits, relay_state.DC);
       }  // else, parse error reported
     } else
       ;  // report invalid char error
