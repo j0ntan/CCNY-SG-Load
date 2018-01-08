@@ -17,15 +17,19 @@ void setup() {
 void loop() {
   if (keypadButtonWasPressed()) {
     String input_from_keypad = recordKeypadSequence<String>();
-    TokenSet tokens = scan(input_from_keypad);
-    if (!tokens.containsInvalid()) {
-      ParseAnalysis analysis = analyzeTokens(tokens);
-      if (hasNoParseErrors(analysis)) {
-        parseNewRelayState(analysis, relay_state);
-        ACRelayBits bits = encode(relay_state);
-        outputAllRelays(bits, relay_state.DC);
-      }  // else, parse error reported
-    } else
-      ;  // report invalid char error
+    processInputString(input_from_keypad);
   }
+}
+
+void processInputString(const String& input) {
+  TokenSet tokens = scan(input);
+  if (!tokens.containsInvalid()) {
+    ParseAnalysis analysis = analyzeTokens(tokens);
+    if (hasNoParseErrors(analysis)) {
+      parseNewRelayState(analysis, relay_state);
+      ACRelayBits bits = encode(relay_state);
+      outputAllRelays(bits, relay_state.DC);
+    }  // else, parse error reported
+  } else
+    ;  // report invalid char error
 }
