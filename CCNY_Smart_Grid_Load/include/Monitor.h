@@ -47,6 +47,20 @@ inline bool receivedDSPACEManualData() {
          xbee->peekByte() <= DSPACE_MANUAL_MODE_BOUND;
 }
 
+inline bool receivedDSPACELoadProfile() {
+  const uint8_t SERIAL_TIMEOUT_MILLISECONDS = 20;
+  uint8_t millisec_elapsed = 0;
+  do {
+    arduino->delay(2);
+    millisec_elapsed += 2;
+  } while (xbee->bytesAvailable() <= MAX_INPUT_LENGTH &&
+           millisec_elapsed <= SERIAL_TIMEOUT_MILLISECONDS);
+
+  return (xbee->bytesAvailable() > MAX_INPUT_LENGTH ||
+          millisec_elapsed > SERIAL_TIMEOUT_MILLISECONDS) &&
+         xbee->peekByte() > DSPACE_MANUAL_MODE_BOUND;
+}
+
 #undef MAX_INPUT_LENGTH
 #undef DSPACE_MANUAL_MODE_BOUND
 #endif  // MONITOR_H
