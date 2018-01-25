@@ -26,6 +26,8 @@ void loop() {
     } else if (receivedDSPACEManualData()) {
       String manual_input_from_dSPACE = collectDSPACEManualData<String>();
       processInputString(manual_input_from_dSPACE);
+    } else if (receivedDSPACELoadProfile()) {
+      activateLoadProfile();
     } else
       emptyTheBuffer();
   }
@@ -43,3 +45,5 @@ void processInputString(const String& input) {
   } else
     ;  // report invalid char error
 }
+
+void activateLoadProfile() {}
