@@ -6,6 +6,7 @@
 #include "XBee.h"
 
 #define MAX_INPUT_LENGTH 11  // largest input is 'A16B16C16D2', currently
+#define DSPACE_SINGLE_INPUT_BOUND 28
 
 namespace helper {
 template <class StringT>
@@ -30,6 +31,19 @@ void prependACphases(StringT& input);
 
 template <class StringT>
 void readSerialIntoString(StringT& input);
+
+int readNextUniqueByte();
+
+void removeBufferedByteCopies(const int& original);
+
+template <class StringT>
+void followDPSACEManualCommand(const int& commandID, StringT& input);
+
+template <class StringT>
+void dSPACESingleInputCommand(const int& commandID, StringT& input);
+
+template <class StringT>
+void dSPACEBalancedInputCommand(const int& commandID, StringT& input);
 }  // namespace helper
 
 extern Arduino* arduino;
@@ -187,6 +201,98 @@ void emptyTheBuffer() {
     xbee->readByte();
     arduino->delay(5);  // guard time, allow incoming data to fill buffer
   }
+}
+
+//************************* dSPACE manual collection *************************//
+template <class StringT>
+StringT collectDSPACEManualData() {
+  StringT input;
+  input.reserve(MAX_INPUT_LENGTH);
+
+  do {
+    int receivedByte = helper::readNextUniqueByte();
+    helper::removeBufferedByteCopies(receivedByte);
+    helper::followDPSACEManualCommand(receivedByte, input);
+  } while (xbee->hasBufferedData());
+
+  return input;
+}
+
+int helper::readNextUniqueByte() { return xbee->readByte(); }
+
+void helper::removeBufferedByteCopies(const int& original) {
+  while (original == xbee->peekByte()) {
+    xbee->readByte();
+    arduino->delay(5);  // guard time, allow incoming data to fill buffer
+  }
+}
+
+template <class StringT>
+void helper::followDPSACEManualCommand(const int& commandID, StringT& input) {
+  if (commandID <= DSPACE_SINGLE_INPUT_BOUND)
+    helper::dSPACESingleInputCommand(commandID, input);
+  else
+    helper::dSPACEBalancedInputCommand(commandID, input);
+}
+
+template <class StringT>
+void helper::dSPACESingleInputCommand(const int& commandID, StringT& input) {
+  const uint8_t STR_SIZE = 3;  // two digits, plus null char
+  char str[STR_SIZE] = {0};
+  switch (commandID) {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+    case 8:
+    case 9:
+    case 10:
+    case 11:
+    case 12:
+    case 13:
+    case 14:
+    case 15:
+    case 16:
+      input += itoa(commandID, str, 10);
+      break;
+    case 17:
+      input += 'A';
+      break;
+    case 18:
+      input += 'B';
+      break;
+    case 19:
+      input += 'C';
+      break;
+    case 20:
+      input += 'D';
+      break;
+    case 21:  // CANCEL
+      helper::cancelSequence(input);
+      break;
+    case 22:  // BACKSPACE
+      helper::eraseLastInSequence(input);
+      break;
+    case 23:  // RESET
+      helper::applyResetSequence(input);
+      break;
+    default:
+      input = "?";
+  }  // end switch
+}
+
+template <class StringT>
+void helper::dSPACEBalancedInputCommand(const int& commandID, StringT& input) {
+  const uint8_t STR_SIZE = 3;
+  char str[STR_SIZE] = {0};
+  const int RELAYS_ON = commandID - (DSPACE_SINGLE_INPUT_BOUND + 1);
+
+  helper::prependACphases(input);
+  input += itoa(RELAYS_ON, str, 10);
 }
 
 #endif  // COLLECT_H
