@@ -19,6 +19,12 @@ void loop() {
   if (keypadButtonWasPressed()) {
     String input_from_keypad = recordKeypadSequence<String>();
     processInputString(input_from_keypad);
+  } else if (xbee->hasBufferedData()) {
+    if (receivedPCSerialData()) {
+      String input_from_PC_serial = collectPCSerialData<String>();
+      processInputString(input_from_PC_serial);
+    } else
+      emptyTheBuffer();
   }
 }
 
