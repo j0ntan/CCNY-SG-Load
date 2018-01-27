@@ -4,6 +4,7 @@
 
 #include "include/CCNY_Smart_Grid_Load_files.h"
 
+RelayState relay_state;
 Arduino* arduino = new HardwareArduino;
 Keypad* keypad = new HardwareKeypad(37, 36, 35, 34, 33, 32, 31, 30);
 
@@ -17,7 +18,11 @@ void loop() {
     String input_from_keypad = recordKeypadSequence<String>();
     TokenSet tokens = scan(input_from_keypad);
     if (!tokens.containsInvalid()) {
-      // use tokens
+      ParseAnalysis analysis = analyzeTokens(tokens);
+      if (hasNoParseErrors(analysis)) {
+        parseNewRelayState(analysis, relay_state);
+        // use new relay state
+      }  // else, parse error reported
     } else
       ;  // report invalid char error
   }
