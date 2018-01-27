@@ -21,7 +21,7 @@ void loop() {
       ParseAnalysis analysis = analyzeTokens(tokens);
       if (hasNoParseErrors(analysis)) {
         parseNewRelayState(analysis, relay_state);
-        // use new relay state
+        ACRelayBits bits = encode(relay_state);
       }  // else, parse error reported
     } else
       ;  // report invalid char error

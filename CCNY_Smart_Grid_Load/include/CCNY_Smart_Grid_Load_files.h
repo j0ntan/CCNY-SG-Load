@@ -8,3 +8,4 @@
 #include "Scan.h"
 #include "RelayState.h"
 #include "Parse.h"
+#include "Encode.h"
