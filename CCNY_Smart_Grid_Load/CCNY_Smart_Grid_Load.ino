@@ -4,6 +4,8 @@
 
 #include "include/CCNY_Smart_Grid_Load_files.h"
 
+Arduino* arduino = new HardwareArduino;
+
 void setup() {
   Serial.begin(9600);
   Serial.setTimeout(10);
