@@ -23,6 +23,9 @@ void loop() {
     if (receivedPCSerialData()) {
       String input_from_PC_serial = collectPCSerialData<String>();
       processInputString(input_from_PC_serial);
+    } else if (receivedDSPACEManualData()) {
+      String manual_input_from_dSPACE = collectDSPACEManualData<String>();
+      processInputString(manual_input_from_dSPACE);
     } else
       emptyTheBuffer();
   }
