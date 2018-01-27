@@ -15,5 +15,10 @@ void setup() {
 void loop() {
   if (keypadButtonWasPressed()) {
     String input_from_keypad = recordKeypadSequence<String>();
+    TokenSet tokens = scan(input_from_keypad);
+    if (!tokens.containsInvalid()) {
+      // use tokens
+    } else
+      ;  // report invalid char error
   }
 }

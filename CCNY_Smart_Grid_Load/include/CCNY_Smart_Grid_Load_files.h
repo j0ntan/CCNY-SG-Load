@@ -5,3 +5,4 @@
 
 #include "Monitor.h"
 #include "Collect.h"
+#include "Scan.h"
