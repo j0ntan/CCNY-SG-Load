@@ -190,3 +190,5 @@ TEST_F(CollectKeypad, recordSequenceEraseAllThenReset) {
 
   ASSERT_EQ(recordKeypadSequence<StringDouble>(), resetSequence);
 }
+
+XBee* xbee = nullptr;  // unused, but needed to compile

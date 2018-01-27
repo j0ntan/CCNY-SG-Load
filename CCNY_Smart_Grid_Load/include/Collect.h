@@ -3,6 +3,7 @@
 
 #include "ArduinoInterface.h"
 #include "Keypad.h"
+#include "XBee.h"
 
 #define MAX_INPUT_LENGTH 11  // largest input is 'A16B16C16D2', currently
 
@@ -26,9 +27,14 @@ void applyResetSequence(StringT& input);
 
 template <class StringT>
 void prependACphases(StringT& input);
+
+template <class StringT>
+void readSerialIntoString(StringT& input);
 }  // namespace helper
 
 extern Arduino* arduino;
+
+//**************************** KEYPAD collection *****************************//
 extern Keypad* keypad;
 
 template <class StringT>
@@ -157,6 +163,30 @@ void helper::applyResetSequence(StringT& input) {
 template <class StringT>
 void helper::prependACphases(StringT& input) {
   input = StringT(F("ABC")) + input;
+}
+
+//*************************** PC Serial collection ***************************//
+extern XBee* xbee;
+template <class StringT>
+StringT collectPCSerialData() {
+  StringT input;
+  input.reserve(MAX_INPUT_LENGTH);
+
+  helper::readSerialIntoString(input);
+
+  return input;
+}
+
+template <class StringT>
+void helper::readSerialIntoString(StringT& input) {
+  while (xbee->hasBufferedData()) input += static_cast<char>(xbee->readByte());
+}
+
+void emptyTheBuffer() {
+  while (xbee->hasBufferedData()) {
+    xbee->readByte();
+    arduino->delay(5);  // guard time, allow incoming data to fill buffer
+  }
 }
 
 #endif  // COLLECT_H
