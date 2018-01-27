@@ -12,3 +12,6 @@ target_link_libraries(SCAN_tests gtest_main)
 
 add_executable(PARSE_tests Parse_tests.cpp)
 target_link_libraries(PARSE_tests gtest_main)
+
+add_executable(ENCODE_tests Encode_tests.cpp)
+target_link_libraries(ENCODE_tests gmock_main)
