@@ -12,4 +12,8 @@ void setup() {
   Serial.setTimeout(10);
 }
 
-void loop() {}
+void loop() {
+  if (keypadButtonWasPressed()) {
+    // handle keypad
+  }
+}
