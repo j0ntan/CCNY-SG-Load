@@ -9,3 +9,6 @@ target_link_libraries(COLLECT_tests gmock_main)
 
 add_executable(SCAN_tests Scan_tests.cpp)
 target_link_libraries(SCAN_tests gtest_main)
+
+add_executable(PARSE_tests Parse_tests.cpp)
+target_link_libraries(PARSE_tests gtest_main)
