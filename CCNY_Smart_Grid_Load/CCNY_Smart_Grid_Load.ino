@@ -14,6 +14,6 @@ void setup() {
 
 void loop() {
   if (keypadButtonWasPressed()) {
-    // handle keypad
+    String input_from_keypad = recordKeypadSequence<String>();
   }
 }
