@@ -7,6 +7,7 @@
 RelayState relay_state;
 Arduino* arduino = new HardwareArduino;
 Keypad* keypad = new HardwareKeypad(37, 36, 35, 34, 33, 32, 31, 30);
+ShiftRegister shiftregister{2, 3, 4};
 
 void setup() {
   Serial.begin(9600);

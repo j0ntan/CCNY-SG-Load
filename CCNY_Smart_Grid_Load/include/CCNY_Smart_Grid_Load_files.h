@@ -2,6 +2,7 @@
 #include "HardwareArduino.h"
 #include "Keypad.h"
 #include "HardwareKeypad.h"
+#include "ShiftRegister.h"
 
 #include "Monitor.h"
 #include "Collect.h"
