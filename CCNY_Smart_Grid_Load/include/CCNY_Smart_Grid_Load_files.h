@@ -5,6 +5,8 @@
 #include "ShiftRegister.h"
 #include "XBee.h"
 #include "HardwareXBee.h"
+#include "LoadProfile.h"
+#include "SDCard.h"
 
 #include "Monitor.h"
 #include "Collect.h"

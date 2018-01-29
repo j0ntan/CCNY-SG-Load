@@ -46,4 +46,23 @@ void processInputString(const String& input) {
     ;  // report invalid char error
 }
 
-void activateLoadProfile() {}
+void activateLoadProfile() {
+  unsigned int number = readProfileNumberFromSerial();
+  String filename = createFilename<String>(number);
+
+  static const uint8_t SD_CS_pin = 53;
+  SDCard sd{SD_CS_pin};
+  if (sd.connected() && sd.fileExists(filename)) {
+    LoadProfile profile = sd.openFile(filename);
+    while (profile.lineAvailable()) {
+      const String INPUT_STR = profile.readLine();
+      if (!lineIsComment(INPUT_STR)) {
+        const String PROFILE_INPUT = extractProfileInput<String>(INPUT_STR);
+        const unsigned long DURATION =
+            extractProfileDuration<String>(INPUT_STR);
+        processInputString(PROFILE_INPUT);
+        arduino->delay(DURATION);
+      }
+    }
+  }  // else, report SD card or File error
+}
