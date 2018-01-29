@@ -295,4 +295,57 @@ void helper::dSPACEBalancedInputCommand(const int& commandID, StringT& input) {
   input += itoa(RELAYS_ON, str, 10);
 }
 
+//************************* dSPACE Load Profile Mode *************************//
+unsigned int readProfileNumberFromSerial() {
+  static const unsigned int PROFILE_MODE_OFFSET = 46;
+  int profile_number = helper::readNextUniqueByte();
+  emptyTheBuffer();
+  return profile_number - PROFILE_MODE_OFFSET + 1;
+}
+
+template <class StringT>
+StringT createFilename(const unsigned int& profile_number) {
+  const unsigned int HUNDRETHS_DIGIT = profile_number / 100;
+  const unsigned int TENS_DIGIT = (profile_number / 10) % 10;
+  const unsigned int ONES_DIGIT = profile_number % 10;
+  return StringT(F("PRFL")) + StringT(HUNDRETHS_DIGIT) + StringT(TENS_DIGIT) +
+         StringT(ONES_DIGIT) + StringT(F(".txt"));
+}
+
+template <class StringT>
+bool lineIsComment(const StringT& line) {
+  return line.length() >= 2 && line[0] == '/' && line[1] == '/';
+}
+
+template <class StringT>
+StringT extractProfileInput(const StringT& profileStr) {
+  static const unsigned int MAX_LENGTH = 11;
+  StringT input_sequence;
+  input_sequence.reserve(MAX_LENGTH);
+
+  int phase_begins = 0;
+  int phase_ends = profileStr.indexOf(' ', phase_begins);
+  StringT A_phase =
+      StringT(F("A")) + profileStr.substring(phase_begins, phase_ends);
+
+  phase_begins = phase_ends + 1;
+  phase_ends = profileStr.indexOf(' ', phase_begins);
+  StringT B_phase =
+      StringT(F("B")) + profileStr.substring(phase_begins, phase_ends);
+
+  phase_begins = phase_ends + 1;
+  phase_ends = profileStr.indexOf(' ', phase_begins);
+  StringT C_phase =
+      StringT(F("C")) + profileStr.substring(phase_begins, phase_ends);
+
+  return A_phase + B_phase + C_phase;
+}
+
+template <class StringT>
+unsigned long extractProfileDuration(const StringT& line) {
+  int position = line.lastIndexOf(' ') + 1;
+  StringT duration = line.substring(position);
+  return static_cast<unsigned long>(duration.toInt());
+}
+
 #endif  // COLLECT_H
