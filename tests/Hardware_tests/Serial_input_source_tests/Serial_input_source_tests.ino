@@ -43,8 +43,13 @@ void loop() {
       Serial.println(F("Detected reception of dSPACE manual mode input."));
       printVerifyMessage(serialInput);
     } else if (receivedDSPACELoadProfile()) {
+      uint8_t number = readProfileNumberFromSerial();
+
       Serial.println(F("Detected reception of dSPACE profile mode input.\n"));
-      emptyBuffer();
+      Serial.print(F("dSPACE wants to open the file number "));
+      Serial.println(number);
+      Serial.println(F("Verify that this is the inteded profile to open."));
+      Serial.println(F("Debug if otherwise.\n"));
     } else {
       Serial.println(F("Clearing the buffer..."));
       emptyBuffer();

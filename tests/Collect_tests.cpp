@@ -192,3 +192,153 @@ TEST_F(CollectKeypad, recordSequenceEraseAllThenReset) {
 }
 
 XBee* xbee = nullptr;  // unused, but needed to compile
+
+class CollectDSPACE : public Test {
+ public:
+  StringDouble actual, expected;
+};
+
+TEST_F(CollectDSPACE, singleInputCommandAddNums0To16) {
+  for (int command = 0; command <= 16; command++) {
+    expected = std::to_string(command).c_str();
+    helper::dSPACESingleInputCommand(command, actual);
+    ASSERT_EQ(actual, expected);
+    actual.remove(0);  // reset for next iteration
+  }
+}
+
+TEST_F(CollectDSPACE, singleInputCommandAddPhases) {
+  expected = "A";
+  helper::dSPACESingleInputCommand(17, actual);
+  ASSERT_EQ(actual, expected);
+  actual.remove(0);
+
+  expected = "B";
+  helper::dSPACESingleInputCommand(18, actual);
+  ASSERT_EQ(actual, expected);
+  actual.remove(0);
+
+  expected = "C";
+  helper::dSPACESingleInputCommand(19, actual);
+  ASSERT_EQ(actual, expected);
+  actual.remove(0);
+
+  expected = "D";
+  helper::dSPACESingleInputCommand(20, actual);
+  ASSERT_EQ(actual, expected);
+}
+
+TEST_F(CollectDSPACE, singleInputCommandAddNumAfterPhase) {
+  expected = "A0";
+  helper::dSPACESingleInputCommand(17, actual);
+  helper::dSPACESingleInputCommand(0, actual);
+  ASSERT_EQ(actual, expected);
+}
+
+TEST_F(CollectDSPACE, singleInputCommandAddPhaseAfterNum) {
+  expected = "8B";
+  helper::dSPACESingleInputCommand(8, actual);
+  helper::dSPACESingleInputCommand(18, actual);
+  ASSERT_EQ(actual, expected);
+}
+
+TEST_F(CollectDSPACE, singleInputCommandCancelSequence) {
+  expected = "";
+  helper::dSPACESingleInputCommand<StringDouble>(21, actual);
+  ASSERT_EQ(actual, expected);
+}
+
+TEST_F(CollectDSPACE, singleInputCommandCancelSequenceAfterInput) {
+  expected = "";
+  helper::dSPACESingleInputCommand(17, actual);
+  helper::dSPACESingleInputCommand(0, actual);
+  helper::dSPACESingleInputCommand(21, actual);
+  ASSERT_EQ(actual, expected);
+}
+
+TEST_F(CollectDSPACE, singleInputCommandBackspaceAfterInput) {
+  expected = "A";
+  helper::dSPACESingleInputCommand(17, actual);
+  helper::dSPACESingleInputCommand(0, actual);
+  helper::dSPACESingleInputCommand(22, actual);
+  ASSERT_EQ(actual, expected);
+}
+
+TEST_F(CollectDSPACE, singleInputCommandBackspaceEmptySequence) {
+  expected = "";
+  helper::dSPACESingleInputCommand(22, actual);
+  ASSERT_EQ(actual, expected);
+}
+
+TEST_F(CollectDSPACE, singleInputCommandApplyResetSequence) {
+  expected = "ABCD0";
+  helper::dSPACESingleInputCommand(23, actual);
+  ASSERT_EQ(actual, expected);
+}
+
+TEST_F(CollectDSPACE, singleInputCommandResetAfterInput) {
+  expected = "ABCD0";
+  helper::dSPACESingleInputCommand(17, actual);
+  helper::dSPACESingleInputCommand(0, actual);
+  helper::dSPACESingleInputCommand(23, actual);
+  ASSERT_EQ(actual, expected);
+}
+
+TEST_F(CollectDSPACE, singleInputCommandHandleUnknownCommand) {
+  expected = "?";
+  helper::dSPACESingleInputCommand(25, actual);
+  ASSERT_EQ(actual, expected);
+}
+
+TEST_F(CollectDSPACE, balancedInputCommandAddNums0To16) {
+  const int MODE_BEGINS = 29, MODE_ENDS = 45;
+  for (int command = MODE_BEGINS; command <= MODE_ENDS; command++) {
+    expected = ("ABC" + std::to_string(command - MODE_BEGINS)).c_str();
+    helper::dSPACEBalancedInputCommand(command, actual);
+    ASSERT_EQ(actual, expected);
+    actual.remove(0);  // reset for next iteration
+  }
+}
+
+TEST(dSPACELoadProfile, createFilename0to999) {
+  for (unsigned int number = 0; number < 1000; number++) {
+    StringDouble filename = createFilename<StringDouble>(number);
+    StringDouble expected{"PRFL"};
+    if (number < 10)
+      expected += "00";
+    else if (number < 100)
+      expected += "0";
+    expected += (std::to_string(number) + ".txt").c_str();
+    ASSERT_EQ(filename, expected);
+  }
+}
+
+TEST(dSPACELoadProfile, checkLineIsComment) {
+  StringDouble commented{"// this is a comment"};
+  StringDouble uncommented{"/ this is NOT a comment"};
+  StringDouble plain_str{"this is a plain string"};
+  StringDouble single_letter{"a"};
+  StringDouble empty_str;
+
+  ASSERT_TRUE(lineIsComment(commented));
+  ASSERT_FALSE(lineIsComment(uncommented));
+  ASSERT_FALSE(lineIsComment(plain_str));
+  ASSERT_FALSE(lineIsComment(single_letter));
+  ASSERT_FALSE(lineIsComment(empty_str));
+}
+
+TEST(dSPACELoadProfile, readProfileInputSequence) {
+  StringDouble profile_str{"1 2 3 1000"};
+  StringDouble profile_input_sequence = extractProfileInput(profile_str);
+  StringDouble expected{"A1B2C3"};
+
+  ASSERT_EQ(profile_input_sequence, expected);
+}
+
+TEST(dSPACELoadProfile, readProfileDuration) {
+  StringDouble profile_str{"1 2 3 1000"};
+  unsigned long profile_duration = extractProfileDuration(profile_str);
+  unsigned long expected = 1000;
+
+  ASSERT_EQ(profile_duration, expected);
+}
