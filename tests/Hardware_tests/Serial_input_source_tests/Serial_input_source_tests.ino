@@ -20,6 +20,7 @@ NOTES:
 #include "include/XBee.h"
 #include "include/HardwareXBee.h"
 #include "include/Monitor.h"
+#include "include/Collect.h"
 
 Arduino *arduino = new HardwareArduino;
 XBee *xbee = new HardwareXBee{Serial};
@@ -32,8 +33,14 @@ void setup() {
 void loop() {
   if (xbee->hasBufferedData()) {
     if (receivedPCSerialData()) {
-      Serial.println(F("Detected reception of PC serial data.\n"));
-      emptyBuffer();
+      String serialInput = collectPCSerialData<String>();
+
+      Serial.println(F("Detected reception of PC serial data."));
+      Serial.print(F("Recieved input is \""));
+      Serial.print(serialInput);
+      Serial.println(F("\""));
+      Serial.println(F("Verify that serial transmission is correct."));
+      Serial.println(F("Debug if otherwise.\n"));
     } else {
       Serial.println(F("Clearing the buffer..."));
       emptyBuffer();
