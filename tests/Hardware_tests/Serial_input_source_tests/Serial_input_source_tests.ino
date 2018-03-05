@@ -36,14 +36,12 @@ void loop() {
       String serialInput = collectPCSerialData<String>();
 
       Serial.println(F("Detected reception of PC serial data."));
-      Serial.print(F("Recieved input is \""));
-      Serial.print(serialInput);
-      Serial.println(F("\""));
-      Serial.println(F("Verify that serial transmission is correct."));
-      Serial.println(F("Debug if otherwise.\n"));
+      printVerifyMessage(serialInput);
     } else if (receivedDSPACEManualData()) {
-      Serial.println(F("Detected reception of manual mode dSPACE input.\n"));
-      emptyBuffer();
+      String serialInput = collectDSPACEManualData<String>();
+
+      Serial.println(F("Detected reception of dSPACE manual mode input."));
+      printVerifyMessage(serialInput);
     } else {
       Serial.println(F("Clearing the buffer..."));
       emptyBuffer();
@@ -57,4 +55,12 @@ void emptyBuffer() {
     Serial.read();
     delay(10);  // wait for any remaining incoming bytes
   }
+}
+
+void printVerifyMessage(const String &input) {
+  Serial.print(F("Recieved input is \""));
+  Serial.print(input);
+  Serial.println(F("\""));
+  Serial.println(F("Verify that serial transmission is correct."));
+  Serial.println(F("Debug if otherwise.\n"));
 }
