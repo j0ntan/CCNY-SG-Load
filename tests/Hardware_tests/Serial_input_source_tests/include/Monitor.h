@@ -9,6 +9,7 @@
 #define MAX_INPUT_LENGTH \
   11  // we assume that user will not send more than this amount of characters
       // in an input sequence
+#define DSPACE_MANUAL_MODE_BOUND 45
 
 extern Arduino* arduino;
 extern Keypad* keypad;
@@ -32,5 +33,20 @@ inline bool receivedPCSerialData() {
          millisec_elapsed <= SERIAL_TIMEOUT_MILLISECONDS;
 }
 
+inline bool receivedDSPACEManualData() {
+  const uint8_t SERIAL_TIMEOUT_MILLISECONDS = 20;
+  uint8_t millisec_elapsed = 0;
+  do {
+    arduino->delay(2);
+    millisec_elapsed += 2;
+  } while (xbee->bytesAvailable() <= MAX_INPUT_LENGTH &&
+           millisec_elapsed <= SERIAL_TIMEOUT_MILLISECONDS);
+
+  return (xbee->bytesAvailable() > MAX_INPUT_LENGTH ||
+          millisec_elapsed > SERIAL_TIMEOUT_MILLISECONDS) &&
+         xbee->peekByte() <= DSPACE_MANUAL_MODE_BOUND;
+}
+
 #undef MAX_INPUT_LENGTH
+#undef DSPACE_MANUAL_MODE_BOUND
 #endif  // MONITOR_H

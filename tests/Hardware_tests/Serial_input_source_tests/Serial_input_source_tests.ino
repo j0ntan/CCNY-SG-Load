@@ -41,6 +41,9 @@ void loop() {
       Serial.println(F("\""));
       Serial.println(F("Verify that serial transmission is correct."));
       Serial.println(F("Debug if otherwise.\n"));
+    } else if (receivedDSPACEManualData()) {
+      Serial.println(F("Detected reception of manual mode dSPACE input.\n"));
+      emptyBuffer();
     } else {
       Serial.println(F("Clearing the buffer..."));
       emptyBuffer();
