@@ -42,6 +42,9 @@ void loop() {
 
       Serial.println(F("Detected reception of dSPACE manual mode input."));
       printVerifyMessage(serialInput);
+    } else if (receivedDSPACELoadProfile()) {
+      Serial.println(F("Detected reception of dSPACE profile mode input.\n"));
+      emptyBuffer();
     } else {
       Serial.println(F("Clearing the buffer..."));
       emptyBuffer();
