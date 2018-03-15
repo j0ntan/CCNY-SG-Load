@@ -3,6 +3,8 @@
 #include "Keypad.h"
 #include "HardwareKeypad.h"
 #include "ShiftRegister.h"
+#include "XBee.h"
+#include "HardwareXBee.h"
 
 #include "Monitor.h"
 #include "Collect.h"
