@@ -6,16 +6,7 @@
 #ifndef Arduino_h
 #define F(string_literal) string_literal
 typedef uint8_t byte;
-#define B10000000 128
-#define B00000001 1
 #endif  // Arduino_h
-
-#define HIGH 0x1
-#define LOW 0x0
-
-#define INPUT 0x0
-#define OUTPUT 0x1
-#define INPUT_PULLUP 0x2
 
 class Arduino {
  public:
