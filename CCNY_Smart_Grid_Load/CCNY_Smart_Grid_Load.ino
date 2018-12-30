@@ -16,16 +16,17 @@ void setup() {
 }
 
 void loop() {
+  String user_input;
   if (keypadButtonWasPressed()) {
-    String input_from_keypad = recordKeypadSequence<String>();
-    processInputString(input_from_keypad);
+    user_input = recordKeypadSequence<String>();
+    processInputString(user_input);
   } else if (xbee->hasBufferedData()) {
     if (receivedPCSerialData()) {
-      String input_from_PC_serial = collectPCSerialData<String>();
-      processInputString(input_from_PC_serial);
+      user_input = collectPCSerialData<String>();
+      processInputString(user_input);
     } else if (receivedDSPACEManualData()) {
-      String manual_input_from_dSPACE = collectDSPACEManualData<String>();
-      processInputString(manual_input_from_dSPACE);
+      user_input = collectDSPACEManualData<String>();
+      processInputString(user_input);
     } else if (receivedDSPACELoadProfile()) {
       activateLoadProfile();
     } else
