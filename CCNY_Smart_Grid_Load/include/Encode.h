@@ -2,8 +2,9 @@
 #define ENCODE_H
 
 #include <stdint.h>
-#include "ArduinoInterface.h"
 #include "RelayState.h"
+
+typedef uint8_t byte;
 
 struct ACRelayBits {
   byte phaseA_MSB = 0xFF;

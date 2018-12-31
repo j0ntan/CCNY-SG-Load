@@ -5,7 +5,6 @@
 
 #ifndef Arduino_h
 #define F(string_literal) string_literal
-typedef uint8_t byte;
 #endif  // Arduino_h
 
 class Arduino {
