@@ -19,13 +19,13 @@ bool HardwareKeypad::anyButtonPressed() const {
 bool HardwareKeypad::anyButtonHeld() const {
   // Check if a button is held longer than threshold value.
 
-  milliseconds press_duration = 0;
-  while (anyButtonPressed() && press_duration < _HOLD_THRESHOLD) {
+  Keypad::milliseconds press_duration = 0;
+  while (anyButtonPressed() && press_duration < Keypad::HOLD_THRESHOLD) {
     timer->delay(10);
     press_duration += 10;
   }
 
-  return press_duration >= _HOLD_THRESHOLD;
+  return press_duration >= Keypad::HOLD_THRESHOLD;
 }
 
 Keypad::Button HardwareKeypad::getButton() const {
@@ -38,7 +38,7 @@ Keypad::Button HardwareKeypad::getButton() const {
 }
 
 void HardwareKeypad::_initializeKeypadPins() const {
-  for (number n = 0; n < _MAX_COLS; n++) {
+  for (number n = 0; n < Keypad::MAX_COLS; n++) {
     pinMode(_ROWS[n], INPUT_PULLUP);
     pinMode(_COLS[n], OUTPUT);
     digitalWrite(_COLS[n], LOW);
@@ -72,8 +72,8 @@ HardwareKeypad::_Buttons_pressed HardwareKeypad::_checkAllButtonsPressed()
   // of buttons pressed and the row/col of the last checked & pressed button.
 
   _Buttons_pressed result;
-  for (number row_N = 1; row_N <= _MAX_ROWS; row_N++)
-    for (number col_N = 1; col_N <= _MAX_COLS; col_N++)
+  for (number row_N = 1; row_N <= Keypad::MAX_ROWS; row_N++)
+    for (number col_N = 1; col_N <= Keypad::MAX_COLS; col_N++)
       if (_thisButtonPressed(row_N, col_N)) {
         result.row = row_N;
         result.col = col_N;

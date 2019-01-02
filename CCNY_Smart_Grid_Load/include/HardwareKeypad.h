@@ -8,7 +8,6 @@ class HardwareKeypad : public Keypad {
  public:
   typedef uint8_t pin;
   typedef uint8_t number;
-  typedef uint16_t milliseconds;
 
   HardwareKeypad(pin Row1, pin Row2, pin Row3, pin Row4, pin Col1, pin Col2,
                  pin Col3, pin Col4);
@@ -39,10 +38,8 @@ class HardwareKeypad : public Keypad {
   _Buttons_pressed _checkAllButtonsPressed() const;
   Keypad::Button _buttonConvertRowAndCol(number row, number col) const;
 
-  static const number _MAX_ROWS = 4, _MAX_COLS = 4;
-  const pin _ROWS[_MAX_ROWS];
-  const pin _COLS[_MAX_COLS];
-  const milliseconds _HOLD_THRESHOLD = 500;
+  const pin _ROWS[Keypad::MAX_ROWS];
+  const pin _COLS[Keypad::MAX_COLS];
 };
 
 #endif  // HARDWAREKEYPAD_H
