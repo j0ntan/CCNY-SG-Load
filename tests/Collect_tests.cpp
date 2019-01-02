@@ -40,13 +40,13 @@ TEST_F(CollectKeypad, noChangeOnEraseEmptySequence) {
 }
 
 TEST_F(CollectKeypad, addCorrespondingCharToSequence) {
-  const Keypad::Button BUTTONS[] = {
-      Keypad::Button::NUM0, Keypad::Button::NUM1,    Keypad::Button::NUM2,
-      Keypad::Button::NUM3, Keypad::Button::NUM4,    Keypad::Button::NUM5,
-      Keypad::Button::NUM6, Keypad::Button::NUM7,    Keypad::Button::NUM8,
-      Keypad::Button::NUM9, Keypad::Button::A,       Keypad::Button::B,
-      Keypad::Button::C,    Keypad::Button::D,       Keypad::Button::STAR,
-      Keypad::Button::HASH, Keypad::Button::MULTIPLE};
+  const Keypad::ButtonID BUTTONS[] = {
+      Keypad::ButtonID::NUM0, Keypad::ButtonID::NUM1,    Keypad::ButtonID::NUM2,
+      Keypad::ButtonID::NUM3, Keypad::ButtonID::NUM4,    Keypad::ButtonID::NUM5,
+      Keypad::ButtonID::NUM6, Keypad::ButtonID::NUM7,    Keypad::ButtonID::NUM8,
+      Keypad::ButtonID::NUM9, Keypad::ButtonID::A,       Keypad::ButtonID::B,
+      Keypad::ButtonID::C,    Keypad::ButtonID::D,       Keypad::ButtonID::STAR,
+      Keypad::ButtonID::HASH, Keypad::ButtonID::MULTIPLE};
   const char* EQUIVALENT[] = {"0", "1", "2", "3", "4", "5", "6", "7", "8",
                               "9", "A", "B", "C", "D", "",  "",  ""};
 
@@ -69,47 +69,47 @@ TEST_F(CollectKeypad, resetSequence) {
 
 TEST_F(CollectKeypad, holdHashDoesNothing) {
   StringDouble expected = fullACSequence;
-  helper::actionOnButtonHold(fullACSequence, Keypad::Button::HASH);
+  helper::actionOnButtonHold(fullACSequence, Keypad::ButtonID::HASH);
   ASSERT_EQ(fullACSequence, expected);
 }
 
 TEST_F(CollectKeypad, holdLetterDoesNothing) {
   StringDouble expected = fullACSequence;
-  helper::actionOnButtonHold(fullACSequence, Keypad::Button::A);
+  helper::actionOnButtonHold(fullACSequence, Keypad::ButtonID::A);
   ASSERT_EQ(fullACSequence, expected);
 }
 
 TEST_F(CollectKeypad, holdStarCancels) {
-  helper::actionOnButtonHold(fullACSequence, Keypad::Button::STAR);
+  helper::actionOnButtonHold(fullACSequence, Keypad::ButtonID::STAR);
   ASSERT_EQ(fullACSequence, emptySequence);
 }
 
 TEST_F(CollectKeypad, holdStarResets) {
-  helper::actionOnButtonHold(emptySequence, Keypad::Button::STAR);
+  helper::actionOnButtonHold(emptySequence, Keypad::ButtonID::STAR);
   ASSERT_EQ(emptySequence, resetSequence);
 }
 
 TEST_F(CollectKeypad, holdNumPrepends3Phases) {
-  helper::actionOnButtonHold(emptySequence, Keypad::Button::NUM2);
+  helper::actionOnButtonHold(emptySequence, Keypad::ButtonID::NUM2);
   ASSERT_EQ(emptySequence, "ABC2");
 }
 
 TEST_F(CollectKeypad, recordSimpleSequence) {
-  EXPECT_CALL(*keypadMock, getButton())
-      .WillOnce(Return(Keypad::Button::A))      // Press 'A'
-      .WillOnce(Return(Keypad::Button::B))      // Press 'B'
-      .WillOnce(Return(Keypad::Button::C))      // Press 'C'
-      .WillOnce(Return(Keypad::Button::NUM1))   // Press '1'
-      .WillOnce(Return(Keypad::Button::NUM6))   // Press '6'
-      .WillOnce(Return(Keypad::Button::HASH));  // Press '#' (end sequence)
+  EXPECT_CALL(*keypadMock, getButtonID())
+      .WillOnce(Return(Keypad::ButtonID::A))      // Press 'A'
+      .WillOnce(Return(Keypad::ButtonID::B))      // Press 'B'
+      .WillOnce(Return(Keypad::ButtonID::C))      // Press 'C'
+      .WillOnce(Return(Keypad::ButtonID::NUM1))   // Press '1'
+      .WillOnce(Return(Keypad::ButtonID::NUM6))   // Press '6'
+      .WillOnce(Return(Keypad::ButtonID::HASH));  // Press '#' (end sequence)
 
   ASSERT_EQ(recordKeypadSequence<StringDouble>(), fullACSequence);
 }
 
 TEST_F(CollectKeypad, recordBalancedSequenceWithHold) {
-  EXPECT_CALL(*keypadMock, getButton())
-      .WillOnce(Return(Keypad::Button::NUM1))   // Press '1'
-      .WillOnce(Return(Keypad::Button::NUM6));  // Press '6'
+  EXPECT_CALL(*keypadMock, getButtonID())
+      .WillOnce(Return(Keypad::ButtonID::NUM1))   // Press '1'
+      .WillOnce(Return(Keypad::ButtonID::NUM6));  // Press '6'
 
   EXPECT_CALL(*keypadMock, anyButtonHeld())
       .WillOnce(Return(false))  // don't hold '1'
@@ -119,12 +119,12 @@ TEST_F(CollectKeypad, recordBalancedSequenceWithHold) {
 }
 
 TEST_F(CollectKeypad, recordSequenceHoldPhaseEndsSequence) {
-  EXPECT_CALL(*keypadMock, getButton())
-      .WillOnce(Return(Keypad::Button::A))     // Press 'A'
-      .WillOnce(Return(Keypad::Button::NUM1))  // Press '1'
-      .WillOnce(Return(Keypad::Button::B))     // Press 'B'
-      .WillOnce(Return(Keypad::Button::NUM2))  // Press '2'
-      .WillOnce(Return(Keypad::Button::C));    // Press 'C'
+  EXPECT_CALL(*keypadMock, getButtonID())
+      .WillOnce(Return(Keypad::ButtonID::A))     // Press 'A'
+      .WillOnce(Return(Keypad::ButtonID::NUM1))  // Press '1'
+      .WillOnce(Return(Keypad::ButtonID::B))     // Press 'B'
+      .WillOnce(Return(Keypad::ButtonID::NUM2))  // Press '2'
+      .WillOnce(Return(Keypad::ButtonID::C));    // Press 'C'
 
   EXPECT_CALL(*keypadMock, anyButtonHeld())
       .WillOnce(Return(false))  // don't hold 'A'
@@ -137,24 +137,24 @@ TEST_F(CollectKeypad, recordSequenceHoldPhaseEndsSequence) {
 }
 
 TEST_F(CollectKeypad, recordSequenceEraseOnce) {
-  EXPECT_CALL(*keypadMock, getButton())
-      .WillOnce(Return(Keypad::Button::A))      // Press 'A'
-      .WillOnce(Return(Keypad::Button::B))      // Press 'B'
-      .WillOnce(Return(Keypad::Button::C))      // Press 'C'
-      .WillOnce(Return(Keypad::Button::NUM2))   // Press '2'
-      .WillOnce(Return(Keypad::Button::STAR))   // Press '*', erase
-      .WillOnce(Return(Keypad::Button::NUM1))   // Press '1'
-      .WillOnce(Return(Keypad::Button::NUM6))   // Press '6'
-      .WillOnce(Return(Keypad::Button::HASH));  // Press '#' (end sequence)
+  EXPECT_CALL(*keypadMock, getButtonID())
+      .WillOnce(Return(Keypad::ButtonID::A))      // Press 'A'
+      .WillOnce(Return(Keypad::ButtonID::B))      // Press 'B'
+      .WillOnce(Return(Keypad::ButtonID::C))      // Press 'C'
+      .WillOnce(Return(Keypad::ButtonID::NUM2))   // Press '2'
+      .WillOnce(Return(Keypad::ButtonID::STAR))   // Press '*', erase
+      .WillOnce(Return(Keypad::ButtonID::NUM1))   // Press '1'
+      .WillOnce(Return(Keypad::ButtonID::NUM6))   // Press '6'
+      .WillOnce(Return(Keypad::ButtonID::HASH));  // Press '#' (end sequence)
 
   ASSERT_EQ(recordKeypadSequence<StringDouble>(), fullACSequence);
 }
 
 TEST_F(CollectKeypad, recordSequenceWithCancel) {
-  EXPECT_CALL(*keypadMock, getButton())
-      .WillOnce(Return(Keypad::Button::A))      // Press 'A'
-      .WillOnce(Return(Keypad::Button::NUM3))   // Press '3'
-      .WillOnce(Return(Keypad::Button::STAR));  // Press '*'
+  EXPECT_CALL(*keypadMock, getButtonID())
+      .WillOnce(Return(Keypad::ButtonID::A))      // Press 'A'
+      .WillOnce(Return(Keypad::ButtonID::NUM3))   // Press '3'
+      .WillOnce(Return(Keypad::ButtonID::STAR));  // Press '*'
 
   EXPECT_CALL(*keypadMock, anyButtonHeld())
       .WillOnce(Return(false))  // don't hold 'A'
@@ -165,8 +165,8 @@ TEST_F(CollectKeypad, recordSequenceWithCancel) {
 }
 
 TEST_F(CollectKeypad, recordSequenceReset) {
-  EXPECT_CALL(*keypadMock, getButton())
-      .WillOnce(Return(Keypad::Button::STAR));  // Press '*'
+  EXPECT_CALL(*keypadMock, getButtonID())
+      .WillOnce(Return(Keypad::ButtonID::STAR));  // Press '*'
 
   EXPECT_CALL(*keypadMock, anyButtonHeld())
       .WillOnce(Return(true));  // hold '*' (reset & end sequence)
@@ -175,12 +175,12 @@ TEST_F(CollectKeypad, recordSequenceReset) {
 }
 
 TEST_F(CollectKeypad, recordSequenceEraseAllThenReset) {
-  EXPECT_CALL(*keypadMock, getButton())
-      .WillOnce(Return(Keypad::Button::A))      // Press 'A'
-      .WillOnce(Return(Keypad::Button::NUM7))   // Press '7'
-      .WillOnce(Return(Keypad::Button::STAR))   // Press '*' (erase)
-      .WillOnce(Return(Keypad::Button::STAR))   // Press '*' (erase again)
-      .WillOnce(Return(Keypad::Button::STAR));  // Press '*'
+  EXPECT_CALL(*keypadMock, getButtonID())
+      .WillOnce(Return(Keypad::ButtonID::A))      // Press 'A'
+      .WillOnce(Return(Keypad::ButtonID::NUM7))   // Press '7'
+      .WillOnce(Return(Keypad::ButtonID::STAR))   // Press '*' (erase)
+      .WillOnce(Return(Keypad::ButtonID::STAR))   // Press '*' (erase again)
+      .WillOnce(Return(Keypad::ButtonID::STAR));  // Press '*'
 
   EXPECT_CALL(*keypadMock, anyButtonHeld())
       .WillOnce(Return(false))  // don't hold 'A'

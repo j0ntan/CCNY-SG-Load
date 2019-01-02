@@ -22,7 +22,7 @@ class HardwareKeypad : public Keypad {
   bool anyButtonHeld() const final;
 
   // retrieve pressed key
-  Keypad::Button getButton() const final;
+  Keypad::ButtonID getButtonID() const final;
 
  private:
   struct _Buttons_pressed {
@@ -36,7 +36,7 @@ class HardwareKeypad : public Keypad {
   bool _colIsPressed(number col, number row) const;
   bool _thisButtonPressed(number row, number col) const;
   _Buttons_pressed _checkAllButtonsPressed() const;
-  Keypad::Button _buttonConvertRowAndCol(number row, number col) const;
+  Keypad::ButtonID _buttonConvertRowAndCol(number row, number col) const;
 
   const pin _ROWS[Keypad::MAX_ROWS];
   const pin _COLS[Keypad::MAX_COLS];

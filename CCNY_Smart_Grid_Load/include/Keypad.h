@@ -13,7 +13,7 @@ class Keypad {
   virtual bool anyButtonHeld() const = 0;
 
   static const uint8_t MAX_ROWS = 4, MAX_COLS = 4;
-  enum class Button {
+  enum class ButtonID {
     NUM0,
     NUM1,
     NUM2,
@@ -32,7 +32,7 @@ class Keypad {
     STAR,
     MULTIPLE
   };
-  virtual Keypad::Button getButton() const = 0;
+  virtual Keypad::ButtonID getButtonID() const = 0;
 
  protected:
   const milliseconds HOLD_THRESHOLD = 500;
