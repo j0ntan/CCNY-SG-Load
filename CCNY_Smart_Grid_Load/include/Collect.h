@@ -304,10 +304,10 @@ unsigned int readProfileNumberFromSerial() {
 
 template <class StringT>
 StringT createFilename(const unsigned int& profile_number) {
-  const unsigned int HUNDRETHS_DIGIT = profile_number / 100;
+  const unsigned int HUNDREDTHS_DIGIT = profile_number / 100;
   const unsigned int TENS_DIGIT = (profile_number / 10) % 10;
   const unsigned int ONES_DIGIT = profile_number % 10;
-  return StringT(F("PRFL")) + StringT(HUNDRETHS_DIGIT) + StringT(TENS_DIGIT) +
+  return StringT(F("PRFL")) + StringT(HUNDREDTHS_DIGIT) + StringT(TENS_DIGIT) +
          StringT(ONES_DIGIT) + StringT(F(".txt"));
 }
 
