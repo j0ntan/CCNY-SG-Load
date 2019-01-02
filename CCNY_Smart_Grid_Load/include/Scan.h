@@ -2,7 +2,6 @@
 #define SCAN_H
 
 #include <stdint.h>
-#include "string.h"
 
 enum class Token : uint8_t {
   NUM0 = 0,
