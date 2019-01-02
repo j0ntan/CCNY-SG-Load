@@ -56,10 +56,9 @@ StringT recordKeypadSequence() {
   StringT input;
   input.reserve(MAX_INPUT_LENGTH);
   bool sequence_terminated = false;
-  Keypad::Button pressed;
 
   do {
-    pressed = keypad->getButton();
+    const Keypad::Button pressed = keypad->getButton();
 
     if (pressed == Keypad::Button::MULTIPLE) {
       // ignore multiple button presses
