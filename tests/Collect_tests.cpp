@@ -1,6 +1,7 @@
 #include <gmock/gmock.h>
 #include <Arduino_mock.h>
 #include <Keypad_mock.h>
+#include <Timer_mock.h>
 #include <StringDouble.h>
 #include <Collect.h>
 #include <memory>
@@ -9,11 +10,13 @@ using namespace ::testing;
 
 Arduino* arduino = nullptr;
 Keypad* keypad = nullptr;
+Timer* timer = nullptr;
 
 class CollectKeypad : public Test {
  public:
   std::unique_ptr<NiceMock<ArduinoMock>> arduinoMock;
   std::unique_ptr<NiceMock<KeypadMock>> keypadMock;
+  std::unique_ptr<NiceMock<TimerMock>> timerMock;
   StringDouble emptySequence;
   StringDouble fullACSequence{"ABC16"};
   StringDouble resetSequence{"ABCD0"};
@@ -23,6 +26,8 @@ class CollectKeypad : public Test {
     arduino = arduinoMock.get();
     keypadMock = std::make_unique<NiceMock<KeypadMock>>();
     keypad = keypadMock.get();
+    timerMock = std::make_unique<NiceMock<TimerMock>>();
+    timer = timerMock.get();
   }
 };
 

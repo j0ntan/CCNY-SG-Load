@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include "ArduinoInterface.h"
+#include "Timer.h"
 #include "XBee.h"
 #include "Keypad.h"
 
@@ -12,6 +13,7 @@
 #define DSPACE_MANUAL_MODE_BOUND 45
 
 extern Arduino* arduino;
+extern Timer* timer;
 extern Keypad* keypad;
 extern XBee* xbee;
 
@@ -24,7 +26,7 @@ inline bool receivedPCSerialData() {
   uint8_t current_byte_count = 0, millisec_elapsed = 0;
   do {
     current_byte_count = xbee->bytesAvailable();
-    arduino->delay(2);
+    timer->delay(2);
     millisec_elapsed += 2;
   } while (current_byte_count != xbee->bytesAvailable() &&
            millisec_elapsed <= SERIAL_TIMEOUT_MILLISECONDS);
@@ -37,7 +39,7 @@ inline bool receivedDSPACEManualData() {
   const uint8_t SERIAL_TIMEOUT_MILLISECONDS = 20;
   uint8_t millisec_elapsed = 0;
   do {
-    arduino->delay(2);
+    timer->delay(2);
     millisec_elapsed += 2;
   } while (xbee->bytesAvailable() <= MAX_INPUT_LENGTH &&
            millisec_elapsed <= SERIAL_TIMEOUT_MILLISECONDS);
@@ -51,7 +53,7 @@ inline bool receivedDSPACELoadProfile() {
   const uint8_t SERIAL_TIMEOUT_MILLISECONDS = 20;
   uint8_t millisec_elapsed = 0;
   do {
-    arduino->delay(2);
+    timer->delay(2);
     millisec_elapsed += 2;
   } while (xbee->bytesAvailable() <= MAX_INPUT_LENGTH &&
            millisec_elapsed <= SERIAL_TIMEOUT_MILLISECONDS);
