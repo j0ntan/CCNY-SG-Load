@@ -2,6 +2,7 @@
 #define COLLECT_H
 
 #include "ArduinoInterface.h"
+#include "Timer.h"
 #include "Keypad.h"
 #include "XBee.h"
 
@@ -50,6 +51,7 @@ extern Arduino* arduino;
 
 //**************************** KEYPAD collection *****************************//
 extern Keypad* keypad;
+extern Timer* timer;
 
 template <class StringT>
 StringT recordKeypadSequence() {
@@ -160,7 +162,7 @@ void helper::waitForButtonRelease() {
   while (keypad->anyButtonPressed())
     ;  // you do nothing, Jon Snow!!
 
-  arduino->delay(300);  // guard time (ms) between consecutive presses
+  timer->delay(300);  // guard time (ms) between consecutive presses
 }
 
 template <class StringT>
@@ -198,7 +200,7 @@ void helper::readSerialIntoString(StringT& input) {
 void emptyTheBuffer() {
   while (xbee->hasBufferedData()) {
     xbee->readByte();
-    arduino->delay(5);  // guard time, allow incoming data to fill buffer
+    timer->delay(5);  // guard time, allow incoming data to fill buffer
   }
 }
 
@@ -222,7 +224,7 @@ int helper::readNextUniqueByte() { return xbee->readByte(); }
 void helper::removeBufferedByteCopies(const int& original) {
   while (original == xbee->peekByte()) {
     xbee->readByte();
-    arduino->delay(5);  // guard time, allow incoming data to fill buffer
+    timer->delay(5);  // guard time, allow incoming data to fill buffer
   }
 }
 

@@ -1,4 +1,7 @@
 #include "../include/ShiftRegister.h"
+#include "../include/Timer.h"
+
+extern Timer *timer;
 
 ShiftRegister::ShiftRegister(const pin serialDataInput,
                              const pin shiftRegisterClock,
@@ -48,14 +51,14 @@ void ShiftRegister::_initOutputs() const {
 
 void ShiftRegister::_ticShiftRegisterClock() const {
   digitalWrite(_SHIFT_REGISTER_CLOCK, HIGH);
-  delayMicroseconds(_SHIFT_CLOCK_DELAY);
+  timer->delayMicroseconds(_SHIFT_CLOCK_DELAY);
   digitalWrite(_SHIFT_REGISTER_CLOCK, LOW);
-  delayMicroseconds(_SHIFT_CLOCK_DELAY);
+  timer->delayMicroseconds(_SHIFT_CLOCK_DELAY);
 }
 
 void ShiftRegister::_ticStorageRegisterClock() const {
   digitalWrite(_STORAGE_REGISTER_CLOCK, HIGH);
-  delayMicroseconds(_STORAGE_CLOCK_DELAY);
+  timer->delayMicroseconds(_STORAGE_CLOCK_DELAY);
   digitalWrite(_STORAGE_REGISTER_CLOCK, LOW);
-  delayMicroseconds(_STORAGE_CLOCK_DELAY);
+  timer->delayMicroseconds(_STORAGE_CLOCK_DELAY);
 }

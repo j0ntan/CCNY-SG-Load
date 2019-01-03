@@ -3,12 +3,14 @@
 
 #include "Display.h"
 #include "ArduinoInterface.h"
+#include "Timer.h"
 #include "Keypad.h"
 #include "XBee.h"
 #include "Scan.h"
 #include "RelayState.h"
 
 extern Display<String>* display;
+extern Timer* timer;
 extern Keypad* keypad;
 extern XBee* xbee;
 
@@ -39,7 +41,7 @@ void pause_display(Speed speed = Speed::NORMAL) {
   const unsigned long TIME_INTERVAL = 100;
   int time_elapsed = 0;
   do {
-    delay(TIME_INTERVAL);
+    timer->delay(TIME_INTERVAL);
     time_elapsed += TIME_INTERVAL;
   } while (time_elapsed < static_cast<int>(speed) && !xbee->hasBufferedData() &&
            !keypad->anyButtonPressed());

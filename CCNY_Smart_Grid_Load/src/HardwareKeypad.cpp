@@ -1,4 +1,7 @@
 #include "../include/HardwareKeypad.h"
+#include "../include/Timer.h"
+
+extern Timer* timer;
 
 HardwareKeypad::HardwareKeypad(pin row1, pin row2, pin row3, pin row4, pin col1,
                                pin col2, pin col3, pin col4)
@@ -18,7 +21,7 @@ bool HardwareKeypad::anyButtonHeld() const {
 
   milliseconds press_duration = 0;
   while (anyButtonPressed() && press_duration < _HOLD_THRESHOLD) {
-    delay(10);
+    timer->delay(10);
     press_duration += 10;
   }
 
