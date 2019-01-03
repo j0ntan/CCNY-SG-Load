@@ -1,19 +1,18 @@
 #include "../include/HardwareKeypad.h"
 #include "../include/Timer.h"
+#include "../include/DigitalIO.h"
 
 extern Timer* timer;
 
-HardwareKeypad::HardwareKeypad(pin row1, pin row2, pin row3, pin row4, pin col1,
-                               pin col2, pin col3, pin col4)
-    : _ROWS{row1, row2, row3, row4}, _COLS{col1, col2, col3, col4} {
-  _initializeKeypadPins();
-}
+HardwareKeypad::HardwareKeypad(const DigitalInput* input_pins[],
+                               const DigitalOutput* output_pins[])
+    : ROWS{input_pins}, COLS{output_pins} {}
 
 bool HardwareKeypad::anyButtonPressed() const {
   // Internal pull-ups on row pins short to ground on a button press.
 
-  return digitalRead(_ROWS[0]) == 0 || digitalRead(_ROWS[1]) == 0 ||
-         digitalRead(_ROWS[2]) == 0 || digitalRead(_ROWS[3]) == 0;
+  return !ROWS[0]->read() || !ROWS[1]->read() || !ROWS[2]->read() ||
+         !ROWS[3]->read();
 }
 
 bool HardwareKeypad::anyButtonHeld() const {
@@ -37,16 +36,8 @@ Keypad::ButtonID HardwareKeypad::getButtonID() const {
                            : _buttonConvertRowAndCol(pressed.row, pressed.col);
 }
 
-void HardwareKeypad::_initializeKeypadPins() const {
-  for (number n = 0; n < Keypad::MAX_COLS; n++) {
-    pinMode(_ROWS[n], INPUT_PULLUP);
-    pinMode(_COLS[n], OUTPUT);
-    digitalWrite(_COLS[n], LOW);
-  }
-}
-
 bool HardwareKeypad::_rowIsPressed(number row_N) const {
-  return digitalRead(_ROWS[row_N - 1]) == 0;
+  return !ROWS[row_N - 1]->read();
 }
 
 bool HardwareKeypad::_colIsPressed(number col_N, number row_N) const {
@@ -55,9 +46,9 @@ bool HardwareKeypad::_colIsPressed(number col_N, number row_N) const {
 
   bool row_was_toggled = false;
 
-  digitalWrite(_COLS[col_N - 1], HIGH);
-  if (digitalRead(_ROWS[row_N - 1])) row_was_toggled = true;
-  digitalWrite(_COLS[col_N - 1], LOW);
+  COLS[col_N - 1]->set();
+  if (ROWS[row_N - 1]->read()) row_was_toggled = true;
+  COLS[col_N - 1]->clear();
 
   return row_was_toggled;
 }

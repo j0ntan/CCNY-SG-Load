@@ -1,16 +1,17 @@
 #ifndef HARDWAREKEYPAD_H
 #define HARDWAREKEYPAD_H
 
-#include "Arduino.h"
 #include "Keypad.h"
+
+class DigitalInput;
+class DigitalOutput;
 
 class HardwareKeypad : public Keypad {
  public:
-  typedef uint8_t pin;
   typedef uint8_t number;
 
-  HardwareKeypad(pin Row1, pin Row2, pin Row3, pin Row4, pin Col1, pin Col2,
-                 pin Col3, pin Col4);
+  HardwareKeypad(const DigitalInput* input_pins[],
+                 const DigitalOutput* output_pins[]);
   ~HardwareKeypad() final = default;
 
   HardwareKeypad() = delete;
@@ -31,15 +32,14 @@ class HardwareKeypad : public Keypad {
     number count = 0;
   };
 
-  void _initializeKeypadPins() const;
   bool _rowIsPressed(number row) const;
   bool _colIsPressed(number col, number row) const;
   bool _thisButtonPressed(number row, number col) const;
   _Buttons_pressed _checkAllButtonsPressed() const;
   Keypad::ButtonID _buttonConvertRowAndCol(number row, number col) const;
 
-  const pin _ROWS[Keypad::MAX_ROWS];
-  const pin _COLS[Keypad::MAX_COLS];
+  const DigitalInput** ROWS;
+  const DigitalOutput** COLS;
 };
 
 #endif  // HARDWAREKEYPAD_H
