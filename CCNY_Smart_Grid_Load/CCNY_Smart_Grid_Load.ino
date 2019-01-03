@@ -6,6 +6,7 @@
 
 RelayState relay_state;
 Arduino* arduino = new HardwareArduino;
+Timer* timer = new HardwareTimer;
 Keypad* keypad = new HardwareKeypad(37, 36, 35, 34, 33, 32, 31, 30);
 ShiftRegister shiftregister{2, 3, 4};
 XBee* xbee = new HardwareXBee{Serial};
@@ -62,7 +63,7 @@ void activateLoadProfile() {
         const unsigned long DURATION =
             extractProfileDuration<String>(INPUT_STR);
         processInputString(PROFILE_INPUT);
-        arduino->delay(DURATION);
+        timer->delay(DURATION);
       }
     }
   }  // else, report SD card or File error

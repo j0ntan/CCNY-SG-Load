@@ -1,5 +1,7 @@
 #include "ArduinoInterface.h"
 #include "HardwareArduino.h"
+#include "Timer.h"
+#include "HardwareTimer.h"
 #include "Keypad.h"
 #include "HardwareKeypad.h"
 #include "ShiftRegister.h"
