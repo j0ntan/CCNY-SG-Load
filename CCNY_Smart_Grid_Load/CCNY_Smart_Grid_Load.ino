@@ -4,6 +4,13 @@
 
 #include "include/CCNY_Smart_Grid_Load_files.h"
 
+//
+// SG-Load Arduino I/O pin mapping:
+//
+// DC relay outputs
+const DigitalOutput* relay1_output = new HardwareOutput{22};
+const DigitalOutput* relay2_output = new HardwareOutput{23};
+
 RelayState relay_state;
 Arduino* arduino = new HardwareArduino;
 Timer* timer = new HardwareTimer;
@@ -42,7 +49,7 @@ void processInputString(const String& input) {
     if (hasNoParseErrors(analysis)) {
       parseNewRelayState(analysis, relay_state);
       ACRelayBits bits = encode(relay_state);
-      outputAllRelays(bits, relay_state.DC);
+      outputAllRelays(bits, relay_state.DC, relay1_output, relay2_output);
     }  // else, parse error reported
   } else
     ;  // report invalid char error
