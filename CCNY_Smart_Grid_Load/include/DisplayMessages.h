@@ -4,6 +4,7 @@
 #include "Display.h"
 #include "ArduinoInterface.h"
 #include "Timer.h"
+#include "BernoulliRNG.h"
 #include "Keypad.h"
 #include "XBee.h"
 #include "Scan.h"
@@ -24,17 +25,6 @@ enum class Speed : unsigned int {
 };
 
 namespace helper {
-bool correct_random_guess() {
-  // Show 'caution' message at random initializations :)
-
-  arduino->randomSeed(analogRead(0));
-  const uint8_t BOUND = 17;
-  const uint8_t FIRST_GUESS = 2;
-  const uint8_t SECOND_GUESS = 11;
-  const long RANDOM_READING = arduino->random(BOUND);
-  return FIRST_GUESS == RANDOM_READING || SECOND_GUESS == RANDOM_READING;
-}
-
 void pause_display(Speed speed = Speed::NORMAL) {
   // Pause until display time is finished or interrupt occurs.
 
@@ -87,7 +77,7 @@ void caution() {
   pause_display();
 }
 
-void initialization() {
+void initialization(const BernoulliRNG& rng) {
   using namespace helper;
 
   // lab & professor
@@ -110,7 +100,8 @@ void initialization() {
   display->print(F("Code version: ?.?"));
   pause_display(Speed::FASTER);
 
-  if (correct_random_guess()) caution();
+  // Show 'caution' message at random initializations :)
+  if (rng()) caution();
 
   // final msg
   display->clear();
