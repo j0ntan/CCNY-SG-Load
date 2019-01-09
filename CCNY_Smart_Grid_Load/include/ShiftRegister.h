@@ -1,14 +1,17 @@
 #ifndef SHIFT_REGISTER_H
 #define SHIFT_REGISTER_H
 
-#include "Arduino.h"
+#include <stdint.h>
+
+class DigitalOutput;
 
 class ShiftRegister {
  public:
-  typedef uint8_t pin;
+  typedef uint8_t byte;
 
-  ShiftRegister(const pin serialDataInput, const pin shiftRegisterClock,
-                const pin storageRegisterClock);
+  ShiftRegister(const DigitalOutput *serialDataInput,
+                const DigitalOutput *shiftRegisterClock,
+                const DigitalOutput *storageRegisterClock);
 
   ShiftRegister() = delete;
   ShiftRegister(const ShiftRegister &) = delete;
@@ -24,10 +27,10 @@ class ShiftRegister {
   void _ticShiftRegisterClock() const;
   void _ticStorageRegisterClock() const;
 
-  // shift register pins
-  const pin _SERIAL_DATA_INPUT;
-  const pin _SHIFT_REGISTER_CLOCK;
-  const pin _STORAGE_REGISTER_CLOCK;
+  // outputs to shift register
+  const DigitalOutput *_SERIAL_DATA_INPUT;
+  const DigitalOutput *_SHIFT_REGISTER_CLOCK;
+  const DigitalOutput *_STORAGE_REGISTER_CLOCK;
 
   // clock periods in microseconds
   static const unsigned int _SHIFT_CLOCK_DELAY = 1000;

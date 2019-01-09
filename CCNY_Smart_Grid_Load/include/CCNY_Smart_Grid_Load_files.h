@@ -2,6 +2,8 @@
 #include "HardwareArduino.h"
 #include "Timer.h"
 #include "HardwareTimer.h"
+#include "DigitalIO.h"
+#include "HardwareIO.h"
 #include "Keypad.h"
 #include "HardwareKeypad.h"
 #include "ShiftRegister.h"

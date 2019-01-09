@@ -1,11 +1,12 @@
 #include "../include/ShiftRegister.h"
 #include "../include/Timer.h"
+#include "../include/DigitalIO.h"
 
-extern Timer *timer;
+extern Timer* timer;
 
-ShiftRegister::ShiftRegister(const pin serialDataInput,
-                             const pin shiftRegisterClock,
-                             const pin storageRegisterClock)
+ShiftRegister::ShiftRegister(const DigitalOutput* serialDataInput,
+                             const DigitalOutput* shiftRegisterClock,
+                             const DigitalOutput* storageRegisterClock)
     : _SERIAL_DATA_INPUT(serialDataInput),
       _SHIFT_REGISTER_CLOCK(shiftRegisterClock),
       _STORAGE_REGISTER_CLOCK(storageRegisterClock) {
@@ -13,34 +14,31 @@ ShiftRegister::ShiftRegister(const pin serialDataInput,
   _initOutputs();
 }
 
-void ShiftRegister::shiftByte(const byte &data) const {
-  byte output_bit = 0, shifted_byte = 0;
+void ShiftRegister::shiftByte(const byte& data) const {
   for (uint8_t offset = 0; offset < 8; offset++) {
-    // bits are output in reverse
-    shifted_byte = data >> (7 - offset);
-    output_bit = shifted_byte & B00000001;
-
-    digitalWrite(_SERIAL_DATA_INPUT, output_bit);
+    // bits are output from MSB (bit 7) to LSB (bit 0)
+    const byte data_shifted = data >> (7 - offset);
+    const bool bit_value_HIGH = data_shifted & 0x01;
+    if (bit_value_HIGH)
+      _SERIAL_DATA_INPUT->set();
+    else
+      _SERIAL_DATA_INPUT->clear();
     _ticShiftRegisterClock();
   }
 }
 
 void ShiftRegister::updateOutput() const { _ticStorageRegisterClock(); }
 
-void ShiftRegister::outputByte(const byte &data) const {
+void ShiftRegister::outputByte(const byte& data) const {
   shiftByte(data);
   updateOutput();
 }
 
 void ShiftRegister::_initPins() const {
-  pinMode(_SERIAL_DATA_INPUT, OUTPUT);
-  pinMode(_SHIFT_REGISTER_CLOCK, OUTPUT);
-  pinMode(_STORAGE_REGISTER_CLOCK, OUTPUT);
-
-  // set pins to idle state
-  digitalWrite(_SERIAL_DATA_INPUT, LOW);
-  digitalWrite(_SHIFT_REGISTER_CLOCK, LOW);
-  digitalWrite(_STORAGE_REGISTER_CLOCK, LOW);
+  // set outputs to idle state
+  _SERIAL_DATA_INPUT->clear();
+  _SHIFT_REGISTER_CLOCK->clear();
+  _STORAGE_REGISTER_CLOCK->clear();
 }
 
 void ShiftRegister::_initOutputs() const {
@@ -50,15 +48,15 @@ void ShiftRegister::_initOutputs() const {
 }
 
 void ShiftRegister::_ticShiftRegisterClock() const {
-  digitalWrite(_SHIFT_REGISTER_CLOCK, HIGH);
+  _SHIFT_REGISTER_CLOCK->set();
   timer->delayMicroseconds(_SHIFT_CLOCK_DELAY);
-  digitalWrite(_SHIFT_REGISTER_CLOCK, LOW);
+  _SHIFT_REGISTER_CLOCK->clear();
   timer->delayMicroseconds(_SHIFT_CLOCK_DELAY);
 }
 
 void ShiftRegister::_ticStorageRegisterClock() const {
-  digitalWrite(_STORAGE_REGISTER_CLOCK, HIGH);
+  _STORAGE_REGISTER_CLOCK->set();
   timer->delayMicroseconds(_STORAGE_CLOCK_DELAY);
-  digitalWrite(_STORAGE_REGISTER_CLOCK, LOW);
+  _STORAGE_REGISTER_CLOCK->clear();
   timer->delayMicroseconds(_STORAGE_CLOCK_DELAY);
 }

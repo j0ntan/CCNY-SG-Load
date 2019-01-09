@@ -1,22 +1,23 @@
 #ifndef OUTPUT_H
 #define OUTPUT_H
 
+#include "DigitalIO.h"
 #include "Encode.h"
 #include "ShiftRegister.h"
-
-#define DC_Relay_Pin1 22
-#define DC_Relay_Pin2 23
 
 extern ShiftRegister shiftregister;
 
 namespace helper {
 void outputBitsToShiftRegisters(const ACRelayBits&);
-void outputToDCRelays(const uint8_t&);
+void outputToDCRelays(const uint8_t&, const DigitalOutput*,
+                      const DigitalOutput*);
 }  // namespace helper
 
-void outputAllRelays(const ACRelayBits& ACvalues, const uint8_t& DCvalue) {
+void outputAllRelays(const ACRelayBits& ACvalues, const uint8_t& DCvalue,
+                     const DigitalOutput* DC_relay1_output,
+                     const DigitalOutput* DC_relay2_output) {
   helper::outputBitsToShiftRegisters(ACvalues);
-  helper::outputToDCRelays(DCvalue);
+  helper::outputToDCRelays(DCvalue, DC_relay1_output, DC_relay2_output);
 }
 
 void helper::outputBitsToShiftRegisters(const ACRelayBits& bits) {
@@ -29,19 +30,21 @@ void helper::outputBitsToShiftRegisters(const ACRelayBits& bits) {
   shiftregister.updateOutput();
 }
 
-void helper::outputToDCRelays(const uint8_t& DCvalue) {
+void helper::outputToDCRelays(const uint8_t& DCvalue,
+                              const DigitalOutput* DC_relay1_output,
+                              const DigitalOutput* DC_relay2_output) {
   switch (DCvalue) {
     case 0:
-      digitalWrite(DC_Relay_Pin1, LOW);
-      digitalWrite(DC_Relay_Pin2, LOW);
+      DC_relay1_output->clear();
+      DC_relay2_output->clear();
       break;
     case 1:
-      digitalWrite(DC_Relay_Pin1, HIGH);
-      digitalWrite(DC_Relay_Pin2, LOW);
+      DC_relay1_output->set();
+      DC_relay2_output->clear();
       break;
     case 2:
-      digitalWrite(DC_Relay_Pin1, HIGH);
-      digitalWrite(DC_Relay_Pin2, HIGH);
+      DC_relay1_output->set();
+      DC_relay2_output->set();
       break;
   }
 }
