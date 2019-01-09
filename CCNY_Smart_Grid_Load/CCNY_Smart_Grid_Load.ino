@@ -7,6 +7,10 @@
 //
 // SG-Load Arduino I/O pin mapping:
 //
+// Shift register outputs
+const DigitalOutput* serial_data_output = new HardwareOutput{2};
+const DigitalOutput* SR_clock_output = new HardwareOutput{3};
+const DigitalOutput* ST_clock_output = new HardwareOutput{4};
 // DC relay outputs
 const DigitalOutput* relay1_output = new HardwareOutput{22};
 const DigitalOutput* relay2_output = new HardwareOutput{23};
@@ -15,7 +19,8 @@ RelayState relay_state;
 Arduino* arduino = new HardwareArduino;
 Timer* timer = new HardwareTimer;
 Keypad* keypad = new HardwareKeypad(37, 36, 35, 34, 33, 32, 31, 30);
-ShiftRegister shiftregister{2, 3, 4};
+ShiftRegister shiftregister{serial_data_output, SR_clock_output,
+                            ST_clock_output};
 XBee* xbee = new HardwareXBee{Serial};
 
 void setup() {
