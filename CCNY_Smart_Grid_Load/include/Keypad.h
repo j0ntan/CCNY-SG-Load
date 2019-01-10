@@ -36,6 +36,12 @@ class Keypad {
 
  protected:
   const milliseconds HOLD_THRESHOLD = 500;
+  using ID = Keypad::ButtonID;
+  const Keypad::ButtonID mapping[Keypad::MAX_ROWS][Keypad::MAX_COLS] = {
+      {ID::NUM1, ID::NUM2, ID::NUM3, ID::A},
+      {ID::NUM4, ID::NUM5, ID::NUM6, ID::B},
+      {ID::NUM7, ID::NUM8, ID::NUM9, ID::C},
+      {ID::STAR, ID::NUM0, ID::HASH, ID::D}};
 };
 
 #endif  // KEYPAD_H
