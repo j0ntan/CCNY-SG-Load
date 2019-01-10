@@ -30,10 +30,32 @@ bool HardwareKeypad::anyButtonHeld() const {
 Keypad::ButtonID HardwareKeypad::getButtonID() const {
   // Returns the Keypad::ButtonID corresponding to what is being pressed.
 
-  _Buttons_pressed pressed = _checkAllButtonsPressed();
+  uint8_t last_pressed_row = 0, last_pressed_col = 0, pressed_count = 0;
+  _pollEachButton(last_pressed_col, last_pressed_col, pressed_count);
 
-  return pressed.count > 1 ? Keypad::ButtonID::MULTIPLE
-                           : _buttonConvertRowAndCol(pressed.row, pressed.col);
+  if (pressed_count > 1)
+    return Keypad::ButtonID::MULTIPLE;
+  else
+    return Keypad::mapping[last_pressed_row][last_pressed_col];
+}
+
+void HardwareKeypad::_pollEachButton(uint8_t& last_pressed_row,
+                                     uint8_t& last_pressed_col,
+                                     uint8_t& pressed_count) const {
+  for (uint8_t row = 0; row < Keypad::MAX_ROWS; ++row) {
+    for (uint8_t col = 0; col < Keypad::MAX_COLS; ++col) {
+      const bool first_reading = ROWS[row]->read();
+      COLS[col]->set();
+      const bool button_pressed = ROWS[row]->read() != first_reading;
+      COLS[col]->clear();
+
+      if (button_pressed) {
+        last_pressed_row = row;
+        last_pressed_col = col;
+        ++pressed_count;
+      }
+    }
+  }
 }
 
 bool HardwareKeypad::_rowIsPressed(number row_N) const {
@@ -72,45 +94,4 @@ HardwareKeypad::_Buttons_pressed HardwareKeypad::_checkAllButtonsPressed()
       }
 
   return result;
-}
-
-Keypad::ButtonID HardwareKeypad::_buttonConvertRowAndCol(number row_N,
-                                                         number col_N) const {
-  number button_ID = (col_N - 1) + 4 * (row_N - 1);
-  switch (button_ID) {
-    case 0:
-      return Keypad::ButtonID::NUM1;
-    case 1:
-      return Keypad::ButtonID::NUM2;
-    case 2:
-      return Keypad::ButtonID::NUM3;
-    case 3:
-      return Keypad::ButtonID::A;
-    case 4:
-      return Keypad::ButtonID::NUM4;
-    case 5:
-      return Keypad::ButtonID::NUM5;
-    case 6:
-      return Keypad::ButtonID::NUM6;
-    case 7:
-      return Keypad::ButtonID::B;
-    case 8:
-      return Keypad::ButtonID::NUM7;
-    case 9:
-      return Keypad::ButtonID::NUM8;
-    case 10:
-      return Keypad::ButtonID::NUM9;
-    case 11:
-      return Keypad::ButtonID::C;
-    case 12:
-      return Keypad::ButtonID::STAR;
-    case 13:
-      return Keypad::ButtonID::NUM0;
-    case 14:
-      return Keypad::ButtonID::HASH;
-    case 15:
-      return Keypad::ButtonID::D;
-    default:
-      return Keypad::ButtonID::MULTIPLE;
-  }
 }

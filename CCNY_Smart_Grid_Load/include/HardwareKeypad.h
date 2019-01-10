@@ -32,11 +32,12 @@ class HardwareKeypad : public Keypad {
     number count = 0;
   };
 
+  void _pollEachButton(uint8_t& last_pressed_row, uint8_t& last_pressed_col,
+                       uint8_t& pressed_count) const;
   bool _rowIsPressed(number row) const;
   bool _colIsPressed(number col, number row) const;
   bool _thisButtonPressed(number row, number col) const;
   _Buttons_pressed _checkAllButtonsPressed() const;
-  Keypad::ButtonID _buttonConvertRowAndCol(number row, number col) const;
 
   const DigitalInput** ROWS;
   const DigitalOutput** COLS;
