@@ -16,7 +16,6 @@ const DigitalOutput* relay1_output = new HardwareOutput{22};
 const DigitalOutput* relay2_output = new HardwareOutput{23};
 
 RelayState relay_state;
-Arduino* arduino = new HardwareArduino;
 Timer* timer = new HardwareTimer;
 Keypad* keypad = new HardwareKeypad(37, 36, 35, 34, 33, 32, 31, 30);
 ShiftRegister shiftregister{serial_data_output, SR_clock_output,

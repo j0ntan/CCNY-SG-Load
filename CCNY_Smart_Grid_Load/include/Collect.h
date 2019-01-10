@@ -1,7 +1,6 @@
 #ifndef COLLECT_H
 #define COLLECT_H
 
-#include "ArduinoInterface.h"
 #include "Timer.h"
 #include "Keypad.h"
 #include "XBee.h"
@@ -46,8 +45,6 @@ void dSPACESingleInputCommand(const int& commandID, StringT& input);
 template <class StringT>
 void dSPACEBalancedInputCommand(const int& commandID, StringT& input);
 }  // namespace helper
-
-extern Arduino* arduino;
 
 //**************************** KEYPAD collection *****************************//
 extern Keypad* keypad;

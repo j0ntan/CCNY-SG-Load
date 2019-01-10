@@ -2,7 +2,6 @@
 #define DISPLAYMESSAGES_H
 
 #include "Display.h"
-#include "ArduinoInterface.h"
 #include "Timer.h"
 #include "BernoulliRNG.h"
 #include "Keypad.h"

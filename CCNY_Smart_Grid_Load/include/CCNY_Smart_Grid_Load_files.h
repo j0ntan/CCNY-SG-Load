@@ -1,5 +1,3 @@
-#include "ArduinoInterface.h"
-#include "HardwareArduino.h"
 #include "Timer.h"
 #include "HardwareTimer.h"
 #include "DigitalIO.h"

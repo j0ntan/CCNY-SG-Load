@@ -2,7 +2,6 @@
 #define MONITOR_H
 
 #include <stdint.h>
-#include "ArduinoInterface.h"
 #include "Timer.h"
 #include "XBee.h"
 #include "Keypad.h"
@@ -12,7 +11,6 @@
       // in an input sequence
 #define DSPACE_MANUAL_MODE_BOUND 45
 
-extern Arduino* arduino;
 extern Timer* timer;
 extern Keypad* keypad;
 extern XBee* xbee;

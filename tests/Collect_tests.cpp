@@ -1,20 +1,18 @@
 #include <gmock/gmock.h>
-#include <Arduino_mock.h>
 #include <Keypad_mock.h>
 #include <Timer_mock.h>
 #include <StringDouble.h>
+#define F(string_literal) string_literal
 #include <Collect.h>
 #include <memory>
 
 using namespace ::testing;
 
-Arduino* arduino = nullptr;
 Keypad* keypad = nullptr;
 Timer* timer = nullptr;
 
 class CollectKeypad : public Test {
  public:
-  std::unique_ptr<NiceMock<ArduinoMock>> arduinoMock;
   std::unique_ptr<NiceMock<KeypadMock>> keypadMock;
   std::unique_ptr<NiceMock<TimerMock>> timerMock;
   StringDouble emptySequence;
@@ -22,8 +20,6 @@ class CollectKeypad : public Test {
   StringDouble resetSequence{"ABCD0"};
 
   void SetUp() final {
-    arduinoMock = std::make_unique<NiceMock<ArduinoMock>>();
-    arduino = arduinoMock.get();
     keypadMock = std::make_unique<NiceMock<KeypadMock>>();
     keypad = keypadMock.get();
     timerMock = std::make_unique<NiceMock<TimerMock>>();
