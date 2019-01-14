@@ -10,13 +10,13 @@
 
 namespace helper {
 template <class StringT>
-void actionOnButtonHold(StringT& input, const Keypad::Button& pressed);
+void actionOnButtonHold(StringT& input, const Keypad::ButtonID& pressed);
 
 template <class StringT>
 void eraseLastInSequence(StringT& input);
 
 template <class StringT>
-void addCharToSequence(StringT& input, const Keypad::Button& pressed);
+void addCharToSequence(StringT& input, const Keypad::ButtonID& pressed);
 
 void waitForButtonRelease();
 
@@ -57,16 +57,16 @@ StringT recordKeypadSequence() {
   bool sequence_terminated = false;
 
   do {
-    const Keypad::Button pressed = keypad->getButton();
+    const Keypad::ButtonID pressed = keypad->getButtonID();
 
-    if (pressed == Keypad::Button::MULTIPLE) {
+    if (pressed == Keypad::ButtonID::MULTIPLE) {
       // ignore multiple button presses
     } else if (keypad->anyButtonHeld()) {
       helper::actionOnButtonHold(input, pressed);
       sequence_terminated = true;
-    } else if (pressed == Keypad::Button::HASH) {
+    } else if (pressed == Keypad::ButtonID::HASH) {
       sequence_terminated = true;
-    } else if (pressed == Keypad::Button::STAR) {
+    } else if (pressed == Keypad::ButtonID::STAR) {
       helper::eraseLastInSequence(input);
     } else {
       helper::addCharToSequence(input, pressed);
@@ -79,15 +79,16 @@ StringT recordKeypadSequence() {
 }
 
 template <class StringT>
-void helper::actionOnButtonHold(StringT& input, const Keypad::Button& pressed) {
+void helper::actionOnButtonHold(StringT& input,
+                                const Keypad::ButtonID& pressed) {
   switch (pressed) {
-    case Keypad::Button::HASH:
-    case Keypad::Button::A:
-    case Keypad::Button::B:
-    case Keypad::Button::C:
-    case Keypad::Button::D:
+    case Keypad::ButtonID::HASH:
+    case Keypad::ButtonID::A:
+    case Keypad::ButtonID::B:
+    case Keypad::ButtonID::C:
+    case Keypad::ButtonID::D:
       break;  // do nothing
-    case Keypad::Button::STAR:
+    case Keypad::ButtonID::STAR:
       if (input.length() > 0)
         helper::cancelSequence(input);
       else
@@ -106,48 +107,49 @@ void helper::eraseLastInSequence(StringT& input) {
 }
 
 template <class StringT>
-void helper::addCharToSequence(StringT& input, const Keypad::Button& pressed) {
+void helper::addCharToSequence(StringT& input,
+                               const Keypad::ButtonID& pressed) {
   switch (pressed) {
-    case Keypad::Button::NUM0:
+    case Keypad::ButtonID::NUM0:
       input += '0';
       break;
-    case Keypad::Button::NUM1:
+    case Keypad::ButtonID::NUM1:
       input += '1';
       break;
-    case Keypad::Button::NUM2:
+    case Keypad::ButtonID::NUM2:
       input += '2';
       break;
-    case Keypad::Button::NUM3:
+    case Keypad::ButtonID::NUM3:
       input += '3';
       break;
-    case Keypad::Button::NUM4:
+    case Keypad::ButtonID::NUM4:
       input += '4';
       break;
-    case Keypad::Button::NUM5:
+    case Keypad::ButtonID::NUM5:
       input += '5';
       break;
-    case Keypad::Button::NUM6:
+    case Keypad::ButtonID::NUM6:
       input += '6';
       break;
-    case Keypad::Button::NUM7:
+    case Keypad::ButtonID::NUM7:
       input += '7';
       break;
-    case Keypad::Button::NUM8:
+    case Keypad::ButtonID::NUM8:
       input += '8';
       break;
-    case Keypad::Button::NUM9:
+    case Keypad::ButtonID::NUM9:
       input += '9';
       break;
-    case Keypad::Button::A:
+    case Keypad::ButtonID::A:
       input += 'A';
       break;
-    case Keypad::Button::B:
+    case Keypad::ButtonID::B:
       input += 'B';
       break;
-    case Keypad::Button::C:
+    case Keypad::ButtonID::C:
       input += 'C';
       break;
-    case Keypad::Button::D:
+    case Keypad::ButtonID::D:
       input += 'D';
       break;
     default:

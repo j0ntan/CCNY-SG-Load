@@ -10,7 +10,7 @@ class KeypadMock : public Keypad {
 
   MOCK_CONST_METHOD0(anyButtonPressed, bool());
   MOCK_CONST_METHOD0(anyButtonHeld, bool());
-  MOCK_CONST_METHOD0(getButton, Keypad::Button());
+  MOCK_CONST_METHOD0(getButtonID, Keypad::ButtonID());
 };
 
 #endif  // KEYPAD_MOCK_H
