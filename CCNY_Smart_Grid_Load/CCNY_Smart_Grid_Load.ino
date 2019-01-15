@@ -2,7 +2,17 @@
 // version: ?.?
 // Institution: Smart Grid Lab, City College of New York (ST 643)
 
-#include "include/CCNY_Smart_Grid_Load_files.h"
+#include "include/HardwareTimer.h"
+#include "include/HardwareIO.h"
+#include "include/HardwareKeypad.h"
+#include "include/HardwareXBee.h"
+#include "include/SDCard.h"
+#include "include/Monitor.h"
+#include "include/Collect.h"
+#include "include/Scan.h"
+#include "include/Parse.h"
+#include "include/Encode.h"
+#include "include/Output.h"
 
 //
 // SG-Load Arduino I/O pin mapping:
