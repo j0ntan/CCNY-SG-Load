@@ -2,8 +2,7 @@
 #define SDCARD_H
 
 #include "LoadProfile.h"
-#include "WString.h"
-#include <SPI.h>
+#include <WString.h>
 #include <SD.h>
 
 class SDCard {

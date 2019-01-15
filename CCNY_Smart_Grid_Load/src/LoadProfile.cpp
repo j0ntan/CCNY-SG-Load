@@ -1,5 +1,5 @@
 #include "../include/LoadProfile.h"
-#include "WString.h"
+#include <WString.h>
 
 LoadProfile::LoadProfile(File file) : File(file) {}
 

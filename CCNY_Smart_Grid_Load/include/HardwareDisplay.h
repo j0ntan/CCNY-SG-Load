@@ -1,9 +1,10 @@
 #ifndef HARDWAREDISPLAY_H
 #define HARDWAREDISPLAY_H
 
-#include "Display.h"
-#include <Arduino.h>
 #include <LiquidCrystal_I2C.h>
+#include "Display.h"
+
+class String;
 
 class HardwareDisplay : public Display<String> {
  public:

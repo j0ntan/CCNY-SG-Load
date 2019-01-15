@@ -1,5 +1,5 @@
 #include "../include/HardwareIO.h"
-#include "Arduino.h"
+#include <Arduino.h>
 
 HardwareInput::HardwareInput(uint8_t pin, bool enable_pullup) : pin(pin) {
   if (enable_pullup)

@@ -1,5 +1,5 @@
 #include "../include/HardwareTimer.h"
-#include "Arduino.h"
+#include <Arduino.h>
 
 void HardwareTimer::delay(Timer::milliseconds ms) const { ::delay(ms); }
 
