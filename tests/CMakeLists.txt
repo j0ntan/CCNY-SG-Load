@@ -19,6 +19,12 @@ add_executable(ENCODE_tests Encode_tests.cpp)
 target_include_directories(ENCODE_tests PRIVATE ${SG_LOAD_INCLUDE_DIR} ${MOCKS_DIR})
 target_link_libraries(ENCODE_tests gmock_main)
 
+add_executable(INPUTSEQUENCE_tests
+        InputSequence_tests.cpp
+        ${CMAKE_HOME_DIRECTORY}/CCNY_Smart_Grid_Load/src/InputSequence.cpp)
+target_include_directories(INPUTSEQUENCE_tests PRIVATE ${SG_LOAD_INCLUDE_DIR})
+target_link_libraries(INPUTSEQUENCE_tests gmock_main)
+
 #[[
 # Below target not working due to multiple definition of helper functions
 # from Scan.h.
