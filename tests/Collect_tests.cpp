@@ -15,66 +15,47 @@ class CollectKeypad : public Test {
  public:
   std::unique_ptr<NiceMock<KeypadMock>> keypadMock;
   std::unique_ptr<NiceMock<TimerMock>> timerMock;
-  StringDouble emptySequence;
-  StringDouble fullACSequence{"ABC16"};
-  StringDouble resetSequence{"ABCD0"};
+  InputSequence emptySequence;
+  InputSequence fullACSequence;
+  InputSequence resetSequence;
 
   void SetUp() final {
     keypadMock = std::make_unique<NiceMock<KeypadMock>>();
     keypad = keypadMock.get();
     timerMock = std::make_unique<NiceMock<TimerMock>>();
     timer = timerMock.get();
+
+    fullACSequence.addInput("ABC16");
+    resetSequence.addInput("ABCD0");
   }
 };
 
-TEST_F(CollectKeypad, eraseLastInputInSequence) {
-  helper::eraseLastInSequence(fullACSequence);
-  ASSERT_EQ(fullACSequence, "ABC1");
+bool operator==(const InputSequence& lhs, const InputSequence& rhs) {
+  if (lhs.length() == rhs.length()) {
+    const uint8_t length = lhs.length();
+    bool are_equal = true;
+    for (uint8_t i = 0; i < length && are_equal; ++i) {
+      are_equal = lhs[i] == rhs[i];
+    }
+    return are_equal;
+  } else
+    return false;
 }
 
-TEST_F(CollectKeypad, noChangeOnEraseEmptySequence) {
-  StringDouble pre_erase{emptySequence};
-  helper::eraseLastInSequence(emptySequence);
-  StringDouble post_erase{emptySequence};
-  ASSERT_EQ(pre_erase, post_erase);
-}
-
-TEST_F(CollectKeypad, addCorrespondingCharToSequence) {
-  const Keypad::ButtonID BUTTONS[] = {
-      Keypad::ButtonID::NUM0, Keypad::ButtonID::NUM1,    Keypad::ButtonID::NUM2,
-      Keypad::ButtonID::NUM3, Keypad::ButtonID::NUM4,    Keypad::ButtonID::NUM5,
-      Keypad::ButtonID::NUM6, Keypad::ButtonID::NUM7,    Keypad::ButtonID::NUM8,
-      Keypad::ButtonID::NUM9, Keypad::ButtonID::A,       Keypad::ButtonID::B,
-      Keypad::ButtonID::C,    Keypad::ButtonID::D,       Keypad::ButtonID::STAR,
-      Keypad::ButtonID::HASH, Keypad::ButtonID::MULTIPLE};
-  const char* EQUIVALENT[] = {"0", "1", "2", "3", "4", "5", "6", "7", "8",
-                              "9", "A", "B", "C", "D", "",  "",  ""};
-
-  for (int i = 0; i < 17; i++) {
-    emptySequence.remove(0);
-    helper::addCharToSequence(emptySequence, BUTTONS[i]);
-    EXPECT_EQ(emptySequence, EQUIVALENT[i]);
-  }
-}
-
-TEST_F(CollectKeypad, cancelSequence) {
-  helper::cancelSequence(fullACSequence);
-  ASSERT_EQ(fullACSequence, emptySequence);
-}
-
-TEST_F(CollectKeypad, resetSequence) {
-  helper::applyResetSequence(emptySequence);
-  ASSERT_EQ(emptySequence, resetSequence);
+bool operator==(const InputSequence& lhs, const char* rhs) {
+  InputSequence temp;
+  temp.addInput(rhs);
+  return lhs == temp;
 }
 
 TEST_F(CollectKeypad, holdHashDoesNothing) {
-  StringDouble expected = fullACSequence;
+  InputSequence expected = fullACSequence;
   helper::actionOnButtonHold(fullACSequence, Keypad::ButtonID::HASH);
   ASSERT_EQ(fullACSequence, expected);
 }
 
 TEST_F(CollectKeypad, holdLetterDoesNothing) {
-  StringDouble expected = fullACSequence;
+  InputSequence expected = fullACSequence;
   helper::actionOnButtonHold(fullACSequence, Keypad::ButtonID::A);
   ASSERT_EQ(fullACSequence, expected);
 }
@@ -103,7 +84,7 @@ TEST_F(CollectKeypad, recordSimpleSequence) {
       .WillOnce(Return(Keypad::ButtonID::NUM6))   // Press '6'
       .WillOnce(Return(Keypad::ButtonID::HASH));  // Press '#' (end sequence)
 
-  ASSERT_EQ(recordKeypadSequence<StringDouble>(), fullACSequence);
+  ASSERT_EQ(recordKeypadSequence(), fullACSequence);
 }
 
 TEST_F(CollectKeypad, recordBalancedSequenceWithHold) {
@@ -115,7 +96,7 @@ TEST_F(CollectKeypad, recordBalancedSequenceWithHold) {
       .WillOnce(Return(false))  // don't hold '1'
       .WillOnce(Return(true));  // hold '6' (prepend & end sequence)
 
-  ASSERT_EQ(recordKeypadSequence<StringDouble>(), fullACSequence);
+  ASSERT_EQ(recordKeypadSequence(), fullACSequence);
 }
 
 TEST_F(CollectKeypad, recordSequenceHoldPhaseEndsSequence) {
@@ -133,7 +114,7 @@ TEST_F(CollectKeypad, recordSequenceHoldPhaseEndsSequence) {
       .WillOnce(Return(false))  // don't hold '2'
       .WillOnce(Return(true));  // hold 'C' (end sequence)
 
-  ASSERT_EQ(recordKeypadSequence<StringDouble>(), "A1B2");
+  ASSERT_EQ(recordKeypadSequence(), "A1B2");
 }
 
 TEST_F(CollectKeypad, recordSequenceEraseOnce) {
@@ -147,7 +128,7 @@ TEST_F(CollectKeypad, recordSequenceEraseOnce) {
       .WillOnce(Return(Keypad::ButtonID::NUM6))   // Press '6'
       .WillOnce(Return(Keypad::ButtonID::HASH));  // Press '#' (end sequence)
 
-  ASSERT_EQ(recordKeypadSequence<StringDouble>(), fullACSequence);
+  ASSERT_EQ(recordKeypadSequence(), fullACSequence);
 }
 
 TEST_F(CollectKeypad, recordSequenceWithCancel) {
@@ -161,7 +142,7 @@ TEST_F(CollectKeypad, recordSequenceWithCancel) {
       .WillOnce(Return(false))  // don't hold '3'
       .WillOnce(Return(true));  // hold '*' (cancel & end sequence)
 
-  ASSERT_EQ(recordKeypadSequence<StringDouble>(), emptySequence);
+  ASSERT_EQ(recordKeypadSequence(), emptySequence);
 }
 
 TEST_F(CollectKeypad, recordSequenceReset) {
@@ -171,7 +152,7 @@ TEST_F(CollectKeypad, recordSequenceReset) {
   EXPECT_CALL(*keypadMock, anyButtonHeld())
       .WillOnce(Return(true));  // hold '*' (reset & end sequence)
 
-  ASSERT_EQ(recordKeypadSequence<StringDouble>(), resetSequence);
+  ASSERT_EQ(recordKeypadSequence(), resetSequence);
 }
 
 TEST_F(CollectKeypad, recordSequenceEraseAllThenReset) {
@@ -189,68 +170,72 @@ TEST_F(CollectKeypad, recordSequenceEraseAllThenReset) {
       .WillOnce(Return(false))  // don't hold '*'
       .WillOnce(Return(true));  // hold '*' (reset & end sequence)
 
-  ASSERT_EQ(recordKeypadSequence<StringDouble>(), resetSequence);
+  ASSERT_EQ(recordKeypadSequence(), resetSequence);
 }
 
 XBee* xbee = nullptr;  // unused, but needed to compile
 
 class CollectDSPACE : public Test {
  public:
-  StringDouble actual, expected;
+  InputSequence actual, expected;
 };
 
 TEST_F(CollectDSPACE, singleInputCommandAddNums0To16) {
   for (int command = 0; command <= 16; command++) {
-    expected = std::to_string(command).c_str();
+    expected.addInput(std::to_string(command).c_str());
     helper::dSPACESingleInputCommand(command, actual);
     ASSERT_EQ(actual, expected);
-    actual.remove(0);  // reset for next iteration
+
+    // clear sequences for next iteration
+    actual.cancelSequence();
+    expected.cancelSequence();
   }
 }
 
 TEST_F(CollectDSPACE, singleInputCommandAddPhases) {
-  expected = "A";
+  expected.addInput('A');
   helper::dSPACESingleInputCommand(17, actual);
   ASSERT_EQ(actual, expected);
-  actual.remove(0);
+  actual.cancelSequence();
+  expected.cancelSequence();
 
-  expected = "B";
+  expected.addInput('B');
   helper::dSPACESingleInputCommand(18, actual);
   ASSERT_EQ(actual, expected);
-  actual.remove(0);
+  actual.cancelSequence();
+  expected.cancelSequence();
 
-  expected = "C";
+  expected.addInput('C');
   helper::dSPACESingleInputCommand(19, actual);
   ASSERT_EQ(actual, expected);
-  actual.remove(0);
+  actual.cancelSequence();
+  expected.cancelSequence();
 
-  expected = "D";
+  expected.addInput('D');
   helper::dSPACESingleInputCommand(20, actual);
   ASSERT_EQ(actual, expected);
 }
 
 TEST_F(CollectDSPACE, singleInputCommandAddNumAfterPhase) {
-  expected = "A0";
+  expected.addInput("A0");
   helper::dSPACESingleInputCommand(17, actual);
   helper::dSPACESingleInputCommand(0, actual);
   ASSERT_EQ(actual, expected);
 }
 
 TEST_F(CollectDSPACE, singleInputCommandAddPhaseAfterNum) {
-  expected = "8B";
+  expected.addInput("8B");
   helper::dSPACESingleInputCommand(8, actual);
   helper::dSPACESingleInputCommand(18, actual);
   ASSERT_EQ(actual, expected);
 }
 
 TEST_F(CollectDSPACE, singleInputCommandCancelSequence) {
-  expected = "";
-  helper::dSPACESingleInputCommand<StringDouble>(21, actual);
+  helper::dSPACESingleInputCommand(21, actual);
   ASSERT_EQ(actual, expected);
 }
 
 TEST_F(CollectDSPACE, singleInputCommandCancelSequenceAfterInput) {
-  expected = "";
   helper::dSPACESingleInputCommand(17, actual);
   helper::dSPACESingleInputCommand(0, actual);
   helper::dSPACESingleInputCommand(21, actual);
@@ -258,7 +243,7 @@ TEST_F(CollectDSPACE, singleInputCommandCancelSequenceAfterInput) {
 }
 
 TEST_F(CollectDSPACE, singleInputCommandBackspaceAfterInput) {
-  expected = "A";
+  expected.addInput('A');
   helper::dSPACESingleInputCommand(17, actual);
   helper::dSPACESingleInputCommand(0, actual);
   helper::dSPACESingleInputCommand(22, actual);
@@ -266,19 +251,18 @@ TEST_F(CollectDSPACE, singleInputCommandBackspaceAfterInput) {
 }
 
 TEST_F(CollectDSPACE, singleInputCommandBackspaceEmptySequence) {
-  expected = "";
   helper::dSPACESingleInputCommand(22, actual);
   ASSERT_EQ(actual, expected);
 }
 
 TEST_F(CollectDSPACE, singleInputCommandApplyResetSequence) {
-  expected = "ABCD0";
+  expected.addInput("ABCD0");
   helper::dSPACESingleInputCommand(23, actual);
   ASSERT_EQ(actual, expected);
 }
 
 TEST_F(CollectDSPACE, singleInputCommandResetAfterInput) {
-  expected = "ABCD0";
+  expected.addInput("ABCD0");
   helper::dSPACESingleInputCommand(17, actual);
   helper::dSPACESingleInputCommand(0, actual);
   helper::dSPACESingleInputCommand(23, actual);
@@ -286,7 +270,7 @@ TEST_F(CollectDSPACE, singleInputCommandResetAfterInput) {
 }
 
 TEST_F(CollectDSPACE, singleInputCommandHandleUnknownCommand) {
-  expected = "?";
+  expected.addInput('?');
   helper::dSPACESingleInputCommand(25, actual);
   ASSERT_EQ(actual, expected);
 }
@@ -294,10 +278,13 @@ TEST_F(CollectDSPACE, singleInputCommandHandleUnknownCommand) {
 TEST_F(CollectDSPACE, balancedInputCommandAddNums0To16) {
   const int MODE_BEGINS = 29, MODE_ENDS = 45;
   for (int command = MODE_BEGINS; command <= MODE_ENDS; command++) {
-    expected = ("ABC" + std::to_string(command - MODE_BEGINS)).c_str();
+    expected.addInput(("ABC" + std::to_string(command - MODE_BEGINS)).c_str());
     helper::dSPACEBalancedInputCommand(command, actual);
     ASSERT_EQ(actual, expected);
-    actual.remove(0);  // reset for next iteration
+
+    // clear sequence for next iteration
+    actual.cancelSequence();
+    expected.cancelSequence();
   }
 }
 
@@ -330,10 +317,9 @@ TEST(dSPACELoadProfile, checkLineIsComment) {
 
 TEST(dSPACELoadProfile, readProfileInputSequence) {
   StringDouble profile_str{"1 2 3 1000"};
-  StringDouble profile_input_sequence = extractProfileInput(profile_str);
-  StringDouble expected{"A1B2C3"};
+  InputSequence profile_input_sequence = extractProfileInput(profile_str);
 
-  ASSERT_EQ(profile_input_sequence, expected);
+  ASSERT_EQ(profile_input_sequence, "A1B2C3");
 }
 
 TEST(dSPACELoadProfile, readProfileDuration) {

@@ -6,6 +6,7 @@
 #include "include/HardwareIO.h"
 #include "include/HardwareKeypad.h"
 #include "include/HardwareXBee.h"
+#include "include/InputSequence.h"
 #include "include/SDCard.h"
 #include "include/Monitor.h"
 #include "include/Collect.h"
@@ -49,16 +50,16 @@ void setup() {
 }
 
 void loop() {
-  String user_input;
+  InputSequence user_input;
   if (keypadButtonWasPressed()) {
-    user_input = recordKeypadSequence<String>();
+    user_input = recordKeypadSequence();
     processInputString(user_input);
   } else if (xbee->hasBufferedData()) {
     if (receivedPCSerialData()) {
-      user_input = collectPCSerialData<String>();
+      user_input = collectPCSerialData();
       processInputString(user_input);
     } else if (receivedDSPACEManualData()) {
-      user_input = collectDSPACEManualData<String>();
+      user_input = collectDSPACEManualData();
       processInputString(user_input);
     } else if (receivedDSPACELoadProfile()) {
       activateLoadProfile();
@@ -67,7 +68,7 @@ void loop() {
   }
 }
 
-void processInputString(const String& input) {
+void processInputString(const InputSequence& input) {
   TokenSet tokens = scan(input);
   if (!tokens.containsInvalid()) {
     ParseAnalysis analysis = analyzeTokens(tokens);
@@ -91,7 +92,8 @@ void activateLoadProfile() {
     while (profile.lineAvailable()) {
       const String INPUT_STR = profile.readLine();
       if (!lineIsComment(INPUT_STR)) {
-        const String PROFILE_INPUT = extractProfileInput<String>(INPUT_STR);
+        const InputSequence PROFILE_INPUT =
+            extractProfileInput<String>(INPUT_STR);
         const unsigned long DURATION =
             extractProfileDuration<String>(INPUT_STR);
         processInputString(PROFILE_INPUT);

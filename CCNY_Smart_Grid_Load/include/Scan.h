@@ -2,6 +2,7 @@
 #define SCAN_H
 
 #include <stdint.h>
+#include "InputSequence.h"
 
 enum class Token : uint8_t {
   NUM0 = 0,
@@ -102,8 +103,7 @@ Token convertCharToToken(const char& inputChar) {
 }
 }  // namespace helper
 
-template <class StringT>
-TokenSet scan(const StringT& inputString) {
+TokenSet scan(const InputSequence& inputString) {
   TokenSet tokens(inputString.length());
 
   for (uint8_t n = 0; n < tokens.size(); n++) {

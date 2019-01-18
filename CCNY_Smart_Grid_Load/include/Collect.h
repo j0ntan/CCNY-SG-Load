@@ -1,59 +1,42 @@
 #ifndef COLLECT_H
 #define COLLECT_H
 
+#include <stdlib.h>
+#include <ctype.h>
 #include "Timer.h"
 #include "Keypad.h"
 #include "XBee.h"
+#include "InputSequence.h"
 
 #define MAX_INPUT_LENGTH 11  // largest input is 'A16B16C16D2', currently
 #define DSPACE_SINGLE_INPUT_BOUND 28
 
 namespace helper {
-template <class StringT>
-void actionOnButtonHold(StringT& input, const Keypad::ButtonID& pressed);
+void actionOnButtonHold(InputSequence& input, const Keypad::ButtonID& pressed);
 
-template <class StringT>
-void eraseLastInSequence(StringT& input);
-
-template <class StringT>
-void addCharToSequence(StringT& input, const Keypad::ButtonID& pressed);
+char ButtonIDToChar(const Keypad::ButtonID& pressed);
 
 void waitForButtonRelease();
 
-template <class StringT>
-void cancelSequence(StringT& input);
-
-template <class StringT>
-void applyResetSequence(StringT& input);
-
-template <class StringT>
-void prependACphases(StringT& input);
-
-template <class StringT>
-void readSerialIntoString(StringT& input);
+void readSerialIntoString(InputSequence& input);
 
 int readNextUniqueByte();
 
 void removeBufferedByteCopies(const int& original);
 
-template <class StringT>
-void followDPSACEManualCommand(const int& commandID, StringT& input);
+void followDPSACEManualCommand(const int& commandID, InputSequence& input);
 
-template <class StringT>
-void dSPACESingleInputCommand(const int& commandID, StringT& input);
+void dSPACESingleInputCommand(const int& commandID, InputSequence& input);
 
-template <class StringT>
-void dSPACEBalancedInputCommand(const int& commandID, StringT& input);
+void dSPACEBalancedInputCommand(const int& commandID, InputSequence& input);
 }  // namespace helper
 
 //**************************** KEYPAD collection *****************************//
 extern Keypad* keypad;
 extern Timer* timer;
 
-template <class StringT>
-StringT recordKeypadSequence() {
-  StringT input;
-  input.reserve(MAX_INPUT_LENGTH);
+InputSequence recordKeypadSequence() {
+  InputSequence keypad_sequence;
   bool sequence_terminated = false;
 
   do {
@@ -62,24 +45,23 @@ StringT recordKeypadSequence() {
     if (pressed == Keypad::ButtonID::MULTIPLE) {
       // ignore multiple button presses
     } else if (keypad->anyButtonHeld()) {
-      helper::actionOnButtonHold(input, pressed);
+      helper::actionOnButtonHold(keypad_sequence, pressed);
       sequence_terminated = true;
     } else if (pressed == Keypad::ButtonID::HASH) {
       sequence_terminated = true;
     } else if (pressed == Keypad::ButtonID::STAR) {
-      helper::eraseLastInSequence(input);
+      keypad_sequence.removeLastInput();
     } else {
-      helper::addCharToSequence(input, pressed);
+      keypad_sequence.addInput(helper::ButtonIDToChar(pressed));
     }
 
     helper::waitForButtonRelease();
   } while (!sequence_terminated);
 
-  return input;
+  return keypad_sequence;
 }
 
-template <class StringT>
-void helper::actionOnButtonHold(StringT& input,
+void helper::actionOnButtonHold(InputSequence& input,
                                 const Keypad::ButtonID& pressed) {
   switch (pressed) {
     case Keypad::ButtonID::HASH:
@@ -90,70 +72,53 @@ void helper::actionOnButtonHold(StringT& input,
       break;  // do nothing
     case Keypad::ButtonID::STAR:
       if (input.length() > 0)
-        helper::cancelSequence(input);
+        input.cancelSequence();
       else
-        helper::applyResetSequence(input);
+        input.applyResetSequence();
       break;
     default:
-      helper::prependACphases(input);
-      helper::addCharToSequence(input, pressed);
+      uint8_t amount =
+          static_cast<uint8_t>(helper::ButtonIDToChar(pressed) - '0');
+      if (input.length() == 1 && isdigit(input[0])) {
+        const uint8_t tens_digit = static_cast<uint8_t>(input[0] - '0');
+        amount += 10 * tens_digit;
+      }
+      input.applyBalancedSequence(amount);
   }
 }
 
-template <class StringT>
-void helper::eraseLastInSequence(StringT& input) {
-  if (input.length() > 0) input.remove(input.length() - 1);
-  // else, nothing to erase
-}
-
-template <class StringT>
-void helper::addCharToSequence(StringT& input,
-                               const Keypad::ButtonID& pressed) {
+char helper::ButtonIDToChar(const Keypad::ButtonID& pressed) {
   switch (pressed) {
     case Keypad::ButtonID::NUM0:
-      input += '0';
-      break;
+      return '0';
     case Keypad::ButtonID::NUM1:
-      input += '1';
-      break;
+      return '1';
     case Keypad::ButtonID::NUM2:
-      input += '2';
-      break;
+      return '2';
     case Keypad::ButtonID::NUM3:
-      input += '3';
-      break;
+      return '3';
     case Keypad::ButtonID::NUM4:
-      input += '4';
-      break;
+      return '4';
     case Keypad::ButtonID::NUM5:
-      input += '5';
-      break;
+      return '5';
     case Keypad::ButtonID::NUM6:
-      input += '6';
-      break;
+      return '6';
     case Keypad::ButtonID::NUM7:
-      input += '7';
-      break;
+      return '7';
     case Keypad::ButtonID::NUM8:
-      input += '8';
-      break;
+      return '8';
     case Keypad::ButtonID::NUM9:
-      input += '9';
-      break;
+      return '9';
     case Keypad::ButtonID::A:
-      input += 'A';
-      break;
+      return 'A';
     case Keypad::ButtonID::B:
-      input += 'B';
-      break;
+      return 'B';
     case Keypad::ButtonID::C:
-      input += 'C';
-      break;
+      return 'C';
     case Keypad::ButtonID::D:
-      input += 'D';
-      break;
+      return 'D';
     default:
-      break;  // does NOT add anything
+      return '?';
   }
 }
 
@@ -164,36 +129,20 @@ void helper::waitForButtonRelease() {
   timer->delay(300);  // guard time (ms) between consecutive presses
 }
 
-template <class StringT>
-void helper::cancelSequence(StringT& input) {
-  input.remove(0);
-}
-
-template <class StringT>
-void helper::applyResetSequence(StringT& input) {
-  input = StringT(F("ABCD0"));
-}
-
-template <class StringT>
-void helper::prependACphases(StringT& input) {
-  input = StringT(F("ABC")) + input;
-}
-
 //*************************** PC Serial collection ***************************//
 extern XBee* xbee;
-template <class StringT>
-StringT collectPCSerialData() {
-  StringT input;
-  input.reserve(MAX_INPUT_LENGTH);
 
-  helper::readSerialIntoString(input);
+InputSequence collectPCSerialData() {
+  InputSequence PC_input;
 
-  return input;
+  helper::readSerialIntoString(PC_input);
+
+  return PC_input;
 }
 
-template <class StringT>
-void helper::readSerialIntoString(StringT& input) {
-  while (xbee->hasBufferedData()) input += static_cast<char>(xbee->readByte());
+void helper::readSerialIntoString(InputSequence& input) {
+  while (xbee->hasBufferedData())
+    input.addInput(static_cast<char>(xbee->readByte()));
 }
 
 void emptyTheBuffer() {
@@ -204,10 +153,8 @@ void emptyTheBuffer() {
 }
 
 //************************* dSPACE manual collection *************************//
-template <class StringT>
-StringT collectDSPACEManualData() {
-  StringT input;
-  input.reserve(MAX_INPUT_LENGTH);
+InputSequence collectDSPACEManualData() {
+  InputSequence input;
 
   do {
     int receivedByte = helper::readNextUniqueByte();
@@ -227,16 +174,16 @@ void helper::removeBufferedByteCopies(const int& original) {
   }
 }
 
-template <class StringT>
-void helper::followDPSACEManualCommand(const int& commandID, StringT& input) {
+void helper::followDPSACEManualCommand(const int& commandID,
+                                       InputSequence& input) {
   if (commandID <= DSPACE_SINGLE_INPUT_BOUND)
     helper::dSPACESingleInputCommand(commandID, input);
   else
     helper::dSPACEBalancedInputCommand(commandID, input);
 }
 
-template <class StringT>
-void helper::dSPACESingleInputCommand(const int& commandID, StringT& input) {
+void helper::dSPACESingleInputCommand(const int& commandID,
+                                      InputSequence& input) {
   const uint8_t STR_SIZE = 3;  // two digits, plus null char
   char str[STR_SIZE] = {0};
   switch (commandID) {
@@ -257,42 +204,38 @@ void helper::dSPACESingleInputCommand(const int& commandID, StringT& input) {
     case 14:
     case 15:
     case 16:
-      input += itoa(commandID, str, 10);
+      input.addInput(itoa(commandID, str, 10));
       break;
     case 17:
-      input += 'A';
+      input.addInput('A');
       break;
     case 18:
-      input += 'B';
+      input.addInput('B');
       break;
     case 19:
-      input += 'C';
+      input.addInput('C');
       break;
     case 20:
-      input += 'D';
+      input.addInput('D');
       break;
     case 21:  // CANCEL
-      helper::cancelSequence(input);
+      input.cancelSequence();
       break;
     case 22:  // BACKSPACE
-      helper::eraseLastInSequence(input);
+      input.removeLastInput();
       break;
     case 23:  // RESET
-      helper::applyResetSequence(input);
+      input.applyResetSequence();
       break;
     default:
-      input = "?";
+      input.addInput('?');
   }  // end switch
 }
 
-template <class StringT>
-void helper::dSPACEBalancedInputCommand(const int& commandID, StringT& input) {
-  const uint8_t STR_SIZE = 3;
-  char str[STR_SIZE] = {0};
-  const int RELAYS_ON = commandID - (DSPACE_SINGLE_INPUT_BOUND + 1);
-
-  helper::prependACphases(input);
-  input += itoa(RELAYS_ON, str, 10);
+void helper::dSPACEBalancedInputCommand(const int& commandID,
+                                        InputSequence& input) {
+  const uint8_t AMOUNT = commandID - (DSPACE_SINGLE_INPUT_BOUND + 1);
+  input.applyBalancedSequence(AMOUNT);
 }
 
 //************************* dSPACE Load Profile Mode *************************//
@@ -318,10 +261,9 @@ bool lineIsComment(const StringT& line) {
 }
 
 template <class StringT>
-StringT extractProfileInput(const StringT& profileStr) {
+InputSequence extractProfileInput(const StringT& profileStr) {
   static const unsigned int MAX_LENGTH = 11;
   StringT input_sequence;
-  input_sequence.reserve(MAX_LENGTH);
 
   int phase_begins = 0;
   int phase_ends = profileStr.indexOf(' ', phase_begins);
@@ -338,7 +280,11 @@ StringT extractProfileInput(const StringT& profileStr) {
   StringT C_phase =
       StringT(F("C")) + profileStr.substring(phase_begins, phase_ends);
 
-  return A_phase + B_phase + C_phase;
+  InputSequence retval;
+  retval.addInput(A_phase.c_str());
+  retval.addInput(B_phase.c_str());
+  retval.addInput(C_phase.c_str());
+  return retval;
 }
 
 template <class StringT>
