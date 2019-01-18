@@ -44,7 +44,9 @@ void compareParseIndices(const ParseAnalysis& p1, const ParseAnalysis& p2) {
 }
 
 TEST_F(testParseAnalysis, indexFullInput) {
-  result = analyzeTokens(scan(full_input));  // A16B16C16D2
+  InputSequence full_sequence;
+  full_sequence.addInput(full_input.c_str());
+  result = analyzeTokens(scan(full_sequence));  // A16B16C16D2
 
   expected.position_phaseA = 0;
   expected.position_phaseB = 3;
@@ -64,7 +66,9 @@ TEST_F(testParseAnalysis, indexFullInput) {
 }
 
 TEST_F(testParseAnalysis, indexSinglePhaseInput) {
-  result = analyzeTokens(scan(single_phase_input));  // A5
+  InputSequence single_phase_sequence;
+  single_phase_sequence.addInput(single_phase_input.c_str());
+  result = analyzeTokens(scan(single_phase_sequence));  // A5
 
   expected.position_phaseA = 0;
   expected.count_phaseA = 1;
@@ -78,7 +82,9 @@ TEST_F(testParseAnalysis, indexSinglePhaseInput) {
 }
 
 TEST_F(testParseAnalysis, indexPhasesUnorderedInput) {
-  result = analyzeTokens(scan(phases_unordered_error_input));  // C12A14B16D2
+  InputSequence phases_unordered_sequence;
+  phases_unordered_sequence.addInput(phases_unordered_error_input.c_str());
+  result = analyzeTokens(scan(phases_unordered_sequence));  // C12A14B16D2
 
   expected.position_phaseA = 3;
   expected.position_phaseB = 6;
@@ -102,7 +108,9 @@ class testParseErrorCheck : public Test {
  public:
   ParseAnalysis analysis;
   void prepareParseIndex(const std::string& input) {
-    analysis = analyzeTokens(scan(input));
+    InputSequence inputSequence;
+    inputSequence.addInput(input.c_str());
+    analysis = analyzeTokens(scan(inputSequence));
   }
 };
 
@@ -196,7 +204,9 @@ class testParseTokens : public Test {
   RelayState previous_relay_state{5, 5, 5, 1};
   ParseAnalysis analysis;
   void prepareParseAnalysis(const std::string& input) {
-    analysis = analyzeTokens(scan(input));
+    InputSequence inputSequence;
+    inputSequence.addInput(input.c_str());
+    analysis = analyzeTokens(scan(inputSequence));
   }
 };
 
