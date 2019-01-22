@@ -1,6 +1,7 @@
 #ifndef LOADPROFILE_H
 #define LOADPROFILE_H
 
+#include <stdint.h>
 #include <SD.h>
 
 class LoadProfile : public File {
@@ -9,7 +10,7 @@ class LoadProfile : public File {
   ~LoadProfile();
 
   bool lineAvailable();
-  String readLine();
+  void fillBuffer(char* buffer, uint8_t buffer_size);
 };
 
 #endif  // LOADPROFILE_H

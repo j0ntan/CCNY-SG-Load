@@ -89,7 +89,10 @@ void activateLoadProfile() {
   if (sd->connected() && sd->fileExists(filename)) {
     LoadProfile profile = sd->openFile(filename);
     while (profile.lineAvailable()) {
-      const String INPUT_STR = profile.readLine();
+      static const uint8_t buffer_size = 101;
+      char buffer[buffer_size] = {};
+      profile.fillBuffer(buffer, buffer_size);
+      String INPUT_STR(buffer);
       if (!lineIsComment(INPUT_STR)) {
         const InputSequence PROFILE_INPUT =
             extractProfileInput<String>(INPUT_STR);
