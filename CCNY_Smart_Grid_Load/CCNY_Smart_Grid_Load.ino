@@ -95,8 +95,7 @@ void activateLoadProfile() {
       if (!lineIsComment(buffer)) {
         String INPUT_STR(buffer);
         const InputSequence PROFILE_INPUT = extractProfileInput(buffer);
-        const unsigned long DURATION =
-            extractProfileDuration<String>(INPUT_STR);
+        const unsigned long DURATION = extractProfileDuration(buffer);
         processInputString(PROFILE_INPUT);
         timer->delay(DURATION);
       }

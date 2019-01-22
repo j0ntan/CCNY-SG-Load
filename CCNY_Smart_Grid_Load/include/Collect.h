@@ -292,11 +292,9 @@ InputSequence extractProfileInput(char* buffer) {
   return retval;
 }
 
-template <class StringT>
-unsigned long extractProfileDuration(const StringT& line) {
-  int position = line.lastIndexOf(' ') + 1;
-  StringT duration = line.substring(position);
-  return static_cast<unsigned long>(duration.toInt());
+unsigned long extractProfileDuration(char* buffer) {
+  buffer = strrchr(buffer, ' ');
+  return strtoul(++buffer, nullptr, 0);
 }
 
 #endif  // COLLECT_H
