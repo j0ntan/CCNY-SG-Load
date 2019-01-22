@@ -262,7 +262,6 @@ bool lineIsComment(const StringT& line) {
 
 template <class StringT>
 InputSequence extractProfileInput(const StringT& profileStr) {
-  static const unsigned int MAX_LENGTH = 11;
   StringT input_sequence;
 
   int phase_begins = 0;
