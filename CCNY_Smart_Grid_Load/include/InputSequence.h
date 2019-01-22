@@ -25,7 +25,7 @@ class InputSequence {
   void removeLastInput();
 
  private:
-  static const uint8_t SIZE = 13;  // 12 chars + null terminator
+  static const uint8_t SIZE = 12;  // 11 chars + null terminator
   char buffer[SIZE] = {};
 };
 
