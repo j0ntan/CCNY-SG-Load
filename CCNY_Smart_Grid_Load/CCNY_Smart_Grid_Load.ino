@@ -93,7 +93,6 @@ void activateLoadProfile() {
       char buffer[buffer_size] = {};
       profile.fillBuffer(buffer, buffer_size);
       if (!lineIsComment(buffer)) {
-        String INPUT_STR(buffer);
         const InputSequence PROFILE_INPUT = extractProfileInput(buffer);
         const unsigned long DURATION = extractProfileDuration(buffer);
         processInputString(PROFILE_INPUT);
