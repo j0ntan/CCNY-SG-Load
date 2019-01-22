@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <ctype.h>
+#include <string.h>
 #include "Timer.h"
 #include "Keypad.h"
 #include "XBee.h"
@@ -255,9 +256,8 @@ StringT createFilename(const unsigned int& profile_number) {
          StringT(ONES_DIGIT) + StringT(F(".txt"));
 }
 
-template <class StringT>
-bool lineIsComment(const StringT& line) {
-  return line.length() >= 2 && line[0] == '/' && line[1] == '/';
+bool lineIsComment(char* buffer) {
+  return strlen(buffer) >= 2 && buffer[0] == '/' && buffer[1] == '/';
 }
 
 template <class StringT>
