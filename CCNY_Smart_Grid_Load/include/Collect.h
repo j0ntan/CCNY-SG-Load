@@ -260,29 +260,35 @@ bool lineIsComment(char* buffer) {
   return strlen(buffer) >= 2 && buffer[0] == '/' && buffer[1] == '/';
 }
 
-template <class StringT>
-InputSequence extractProfileInput(const StringT& profileStr) {
-  StringT input_sequence;
+void addNumbersToSequence(char*& num_begins, char*& num_ends,
+                          InputSequence& input) {
+  num_ends = strchr(num_begins, ' ');
+  if (num_ends) {
+    while (num_begins != num_ends) input.addInput(*(num_begins++));
+    num_begins = ++num_ends;
+  } else {
+    input.addInput('?');
+    num_ends = num_begins;
+  }
+}
 
-  int phase_begins = 0;
-  int phase_ends = profileStr.indexOf(' ', phase_begins);
-  StringT A_phase =
-      StringT(F("A")) + profileStr.substring(phase_begins, phase_ends);
-
-  phase_begins = phase_ends + 1;
-  phase_ends = profileStr.indexOf(' ', phase_begins);
-  StringT B_phase =
-      StringT(F("B")) + profileStr.substring(phase_begins, phase_ends);
-
-  phase_begins = phase_ends + 1;
-  phase_ends = profileStr.indexOf(' ', phase_begins);
-  StringT C_phase =
-      StringT(F("C")) + profileStr.substring(phase_begins, phase_ends);
-
+InputSequence extractProfileInput(char* buffer) {
   InputSequence retval;
-  retval.addInput(A_phase.c_str());
-  retval.addInput(B_phase.c_str());
-  retval.addInput(C_phase.c_str());
+  char* num_begins = buffer;
+  char* num_ends = buffer;
+
+  // phase A
+  retval.addInput('A');
+  addNumbersToSequence(num_begins, num_ends, retval);
+
+  // phase B
+  retval.addInput('B');
+  addNumbersToSequence(num_begins, num_ends, retval);
+
+  // phase C
+  retval.addInput('C');
+  addNumbersToSequence(num_begins, num_ends, retval);
+
   return retval;
 }
 
