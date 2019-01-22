@@ -43,6 +43,7 @@ Keypad* keypad = new HardwareKeypad{input_pins, output_pins};
 ShiftRegister shiftregister{serial_data_output, SR_clock_output,
                             ST_clock_output};
 XBee* xbee = new HardwareXBee{Serial};
+SDCard* sd = new SDCard{53};
 
 void setup() {
   Serial.begin(9600);
@@ -85,8 +86,6 @@ void activateLoadProfile() {
   unsigned int number = readProfileNumberFromSerial();
   String filename = createFilename<String>(number);
 
-  static const uint8_t SD_CS_pin = 53;
-  SDCard* sd = new SDCard{SD_CS_pin};
   if (sd->connected() && sd->fileExists(filename)) {
     LoadProfile profile = sd->openFile(filename);
     while (profile.lineAvailable()) {
@@ -101,5 +100,4 @@ void activateLoadProfile() {
       }
     }
   }  // else, report SD card or File error
-  delete sd;
 }
