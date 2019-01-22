@@ -34,24 +34,24 @@ TEST(testInputSequence, addingInputStringIncreasesLength) {
   ASSERT_EQ(3, inputSequence.length());
 }
 
-TEST(testInputSequence, canAccessAndMatchIndeces0To11) {
+TEST(testInputSequence, canAccessAndMatchIndeces0To10) {
   InputSequence inputSequence;
-  for (uint8_t i = 0; i < 12; ++i) {
+  for (uint8_t i = 0; i < 11; ++i) {
     const char input = static_cast<char>('a' + i);
     inputSequence.addInput(input);
     ASSERT_EQ(input, inputSequence[i]);
   }
 }
 
-TEST(testInputSequence, canModifyAtIndeces0To11) {
+TEST(testInputSequence, canModifyAtIndeces0To10) {
   InputSequence inputSequence;
-  std::vector<char> inputs(12);
+  std::vector<char> inputs(11);
   std::iota(inputs.begin(), inputs.end(), '1');
   std::random_shuffle(inputs.begin(), inputs.end());
 
-  for (uint8_t i = 0; i < 12; ++i) inputSequence.addInput('0');
+  for (uint8_t i = 0; i < 11; ++i) inputSequence.addInput('0');
 
-  for (uint8_t i = 0; i < 12; ++i) {
+  for (uint8_t i = 0; i < 11; ++i) {
     ASSERT_EQ('0', inputSequence[i]);
     inputSequence[i] = inputs[i];
     ASSERT_EQ(inputs[i], inputSequence[i]);
@@ -97,36 +97,36 @@ TEST(testInputSequence, invalidIndexReturnsFirstChar) {
   ASSERT_EQ('z', inputSequence[5]);
 }
 
-TEST(testInputSequence, adding13thOrMoreInputOverwritesLastInput) {
+TEST(testInputSequence, adding12thOrMoreInputOverwritesLastInput) {
   InputSequence inputSequence;
-  for (int i = 0; i < 12; ++i)
+  for (int i = 0; i < 11; ++i)
     inputSequence.addInput(static_cast<char>('a' + i));
 
-  ASSERT_EQ('l', inputSequence[11]);
+  ASSERT_EQ('k', inputSequence[10]);
   for (int i = 0; i < 3; ++i) {
     const char new_letter = static_cast<char>('a' + 5 + i);
     inputSequence.addInput(new_letter);
-    ASSERT_EQ(12, inputSequence.length());
-    ASSERT_EQ(new_letter, inputSequence[11]);
+    ASSERT_EQ(11, inputSequence.length());
+    ASSERT_EQ(new_letter, inputSequence[10]);
   }
 }
 
 TEST(testInputSequence, addingTooLargeInputStringIsPartialAddition) {
   InputSequence inputSequence;
-  for (int i = 0; i < 10; ++i) inputSequence.addInput('a');
+  for (int i = 0; i < 9; ++i) inputSequence.addInput('a');
   inputSequence.addInput("dogs");
-  ASSERT_EQ(12, inputSequence.length());
-  ASSERT_EQ('d', inputSequence[10]);
-  ASSERT_EQ('o', inputSequence[11]);
+  ASSERT_EQ(11, inputSequence.length());
+  ASSERT_EQ('d', inputSequence[9]);
+  ASSERT_EQ('o', inputSequence[10]);
 }
 
 TEST(testInputSequence, addingInputStringToFullSeqDoesNotModifyIt) {
   InputSequence inputSequence;
-  for (int i = 0; i < 12; ++i)
+  for (int i = 0; i < 11; ++i)
     inputSequence.addInput(static_cast<char>('a' + i));
   inputSequence.addInput("doesNotFit");
-  ASSERT_EQ(12, inputSequence.length());
-  for (int i = 0; i < 12; ++i)
+  ASSERT_EQ(11, inputSequence.length());
+  for (int i = 0; i < 11; ++i)
     ASSERT_EQ(static_cast<char>('a' + i), inputSequence[i]);
 }
 
