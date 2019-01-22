@@ -86,9 +86,9 @@ void activateLoadProfile() {
   String filename = createFilename<String>(number);
 
   static const uint8_t SD_CS_pin = 53;
-  SDCard sd{SD_CS_pin};
-  if (sd.connected() && sd.fileExists(filename)) {
-    LoadProfile profile = sd.openFile(filename);
+  SDCard* sd = new SDCard{SD_CS_pin};
+  if (sd->connected() && sd->fileExists(filename)) {
+    LoadProfile profile = sd->openFile(filename);
     while (profile.lineAvailable()) {
       const String INPUT_STR = profile.readLine();
       if (!lineIsComment(INPUT_STR)) {
@@ -101,4 +101,5 @@ void activateLoadProfile() {
       }
     }
   }  // else, report SD card or File error
+  delete sd;
 }
