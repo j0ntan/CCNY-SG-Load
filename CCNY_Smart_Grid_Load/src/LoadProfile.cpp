@@ -3,6 +3,18 @@
 #include "../include/InputSequence.h"
 
 namespace {
+void fillBuffer(char* buffer, uint8_t buf_size, File& file) {
+  // clear buffer
+  memset(buffer, 0, buf_size);
+
+  // read into buffer
+  file.readBytesUntil('\n', buffer, buf_size - 1);
+
+  // remove any carriage-return ('\r')
+  const unsigned int LAST_CHAR_INDEX = strlen(buffer) - 1;
+  if (buffer[LAST_CHAR_INDEX] == '\r') buffer[LAST_CHAR_INDEX] = '\0';
+}
+
 bool lineIsComment(char* buffer) {
   return strlen(buffer) >= 2 && buffer[0] == '/' && buffer[1] == '/';
 }
@@ -26,22 +38,10 @@ LoadProfile::~LoadProfile() { file.close(); }
 
 bool LoadProfile::lineAvailable() { return file.available() > 0; }
 
-void LoadProfile::fillBuffer(char* buffer, uint8_t buf_size) {
-  // clear buffer
-  memset(buffer, 0, buf_size);
-
-  // read into buffer
-  file.readBytesUntil('\n', buffer, buf_size - 1);
-
-  // remove any carriage-return ('\r')
-  const unsigned int LAST_CHAR_INDEX = strlen(buffer) - 1;
-  if (buffer[LAST_CHAR_INDEX] == '\r') buffer[LAST_CHAR_INDEX] = '\0';
-}
-
 void LoadProfile::readLine(char* buffer, InputSequence& sequence,
                            unsigned long& duration, uint8_t buf_size) {
   do {
-    fillBuffer(buffer, buf_size);
+    fillBuffer(buffer, buf_size, file);
   } while (!lineIsComment(buffer));
 
   char* num_begins = buffer;

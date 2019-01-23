@@ -12,7 +12,6 @@ class LoadProfile {
   ~LoadProfile();
 
   bool lineAvailable();
-  void fillBuffer(char* buffer, uint8_t buffer_size);
   void readLine(char* buffer, InputSequence& sequence, unsigned long& duration,
                 uint8_t buf_size);
 
