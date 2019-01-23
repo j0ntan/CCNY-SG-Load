@@ -93,7 +93,7 @@ void activateLoadProfile() {
       unsigned long duration = 0;
       static const uint8_t buffer_size = 101;
       char buffer[buffer_size] = {};
-      readLine(buffer, profile_input, duration, profile, buffer_size);
+      profile->readLine(buffer, profile_input, duration, buffer_size);
       processInputString(profile_input);
       timer->delay(duration);
     }

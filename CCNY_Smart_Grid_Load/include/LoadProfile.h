@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <SD.h>
 
+class InputSequence;
+
 class LoadProfile {
  public:
   LoadProfile(File file);
@@ -11,6 +13,8 @@ class LoadProfile {
 
   bool lineAvailable();
   void fillBuffer(char* buffer, uint8_t buffer_size);
+  void readLine(char* buffer, InputSequence& sequence, unsigned long& duration,
+                uint8_t buf_size);
 
  private:
   File file;

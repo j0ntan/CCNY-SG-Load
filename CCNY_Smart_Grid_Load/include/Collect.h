@@ -3,12 +3,10 @@
 
 #include <stdlib.h>
 #include <ctype.h>
-#include <string.h>
 #include "Timer.h"
 #include "Keypad.h"
 #include "XBee.h"
 #include "InputSequence.h"
-#include "LoadProfile.h"
 
 #define MAX_INPUT_LENGTH 11  // largest input is 'A16B16C16D2', currently
 #define DSPACE_SINGLE_INPUT_BOUND 28
@@ -255,47 +253,6 @@ StringT createFilename(const unsigned int& profile_number) {
   const unsigned int ONES_DIGIT = profile_number % 10;
   return StringT(F("PRFL")) + StringT(HUNDREDTHS_DIGIT) + StringT(TENS_DIGIT) +
          StringT(ONES_DIGIT) + StringT(F(".txt"));
-}
-
-bool lineIsComment(char* buffer) {
-  return strlen(buffer) >= 2 && buffer[0] == '/' && buffer[1] == '/';
-}
-
-void addNumbersToSequence(char*& num_begins, char*& num_ends,
-                          InputSequence& input) {
-  num_ends = strchr(num_begins, ' ');
-  if (num_ends) {
-    while (num_begins != num_ends) input.addInput(*(num_begins++));
-    num_begins = ++num_ends;
-  } else {
-    input.addInput('?');
-    num_ends = num_begins;
-  }
-}
-
-void readLine(char* buffer, InputSequence& sequence, unsigned long& duration,
-              LoadProfile& profile, uint8_t buf_size) {
-  do {
-    profile.fillBuffer(buffer, buf_size);
-  } while (!lineIsComment(buffer));
-
-  char* num_begins = buffer;
-  char* num_ends = buffer;
-
-  // phase A
-  sequence.addInput('A');
-  addNumbersToSequence(num_begins, num_ends, sequence);
-
-  // phase B
-  sequence.addInput('B');
-  addNumbersToSequence(num_begins, num_ends, sequence);
-
-  // phase C
-  sequence.addInput('C');
-  addNumbersToSequence(num_begins, num_ends, sequence);
-
-  buffer = strrchr(buffer, ' ');
-  duration = strtoul(++buffer, nullptr, 0);
 }
 
 #endif  // COLLECT_H
