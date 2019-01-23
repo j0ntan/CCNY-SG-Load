@@ -72,21 +72,26 @@ void LoadProfile::readLine(InputSequence& sequence, unsigned long& duration) {
     fillBuffer(buffer, LoadProfile::SIZE, file);
   } while (!lineIsComment(buffer));
 
-  char* num_begins = buffer;
-  char* num_ends = buffer;
+  if (validFormat(buffer)) {
+    char* num_begins = buffer;
+    char* num_ends = buffer;
 
-  // phase A
-  sequence.addInput('A');
-  addNumbersToSequence(num_begins, num_ends, sequence);
+    // phase A
+    sequence.addInput('A');
+    addNumbersToSequence(num_begins, num_ends, sequence);
 
-  // phase B
-  sequence.addInput('B');
-  addNumbersToSequence(num_begins, num_ends, sequence);
+    // phase B
+    sequence.addInput('B');
+    addNumbersToSequence(num_begins, num_ends, sequence);
 
-  // phase C
-  sequence.addInput('C');
-  addNumbersToSequence(num_begins, num_ends, sequence);
+    // phase C
+    sequence.addInput('C');
+    addNumbersToSequence(num_begins, num_ends, sequence);
 
-  char* const DURATION_PTR = strrchr(buffer, ' ') + 1;
-  duration = strtoul(DURATION_PTR, nullptr, 0);
+    char* const DURATION_PTR = strrchr(buffer, ' ') + 1;
+    duration = strtoul(DURATION_PTR, nullptr, 0);
+  } else {
+    sequence.addInput('?');
+    duration = 0;
+  }
 }
