@@ -38,10 +38,9 @@ LoadProfile::~LoadProfile() { file.close(); }
 
 bool LoadProfile::lineAvailable() { return file.available() > 0; }
 
-void LoadProfile::readLine(char* buffer, InputSequence& sequence,
-                           unsigned long& duration, uint8_t buf_size) {
+void LoadProfile::readLine(InputSequence& sequence, unsigned long& duration) {
   do {
-    fillBuffer(buffer, buf_size, file);
+    fillBuffer(buffer, LoadProfile::SIZE, file);
   } while (!lineIsComment(buffer));
 
   char* num_begins = buffer;
@@ -59,6 +58,6 @@ void LoadProfile::readLine(char* buffer, InputSequence& sequence,
   sequence.addInput('C');
   addNumbersToSequence(num_begins, num_ends, sequence);
 
-  buffer = strrchr(buffer, ' ');
-  duration = strtoul(++buffer, nullptr, 0);
+  char* const DURATION_PTR = strrchr(buffer, ' ') + 1;
+  duration = strtoul(DURATION_PTR, nullptr, 0);
 }

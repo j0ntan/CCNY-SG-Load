@@ -12,10 +12,12 @@ class LoadProfile {
   ~LoadProfile();
 
   bool lineAvailable();
-  void readLine(char* buffer, InputSequence& sequence, unsigned long& duration,
-                uint8_t buf_size);
+  void readLine(InputSequence& sequence, unsigned long& duration);
 
  private:
+  static const uint8_t SIZE = 101;
+  char buffer[LoadProfile::SIZE] = {};
+
   File file;
 };
 
