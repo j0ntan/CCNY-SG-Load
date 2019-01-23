@@ -93,12 +93,9 @@ void activateLoadProfile() {
       unsigned long duration = 0;
       static const uint8_t buffer_size = 101;
       char buffer[buffer_size] = {};
-      profile.fillBuffer(buffer, buffer_size);
-      if (!lineIsComment(buffer)) {
-        readLine(buffer, profile_input, duration);
-        processInputString(profile_input);
-        timer->delay(duration);
-      }
+      readLine(buffer, profile_input, duration, profile, buffer_size);
+      processInputString(profile_input);
+      timer->delay(duration);
     }
   }  // else, report SD card or File error
 }

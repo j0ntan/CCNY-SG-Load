@@ -8,6 +8,7 @@
 #include "Keypad.h"
 #include "XBee.h"
 #include "InputSequence.h"
+#include "LoadProfile.h"
 
 #define MAX_INPUT_LENGTH 11  // largest input is 'A16B16C16D2', currently
 #define DSPACE_SINGLE_INPUT_BOUND 28
@@ -272,7 +273,12 @@ void addNumbersToSequence(char*& num_begins, char*& num_ends,
   }
 }
 
-void readLine(char* buffer, InputSequence& sequence, unsigned long& duration) {
+void readLine(char* buffer, InputSequence& sequence, unsigned long& duration,
+              LoadProfile& profile, uint8_t buf_size) {
+  do {
+    profile.fillBuffer(buffer, buf_size);
+  } while (!lineIsComment(buffer));
+
   char* num_begins = buffer;
   char* num_ends = buffer;
 
