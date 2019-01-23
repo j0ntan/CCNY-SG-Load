@@ -89,14 +89,15 @@ void activateLoadProfile() {
   if (sd->connected() && sd->fileExists(filename)) {
     LoadProfile profile = sd->openFile(filename);
     while (profile.lineAvailable()) {
+      InputSequence profile_input;
+      unsigned long duration = 0;
       static const uint8_t buffer_size = 101;
       char buffer[buffer_size] = {};
       profile.fillBuffer(buffer, buffer_size);
       if (!lineIsComment(buffer)) {
-        const InputSequence PROFILE_INPUT = extractProfileInput(buffer);
-        const unsigned long DURATION = extractProfileDuration(buffer);
-        processInputString(PROFILE_INPUT);
-        timer->delay(DURATION);
+        readLine(buffer, profile_input, duration);
+        processInputString(profile_input);
+        timer->delay(duration);
       }
     }
   }  // else, report SD card or File error

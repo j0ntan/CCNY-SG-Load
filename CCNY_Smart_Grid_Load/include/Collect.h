@@ -272,29 +272,24 @@ void addNumbersToSequence(char*& num_begins, char*& num_ends,
   }
 }
 
-InputSequence extractProfileInput(char* buffer) {
-  InputSequence retval;
+void readLine(char* buffer, InputSequence& sequence, unsigned long& duration) {
   char* num_begins = buffer;
   char* num_ends = buffer;
 
   // phase A
-  retval.addInput('A');
-  addNumbersToSequence(num_begins, num_ends, retval);
+  sequence.addInput('A');
+  addNumbersToSequence(num_begins, num_ends, sequence);
 
   // phase B
-  retval.addInput('B');
-  addNumbersToSequence(num_begins, num_ends, retval);
+  sequence.addInput('B');
+  addNumbersToSequence(num_begins, num_ends, sequence);
 
   // phase C
-  retval.addInput('C');
-  addNumbersToSequence(num_begins, num_ends, retval);
+  sequence.addInput('C');
+  addNumbersToSequence(num_begins, num_ends, sequence);
 
-  return retval;
-}
-
-unsigned long extractProfileDuration(char* buffer) {
   buffer = strrchr(buffer, ' ');
-  return strtoul(++buffer, nullptr, 0);
+  duration = strtoul(++buffer, nullptr, 0);
 }
 
 #endif  // COLLECT_H
