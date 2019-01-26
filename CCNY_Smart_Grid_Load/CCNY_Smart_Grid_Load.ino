@@ -85,7 +85,8 @@ void processInputString(const InputSequence& input) {
 
 void activateLoadProfile() {
   unsigned int number = readProfileNumberFromSerial();
-  String filename = createFilename<String>(number);
+  char filename[12] = {"PRFL000.txt"};
+  createFilename(number, filename);
 
   if (sd->connected() && sd->fileExists(filename)) {
     LoadProfile profile{sd->openFile(filename)};

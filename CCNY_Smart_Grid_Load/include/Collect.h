@@ -246,13 +246,13 @@ unsigned int readProfileNumberFromSerial() {
   return profile_number - PROFILE_MODE_OFFSET + 1;
 }
 
-template <class StringT>
-StringT createFilename(const unsigned int& profile_number) {
-  const unsigned int HUNDREDTHS_DIGIT = profile_number / 100;
-  const unsigned int TENS_DIGIT = (profile_number / 10) % 10;
-  const unsigned int ONES_DIGIT = profile_number % 10;
-  return StringT(F("PRFL")) + StringT(HUNDREDTHS_DIGIT) + StringT(TENS_DIGIT) +
-         StringT(ONES_DIGIT) + StringT(F(".txt"));
+void createFilename(const unsigned int& profile_number, char* buffer) {
+  const char HUNDREDTHS_DIGIT = static_cast<char>('0' + profile_number / 100);
+  const char TENS_DIGIT = static_cast<char>('0' + (profile_number / 10) % 10);
+  const char ONES_DIGIT = static_cast<char>('0' + profile_number % 10);
+  buffer[4] = HUNDREDTHS_DIGIT;
+  buffer[5] = HUNDREDTHS_DIGIT;
+  buffer[6] = HUNDREDTHS_DIGIT;
 }
 
 #endif  // COLLECT_H
