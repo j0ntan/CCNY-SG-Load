@@ -7,6 +7,7 @@
 #include "include/HardwareKeypad.h"
 #include "include/HardwareXBee.h"
 #include "include/InputSequence.h"
+#include "include/LoadProfile.h"
 #include "include/SDCard.h"
 #include "include/Monitor.h"
 #include "include/Collect.h"
@@ -43,6 +44,7 @@ Keypad* keypad = new HardwareKeypad{input_pins, output_pins};
 ShiftRegister shiftregister{serial_data_output, SR_clock_output,
                             ST_clock_output};
 XBee* xbee = new HardwareXBee{Serial};
+SDCard* sd = new SDCard{53};
 
 void setup() {
   Serial.begin(9600);
@@ -85,20 +87,14 @@ void activateLoadProfile() {
   unsigned int number = readProfileNumberFromSerial();
   String filename = createFilename<String>(number);
 
-  static const uint8_t SD_CS_pin = 53;
-  SDCard sd{SD_CS_pin};
-  if (sd.connected() && sd.fileExists(filename)) {
-    LoadProfile profile = sd.openFile(filename);
+  if (sd->connected() && sd->fileExists(filename)) {
+    LoadProfile profile{sd->openFile(filename)};
     while (profile.lineAvailable()) {
-      const String INPUT_STR = profile.readLine();
-      if (!lineIsComment(INPUT_STR)) {
-        const InputSequence PROFILE_INPUT =
-            extractProfileInput<String>(INPUT_STR);
-        const unsigned long DURATION =
-            extractProfileDuration<String>(INPUT_STR);
-        processInputString(PROFILE_INPUT);
-        timer->delay(DURATION);
-      }
+      InputSequence profile_input;
+      unsigned long duration = 0;
+      profile.readLine(profile_input, duration);
+      processInputString(profile_input);
+      timer->delay(duration);
     }
   }  // else, report SD card or File error
 }

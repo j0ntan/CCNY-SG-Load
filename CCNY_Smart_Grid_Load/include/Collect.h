@@ -255,42 +255,4 @@ StringT createFilename(const unsigned int& profile_number) {
          StringT(ONES_DIGIT) + StringT(F(".txt"));
 }
 
-template <class StringT>
-bool lineIsComment(const StringT& line) {
-  return line.length() >= 2 && line[0] == '/' && line[1] == '/';
-}
-
-template <class StringT>
-InputSequence extractProfileInput(const StringT& profileStr) {
-  StringT input_sequence;
-
-  int phase_begins = 0;
-  int phase_ends = profileStr.indexOf(' ', phase_begins);
-  StringT A_phase =
-      StringT(F("A")) + profileStr.substring(phase_begins, phase_ends);
-
-  phase_begins = phase_ends + 1;
-  phase_ends = profileStr.indexOf(' ', phase_begins);
-  StringT B_phase =
-      StringT(F("B")) + profileStr.substring(phase_begins, phase_ends);
-
-  phase_begins = phase_ends + 1;
-  phase_ends = profileStr.indexOf(' ', phase_begins);
-  StringT C_phase =
-      StringT(F("C")) + profileStr.substring(phase_begins, phase_ends);
-
-  InputSequence retval;
-  retval.addInput(A_phase.c_str());
-  retval.addInput(B_phase.c_str());
-  retval.addInput(C_phase.c_str());
-  return retval;
-}
-
-template <class StringT>
-unsigned long extractProfileDuration(const StringT& line) {
-  int position = line.lastIndexOf(' ') + 1;
-  StringT duration = line.substring(position);
-  return static_cast<unsigned long>(duration.toInt());
-}
-
 #endif  // COLLECT_H

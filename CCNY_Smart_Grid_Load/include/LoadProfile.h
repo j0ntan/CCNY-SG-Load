@@ -1,15 +1,24 @@
 #ifndef LOADPROFILE_H
 #define LOADPROFILE_H
 
-#include <SD.h>
+#include <stdint.h>
 
-class LoadProfile : public File {
+class TextFile;
+class InputSequence;
+
+class LoadProfile {
  public:
-  LoadProfile(File file);
+  LoadProfile(TextFile* file);
   ~LoadProfile();
 
   bool lineAvailable();
-  String readLine();
+  void readLine(InputSequence& sequence, unsigned long& duration);
+
+ private:
+  static const uint8_t SIZE = 101;
+  char buffer[LoadProfile::SIZE] = {};
+
+  TextFile* file;
 };
 
 #endif  // LOADPROFILE_H
