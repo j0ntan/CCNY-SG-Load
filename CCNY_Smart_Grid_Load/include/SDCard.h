@@ -1,9 +1,10 @@
 #ifndef SDCARD_H
 #define SDCARD_H
 
-#include "LoadProfile.h"
 #include <WString.h>
 #include <SD.h>
+
+class TextFile;
 
 class SDCard {
  public:
@@ -15,7 +16,7 @@ class SDCard {
 
   bool connected() const;
   bool fileExists(const String& filename) const;
-  LoadProfile openFile(const String& filename);
+  TextFile* openFile(const String& filename);
 
  private:
   bool _is_connected = false;

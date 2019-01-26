@@ -2,13 +2,13 @@
 #define LOADPROFILE_H
 
 #include <stdint.h>
-#include <SD.h>
 
+class TextFile;
 class InputSequence;
 
 class LoadProfile {
  public:
-  LoadProfile(File file);
+  LoadProfile(TextFile* file);
   ~LoadProfile();
 
   bool lineAvailable();
@@ -18,7 +18,7 @@ class LoadProfile {
   static const uint8_t SIZE = 101;
   char buffer[LoadProfile::SIZE] = {};
 
-  File file;
+  TextFile* file;
 };
 
 #endif  // LOADPROFILE_H

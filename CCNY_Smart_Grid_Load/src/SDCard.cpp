@@ -1,4 +1,5 @@
 #include "../include/SDCard.h"
+#include "../include/HardwareTextFile.h"
 
 SDCard::SDCard(const uint8_t& ChipSelectPin) {
   _is_connected = SD.begin(ChipSelectPin);
@@ -12,6 +13,6 @@ bool SDCard::fileExists(const String& filename) const {
   return SD.exists(filename);
 };
 
-LoadProfile SDCard::openFile(const String& filename) {
-  return SD.open(filename);
+TextFile* SDCard::openFile(const String& filename) {
+  return new HardwareTextFile{SD.open(filename)};
 };

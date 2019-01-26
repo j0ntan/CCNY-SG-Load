@@ -3,14 +3,15 @@
 #include <string.h>
 #include <stdlib.h>
 #include "../include/InputSequence.h"
+#include "../include/TextFile.h"
 
 namespace {
-void fillBuffer(char* buffer, uint8_t buf_size, File& file) {
+void fillBuffer(char* buffer, uint8_t buf_size, TextFile* file) {
   // clear buffer
   memset(buffer, 0, buf_size);
 
   // read into buffer
-  file.readBytesUntil('\n', buffer, buf_size - 1);
+  file->readBytesUntil('\n', buffer, buf_size - 1);
 
   // remove any carriage-return ('\r')
   const unsigned int LAST_CHAR_INDEX = strlen(buffer) - 1;
@@ -61,11 +62,11 @@ void addNumbersToSequence(char*& num_begins, char*& num_ends,
 }
 }  // namespace
 
-LoadProfile::LoadProfile(File file) : file(file) {}
+LoadProfile::LoadProfile(TextFile* file) : file(file) {}
 
-LoadProfile::~LoadProfile() { file.close(); }
+LoadProfile::~LoadProfile() { delete file; }
 
-bool LoadProfile::lineAvailable() { return file.available() > 0; }
+bool LoadProfile::lineAvailable() { return file->available() > 0; }
 
 void LoadProfile::readLine(InputSequence& sequence, unsigned long& duration) {
   do {

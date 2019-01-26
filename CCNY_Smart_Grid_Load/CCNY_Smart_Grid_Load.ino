@@ -7,6 +7,7 @@
 #include "include/HardwareKeypad.h"
 #include "include/HardwareXBee.h"
 #include "include/InputSequence.h"
+#include "include/LoadProfile.h"
 #include "include/SDCard.h"
 #include "include/Monitor.h"
 #include "include/Collect.h"
@@ -87,7 +88,7 @@ void activateLoadProfile() {
   String filename = createFilename<String>(number);
 
   if (sd->connected() && sd->fileExists(filename)) {
-    LoadProfile profile = sd->openFile(filename);
+    LoadProfile profile{sd->openFile(filename)};
     while (profile.lineAvailable()) {
       InputSequence profile_input;
       unsigned long duration = 0;
