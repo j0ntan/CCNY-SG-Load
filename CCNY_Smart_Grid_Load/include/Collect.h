@@ -251,8 +251,8 @@ void createFilename(const unsigned int& profile_number, char* buffer) {
   const char TENS_DIGIT = static_cast<char>('0' + (profile_number / 10) % 10);
   const char ONES_DIGIT = static_cast<char>('0' + profile_number % 10);
   buffer[4] = HUNDREDTHS_DIGIT;
-  buffer[5] = HUNDREDTHS_DIGIT;
-  buffer[6] = HUNDREDTHS_DIGIT;
+  buffer[5] = TENS_DIGIT;
+  buffer[6] = ONES_DIGIT;
 }
 
 #endif  // COLLECT_H
