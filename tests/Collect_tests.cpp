@@ -1,10 +1,11 @@
 #include <gmock/gmock.h>
 #include <Keypad_mock.h>
 #include <Timer_mock.h>
-#include <StringDouble.h>
 #define F(string_literal) string_literal
 #include <Collect.h>
 #include <memory>
+#include <string.h>
+#include <string>
 
 using namespace ::testing;
 
@@ -290,42 +291,15 @@ TEST_F(CollectDSPACE, balancedInputCommandAddNums0To16) {
 
 TEST(dSPACELoadProfile, createFilename0to999) {
   for (unsigned int number = 0; number < 1000; number++) {
-    StringDouble filename = createFilename<StringDouble>(number);
-    StringDouble expected{"PRFL"};
+    char filename[12] = {"PRFL000.txt"};
+    createFilename(number, filename);
+    std::string expected{"PRFL"};
     if (number < 10)
       expected += "00";
     else if (number < 100)
       expected += "0";
-    expected += (std::to_string(number) + ".txt").c_str();
-    ASSERT_EQ(filename, expected);
+    expected += std::to_string(number) + ".txt";
+
+    ASSERT_EQ(0, strcmp(filename, expected.c_str()));
   }
-}
-
-TEST(dSPACELoadProfile, checkLineIsComment) {
-  StringDouble commented{"// this is a comment"};
-  StringDouble uncommented{"/ this is NOT a comment"};
-  StringDouble plain_str{"this is a plain string"};
-  StringDouble single_letter{"a"};
-  StringDouble empty_str;
-
-  ASSERT_TRUE(lineIsComment(commented));
-  ASSERT_FALSE(lineIsComment(uncommented));
-  ASSERT_FALSE(lineIsComment(plain_str));
-  ASSERT_FALSE(lineIsComment(single_letter));
-  ASSERT_FALSE(lineIsComment(empty_str));
-}
-
-TEST(dSPACELoadProfile, readProfileInputSequence) {
-  StringDouble profile_str{"1 2 3 1000"};
-  InputSequence profile_input_sequence = extractProfileInput(profile_str);
-
-  ASSERT_EQ(profile_input_sequence, "A1B2C3");
-}
-
-TEST(dSPACELoadProfile, readProfileDuration) {
-  StringDouble profile_str{"1 2 3 1000"};
-  unsigned long profile_duration = extractProfileDuration(profile_str);
-  unsigned long expected = 1000;
-
-  ASSERT_EQ(profile_duration, expected);
 }
