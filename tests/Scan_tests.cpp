@@ -1,13 +1,11 @@
 #include <gtest/gtest.h>
 #include <Scan.h>
-#include <StringDouble.h>
 
 using namespace ::testing;
 
 class ScanInput : public Test {
  public:
   TokenSet result;
-  StringDouble input;
 };
 
 bool operator==(const TokenSet& lhs, const Token rhs[]) {
