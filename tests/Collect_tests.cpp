@@ -1,7 +1,6 @@
 #include <gmock/gmock.h>
 #include <Keypad_mock.h>
 #include <Timer_mock.h>
-#define F(string_literal) string_literal
 #include <Collect.h>
 #include <memory>
 #include <string.h>

@@ -8,7 +8,6 @@
 #include "XBee.h"
 #include "InputSequence.h"
 
-#define MAX_INPUT_LENGTH 11  // largest input is 'A16B16C16D2', currently
 #define DSPACE_SINGLE_INPUT_BOUND 28
 
 namespace helper {
