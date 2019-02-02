@@ -8,6 +8,10 @@
 #include "XBee.h"
 #include "InputSequence.h"
 
+extern Timer* timer;
+extern Keypad* keypad;
+extern XBee* xbee;
+
 #define DSPACE_SINGLE_INPUT_BOUND 28
 
 namespace helper {
@@ -31,9 +35,6 @@ void dSPACEBalancedInputCommand(const int& commandID, InputSequence& input);
 }  // namespace helper
 
 //**************************** KEYPAD collection *****************************//
-extern Keypad* keypad;
-extern Timer* timer;
-
 InputSequence recordKeypadSequence() {
   InputSequence keypad_sequence;
   bool sequence_terminated = false;
@@ -129,8 +130,6 @@ void helper::waitForButtonRelease() {
 }
 
 //*************************** PC Serial collection ***************************//
-extern XBee* xbee;
-
 InputSequence collectPCSerialData() {
   InputSequence PC_input;
 
