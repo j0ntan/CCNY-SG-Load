@@ -71,7 +71,7 @@ bool LoadProfile::lineAvailable() { return file->available() > 0; }
 void LoadProfile::readLine(InputSequence& sequence, unsigned long& duration) {
   do {
     fillBuffer(buffer, LoadProfile::SIZE, file);
-  } while (!lineIsComment(buffer));
+  } while (lineIsComment(buffer));
 
   if (validFormat(buffer)) {
     char* num_begins = buffer;

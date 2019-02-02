@@ -31,6 +31,13 @@ add_executable(INPUTSEQUENCE_tests
 target_include_directories(INPUTSEQUENCE_tests PRIVATE ${SG_LOAD_INCLUDE_DIR})
 target_link_libraries(INPUTSEQUENCE_tests gmock_main)
 
+add_executable(LOADPROFILE_tests
+        LoadProfile_tests.cpp
+        ${CMAKE_HOME_DIRECTORY}/CCNY_Smart_Grid_Load/src/InputSequence.cpp
+        ${CMAKE_HOME_DIRECTORY}/CCNY_Smart_Grid_Load/src/LoadProfile.cpp)
+target_include_directories(LOADPROFILE_tests PRIVATE ${SG_LOAD_INCLUDE_DIR})
+target_link_libraries(LOADPROFILE_tests gmock_main)
+
 #[[
 # Below target not working due to multiple definition of helper functions
 # from Scan.h.
