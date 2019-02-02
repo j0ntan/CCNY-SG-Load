@@ -9,6 +9,7 @@
 #include "Scan.h"
 #include "RelayState.h"
 
+// Globals defined in main application
 extern Display<String>* display;
 extern Timer* timer;
 extern Keypad* keypad;

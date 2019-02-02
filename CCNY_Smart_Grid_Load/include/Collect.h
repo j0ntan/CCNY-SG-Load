@@ -8,6 +8,7 @@
 #include "XBee.h"
 #include "InputSequence.h"
 
+// Globals defined in main application
 extern Timer* timer;
 extern Keypad* keypad;
 extern XBee* xbee;

@@ -2,6 +2,7 @@
 #include "../include/Timer.h"
 #include "../include/DigitalIO.h"
 
+// Globals defined in main application
 extern Timer* timer;
 
 HardwareKeypad::HardwareKeypad(const DigitalInput* input_pins[],

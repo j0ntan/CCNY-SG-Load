@@ -11,6 +11,7 @@
       // in an input sequence
 #define DSPACE_MANUAL_MODE_BOUND 45
 
+// Globals defined in main application
 extern Timer* timer;
 extern Keypad* keypad;
 extern XBee* xbee;

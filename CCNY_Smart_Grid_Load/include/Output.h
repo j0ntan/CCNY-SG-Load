@@ -5,6 +5,7 @@
 #include "Encode.h"
 #include "ShiftRegister.h"
 
+// Globals defined in main application
 extern ShiftRegister shiftregister;
 
 namespace helper {

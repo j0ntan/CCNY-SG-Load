@@ -2,6 +2,7 @@
 #include "../include/Timer.h"
 #include "../include/DigitalIO.h"
 
+// Globals defined in main application
 extern Timer* timer;
 
 ShiftRegister::ShiftRegister(const DigitalOutput* serialDataInput,
