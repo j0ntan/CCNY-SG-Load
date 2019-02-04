@@ -11,7 +11,7 @@ using namespace ::testing;
 Keypad* keypad = nullptr;
 Timer* timer = nullptr;
 
-class CollectKeypad : public Test {
+class KeyPressCollection : public Test {
  public:
   std::unique_ptr<NiceMock<KeypadMock>> keypadMock;
   std::unique_ptr<NiceMock<TimerMock>> timerMock;
@@ -48,34 +48,7 @@ bool operator==(const InputSequence& lhs, const char* rhs) {
   return lhs == temp;
 }
 
-TEST_F(CollectKeypad, holdHashDoesNothing) {
-  InputSequence expected = fullACSequence;
-  helper::actionOnButtonHold(fullACSequence, Keypad::ButtonID::HASH);
-  ASSERT_EQ(fullACSequence, expected);
-}
-
-TEST_F(CollectKeypad, holdLetterDoesNothing) {
-  InputSequence expected = fullACSequence;
-  helper::actionOnButtonHold(fullACSequence, Keypad::ButtonID::A);
-  ASSERT_EQ(fullACSequence, expected);
-}
-
-TEST_F(CollectKeypad, holdStarCancels) {
-  helper::actionOnButtonHold(fullACSequence, Keypad::ButtonID::STAR);
-  ASSERT_EQ(fullACSequence, emptySequence);
-}
-
-TEST_F(CollectKeypad, holdStarResets) {
-  helper::actionOnButtonHold(emptySequence, Keypad::ButtonID::STAR);
-  ASSERT_EQ(emptySequence, resetSequence);
-}
-
-TEST_F(CollectKeypad, holdNumPrepends3Phases) {
-  helper::actionOnButtonHold(emptySequence, Keypad::ButtonID::NUM2);
-  ASSERT_EQ(emptySequence, "ABC2");
-}
-
-TEST_F(CollectKeypad, recordSimpleSequence) {
+TEST_F(KeyPressCollection, recordSimpleSequence) {
   EXPECT_CALL(*keypadMock, getButtonID())
       .WillOnce(Return(Keypad::ButtonID::A))      // Press 'A'
       .WillOnce(Return(Keypad::ButtonID::B))      // Press 'B'
@@ -87,7 +60,35 @@ TEST_F(CollectKeypad, recordSimpleSequence) {
   ASSERT_EQ(recordKeypadSequence(), fullACSequence);
 }
 
-TEST_F(CollectKeypad, recordBalancedSequenceWithHold) {
+TEST_F(KeyPressCollection, holdingHashEndsSequenceWithoutModification) {
+  EXPECT_CALL(*keypadMock, getButtonID())
+      .WillOnce(Return(Keypad::ButtonID::A))      // Press 'A'
+      .WillOnce(Return(Keypad::ButtonID::NUM1))   // Press '1'
+      .WillOnce(Return(Keypad::ButtonID::HASH));  // Press '#'
+
+  EXPECT_CALL(*keypadMock, anyButtonHeld())
+      .WillOnce(Return(false))  // don't hold 'A'
+      .WillOnce(Return(false))  // don't hold '1'
+      .WillOnce(Return(true));  // hold '#' (end sequence)
+
+  ASSERT_EQ(recordKeypadSequence(), "A1");
+}
+
+TEST_F(KeyPressCollection, holdingLetterEndsSequenceWithoutModification) {
+  EXPECT_CALL(*keypadMock, getButtonID())
+      .WillOnce(Return(Keypad::ButtonID::A))     // Press 'A'
+      .WillOnce(Return(Keypad::ButtonID::NUM1))  // Press '1'
+      .WillOnce(Return(Keypad::ButtonID::A));    // Press 'A'
+
+  EXPECT_CALL(*keypadMock, anyButtonHeld())
+      .WillOnce(Return(false))  // don't hold 'A'
+      .WillOnce(Return(false))  // don't hold '1'
+      .WillOnce(Return(true));  // hold 'A' (end sequence)
+
+  ASSERT_EQ(recordKeypadSequence(), "A1");
+}
+
+TEST_F(KeyPressCollection, holdingNumberSetsBalancedLoadSequence) {
   EXPECT_CALL(*keypadMock, getButtonID())
       .WillOnce(Return(Keypad::ButtonID::NUM1))   // Press '1'
       .WillOnce(Return(Keypad::ButtonID::NUM6));  // Press '6'
@@ -99,25 +100,7 @@ TEST_F(CollectKeypad, recordBalancedSequenceWithHold) {
   ASSERT_EQ(recordKeypadSequence(), fullACSequence);
 }
 
-TEST_F(CollectKeypad, recordSequenceHoldPhaseEndsSequence) {
-  EXPECT_CALL(*keypadMock, getButtonID())
-      .WillOnce(Return(Keypad::ButtonID::A))     // Press 'A'
-      .WillOnce(Return(Keypad::ButtonID::NUM1))  // Press '1'
-      .WillOnce(Return(Keypad::ButtonID::B))     // Press 'B'
-      .WillOnce(Return(Keypad::ButtonID::NUM2))  // Press '2'
-      .WillOnce(Return(Keypad::ButtonID::C));    // Press 'C'
-
-  EXPECT_CALL(*keypadMock, anyButtonHeld())
-      .WillOnce(Return(false))  // don't hold 'A'
-      .WillOnce(Return(false))  // don't hold '1'
-      .WillOnce(Return(false))  // don't hold 'B'
-      .WillOnce(Return(false))  // don't hold '2'
-      .WillOnce(Return(true));  // hold 'C' (end sequence)
-
-  ASSERT_EQ(recordKeypadSequence(), "A1B2");
-}
-
-TEST_F(CollectKeypad, recordSequenceEraseOnce) {
+TEST_F(KeyPressCollection, pressingStarRemovesPreviousInput) {
   EXPECT_CALL(*keypadMock, getButtonID())
       .WillOnce(Return(Keypad::ButtonID::A))      // Press 'A'
       .WillOnce(Return(Keypad::ButtonID::B))      // Press 'B'
@@ -131,21 +114,22 @@ TEST_F(CollectKeypad, recordSequenceEraseOnce) {
   ASSERT_EQ(recordKeypadSequence(), fullACSequence);
 }
 
-TEST_F(CollectKeypad, recordSequenceWithCancel) {
+TEST_F(KeyPressCollection, inputFollowedByHoldingStarCancelsSequence) {
   EXPECT_CALL(*keypadMock, getButtonID())
       .WillOnce(Return(Keypad::ButtonID::A))      // Press 'A'
-      .WillOnce(Return(Keypad::ButtonID::NUM3))   // Press '3'
+      .WillOnce(Return(Keypad::ButtonID::NUM1))   // Press '1'
       .WillOnce(Return(Keypad::ButtonID::STAR));  // Press '*'
 
   EXPECT_CALL(*keypadMock, anyButtonHeld())
       .WillOnce(Return(false))  // don't hold 'A'
-      .WillOnce(Return(false))  // don't hold '3'
-      .WillOnce(Return(true));  // hold '*' (cancel & end sequence)
+      .WillOnce(Return(false))  // don't hold '1'
+      .WillOnce(Return(true));  // hold '#' (cancel sequence)
 
-  ASSERT_EQ(recordKeypadSequence(), emptySequence);
+  ASSERT_EQ(emptySequence, recordKeypadSequence());
 }
 
-TEST_F(CollectKeypad, recordSequenceReset) {
+TEST_F(KeyPressCollection,
+       emptySequenceFollowedByHoldingStarAppliesResetSequence) {
   EXPECT_CALL(*keypadMock, getButtonID())
       .WillOnce(Return(Keypad::ButtonID::STAR));  // Press '*'
 
@@ -155,13 +139,13 @@ TEST_F(CollectKeypad, recordSequenceReset) {
   ASSERT_EQ(recordKeypadSequence(), resetSequence);
 }
 
-TEST_F(CollectKeypad, recordSequenceEraseAllThenReset) {
+TEST_F(KeyPressCollection, canApplyResetSequenceAfterErasingInputs) {
   EXPECT_CALL(*keypadMock, getButtonID())
       .WillOnce(Return(Keypad::ButtonID::A))      // Press 'A'
       .WillOnce(Return(Keypad::ButtonID::NUM7))   // Press '7'
       .WillOnce(Return(Keypad::ButtonID::STAR))   // Press '*' (erase)
       .WillOnce(Return(Keypad::ButtonID::STAR))   // Press '*' (erase again)
-      .WillOnce(Return(Keypad::ButtonID::STAR));  // Press '*'
+      .WillOnce(Return(Keypad::ButtonID::STAR));  // Press '*' (reset)
 
   EXPECT_CALL(*keypadMock, anyButtonHeld())
       .WillOnce(Return(false))  // don't hold 'A'
@@ -175,12 +159,12 @@ TEST_F(CollectKeypad, recordSequenceEraseAllThenReset) {
 
 XBee* xbee = nullptr;  // unused, but needed to compile
 
-class CollectDSPACE : public Test {
+class dSPACECollection : public Test {
  public:
   InputSequence actual, expected;
 };
 
-TEST_F(CollectDSPACE, singleInputCommandAddNums0To16) {
+TEST_F(dSPACECollection, singleInputCommandAddNums0To16) {
   for (int command = 0; command <= 16; command++) {
     expected.addInput(std::to_string(command).c_str());
     helper::dSPACESingleInputCommand(command, actual);
@@ -192,7 +176,7 @@ TEST_F(CollectDSPACE, singleInputCommandAddNums0To16) {
   }
 }
 
-TEST_F(CollectDSPACE, singleInputCommandAddPhases) {
+TEST_F(dSPACECollection, singleInputCommandAddPhases) {
   expected.addInput('A');
   helper::dSPACESingleInputCommand(17, actual);
   ASSERT_EQ(actual, expected);
@@ -216,33 +200,33 @@ TEST_F(CollectDSPACE, singleInputCommandAddPhases) {
   ASSERT_EQ(actual, expected);
 }
 
-TEST_F(CollectDSPACE, singleInputCommandAddNumAfterPhase) {
+TEST_F(dSPACECollection, singleInputCommandAddNumAfterPhase) {
   expected.addInput("A0");
   helper::dSPACESingleInputCommand(17, actual);
   helper::dSPACESingleInputCommand(0, actual);
   ASSERT_EQ(actual, expected);
 }
 
-TEST_F(CollectDSPACE, singleInputCommandAddPhaseAfterNum) {
+TEST_F(dSPACECollection, singleInputCommandAddPhaseAfterNum) {
   expected.addInput("8B");
   helper::dSPACESingleInputCommand(8, actual);
   helper::dSPACESingleInputCommand(18, actual);
   ASSERT_EQ(actual, expected);
 }
 
-TEST_F(CollectDSPACE, singleInputCommandCancelSequence) {
+TEST_F(dSPACECollection, singleInputCommandCancelSequence) {
   helper::dSPACESingleInputCommand(21, actual);
   ASSERT_EQ(actual, expected);
 }
 
-TEST_F(CollectDSPACE, singleInputCommandCancelSequenceAfterInput) {
+TEST_F(dSPACECollection, singleInputCommandCancelSequenceAfterInput) {
   helper::dSPACESingleInputCommand(17, actual);
   helper::dSPACESingleInputCommand(0, actual);
   helper::dSPACESingleInputCommand(21, actual);
   ASSERT_EQ(actual, expected);
 }
 
-TEST_F(CollectDSPACE, singleInputCommandBackspaceAfterInput) {
+TEST_F(dSPACECollection, singleInputCommandBackspaceAfterInput) {
   expected.addInput('A');
   helper::dSPACESingleInputCommand(17, actual);
   helper::dSPACESingleInputCommand(0, actual);
@@ -250,18 +234,18 @@ TEST_F(CollectDSPACE, singleInputCommandBackspaceAfterInput) {
   ASSERT_EQ(actual, expected);
 }
 
-TEST_F(CollectDSPACE, singleInputCommandBackspaceEmptySequence) {
+TEST_F(dSPACECollection, singleInputCommandBackspaceEmptySequence) {
   helper::dSPACESingleInputCommand(22, actual);
   ASSERT_EQ(actual, expected);
 }
 
-TEST_F(CollectDSPACE, singleInputCommandApplyResetSequence) {
+TEST_F(dSPACECollection, singleInputCommandApplyResetSequence) {
   expected.addInput("ABCD0");
   helper::dSPACESingleInputCommand(23, actual);
   ASSERT_EQ(actual, expected);
 }
 
-TEST_F(CollectDSPACE, singleInputCommandResetAfterInput) {
+TEST_F(dSPACECollection, singleInputCommandResetAfterInput) {
   expected.addInput("ABCD0");
   helper::dSPACESingleInputCommand(17, actual);
   helper::dSPACESingleInputCommand(0, actual);
@@ -269,13 +253,13 @@ TEST_F(CollectDSPACE, singleInputCommandResetAfterInput) {
   ASSERT_EQ(actual, expected);
 }
 
-TEST_F(CollectDSPACE, singleInputCommandHandleUnknownCommand) {
+TEST_F(dSPACECollection, singleInputCommandHandleUnknownCommand) {
   expected.addInput('?');
   helper::dSPACESingleInputCommand(25, actual);
   ASSERT_EQ(actual, expected);
 }
 
-TEST_F(CollectDSPACE, balancedInputCommandAddNums0To16) {
+TEST_F(dSPACECollection, balancedInputCommandAddNums0To16) {
   const int MODE_BEGINS = 29, MODE_ENDS = 45;
   for (int command = MODE_BEGINS; command <= MODE_ENDS; command++) {
     expected.addInput(("ABC" + std::to_string(command - MODE_BEGINS)).c_str());
