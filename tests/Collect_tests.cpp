@@ -159,130 +159,141 @@ TEST_F(KeyPressCollection, canApplyResetSequenceAfterErasingInputs) {
 
 XBee* xbee = nullptr;  // unused, but needed to compile
 
-class dSPACECollection : public Test {
- public:
-  InputSequence actual, expected;
-};
-
-TEST_F(dSPACECollection, singleInputCommandAddNums0To16) {
+TEST(dSPACEInputAdditionCommandCollection, addNums0To16ToSequence) {
   for (int command = 0; command <= 16; command++) {
-    expected.addInput(std::to_string(command).c_str());
-    helper::dSPACESingleInputCommand(command, actual);
-    ASSERT_EQ(actual, expected);
+    const std::string cmd_str = std::to_string(command);
+    InputSequence sequence;
 
-    // clear sequences for next iteration
-    actual.cancelSequence();
-    expected.cancelSequence();
+    helper::dSPACESingleInputCommand(command, sequence);
+    ASSERT_EQ(sequence, cmd_str.c_str());
   }
 }
 
-TEST_F(dSPACECollection, singleInputCommandAddPhases) {
-  expected.addInput('A');
-  helper::dSPACESingleInputCommand(17, actual);
-  ASSERT_EQ(actual, expected);
-  actual.cancelSequence();
-  expected.cancelSequence();
+TEST(dSPACEInputAdditionCommandCollection, addEachPhaseToSequence) {
+  const char phases[] = {'A', 'B', 'C', 'D'};
+  for (int i = 0; i < 4; ++i) {
+    const std::string phase_str(1, phases[i]);
+    const int command = 17 + i;
+    InputSequence sequence;
 
-  expected.addInput('B');
-  helper::dSPACESingleInputCommand(18, actual);
-  ASSERT_EQ(actual, expected);
-  actual.cancelSequence();
-  expected.cancelSequence();
-
-  expected.addInput('C');
-  helper::dSPACESingleInputCommand(19, actual);
-  ASSERT_EQ(actual, expected);
-  actual.cancelSequence();
-  expected.cancelSequence();
-
-  expected.addInput('D');
-  helper::dSPACESingleInputCommand(20, actual);
-  ASSERT_EQ(actual, expected);
-}
-
-TEST_F(dSPACECollection, singleInputCommandAddNumAfterPhase) {
-  expected.addInput("A0");
-  helper::dSPACESingleInputCommand(17, actual);
-  helper::dSPACESingleInputCommand(0, actual);
-  ASSERT_EQ(actual, expected);
-}
-
-TEST_F(dSPACECollection, singleInputCommandAddPhaseAfterNum) {
-  expected.addInput("8B");
-  helper::dSPACESingleInputCommand(8, actual);
-  helper::dSPACESingleInputCommand(18, actual);
-  ASSERT_EQ(actual, expected);
-}
-
-TEST_F(dSPACECollection, singleInputCommandCancelSequence) {
-  helper::dSPACESingleInputCommand(21, actual);
-  ASSERT_EQ(actual, expected);
-}
-
-TEST_F(dSPACECollection, singleInputCommandCancelSequenceAfterInput) {
-  helper::dSPACESingleInputCommand(17, actual);
-  helper::dSPACESingleInputCommand(0, actual);
-  helper::dSPACESingleInputCommand(21, actual);
-  ASSERT_EQ(actual, expected);
-}
-
-TEST_F(dSPACECollection, singleInputCommandBackspaceAfterInput) {
-  expected.addInput('A');
-  helper::dSPACESingleInputCommand(17, actual);
-  helper::dSPACESingleInputCommand(0, actual);
-  helper::dSPACESingleInputCommand(22, actual);
-  ASSERT_EQ(actual, expected);
-}
-
-TEST_F(dSPACECollection, singleInputCommandBackspaceEmptySequence) {
-  helper::dSPACESingleInputCommand(22, actual);
-  ASSERT_EQ(actual, expected);
-}
-
-TEST_F(dSPACECollection, singleInputCommandApplyResetSequence) {
-  expected.addInput("ABCD0");
-  helper::dSPACESingleInputCommand(23, actual);
-  ASSERT_EQ(actual, expected);
-}
-
-TEST_F(dSPACECollection, singleInputCommandResetAfterInput) {
-  expected.addInput("ABCD0");
-  helper::dSPACESingleInputCommand(17, actual);
-  helper::dSPACESingleInputCommand(0, actual);
-  helper::dSPACESingleInputCommand(23, actual);
-  ASSERT_EQ(actual, expected);
-}
-
-TEST_F(dSPACECollection, singleInputCommandHandleUnknownCommand) {
-  expected.addInput('?');
-  helper::dSPACESingleInputCommand(25, actual);
-  ASSERT_EQ(actual, expected);
-}
-
-TEST_F(dSPACECollection, balancedInputCommandAddNums0To16) {
-  const int MODE_BEGINS = 29, MODE_ENDS = 45;
-  for (int command = MODE_BEGINS; command <= MODE_ENDS; command++) {
-    expected.addInput(("ABC" + std::to_string(command - MODE_BEGINS)).c_str());
-    helper::dSPACEBalancedInputCommand(command, actual);
-    ASSERT_EQ(actual, expected);
-
-    // clear sequence for next iteration
-    actual.cancelSequence();
-    expected.cancelSequence();
+    helper::dSPACESingleInputCommand(command, sequence);
+    ASSERT_EQ(sequence, phase_str.c_str());
   }
 }
 
-TEST(dSPACELoadProfile, createFilename0to999) {
+TEST(dSPACEInputAdditionCommandCollection, addPhaseThenNumToSequence) {
+  const int command_add_phaseA = 17;
+  const int command_add_num0 = 0;
+  InputSequence sequence;
+
+  helper::dSPACESingleInputCommand(command_add_phaseA, sequence);
+  helper::dSPACESingleInputCommand(command_add_num0, sequence);
+  ASSERT_EQ(sequence, "A0");
+}
+
+TEST(dSPACEInputAdditionCommandCollection, addNumThenPhaseToSequence) {
+  const int command_add_num8 = 8;
+  const int command_add_phaseB = 18;
+  InputSequence sequence;
+
+  helper::dSPACESingleInputCommand(command_add_num8, sequence);
+  helper::dSPACESingleInputCommand(command_add_phaseB, sequence);
+  ASSERT_EQ(sequence, "8B");
+}
+
+TEST(dSPACEModifierCommandCollection, cancelEmptySequence) {
+  const int command_cancel = 21;
+  InputSequence sequence;
+
+  helper::dSPACESingleInputCommand(command_cancel, sequence);
+  ASSERT_EQ(sequence.length(), 0);
+}
+
+TEST(dSPACEModifierCommandCollection, cancelNonEmptySequence) {
+  const int command_add_phaseA = 17;
+  const int command_add_num0 = 0;
+  const int command_cancel = 21;
+  InputSequence sequence;
+
+  helper::dSPACESingleInputCommand(command_add_phaseA, sequence);
+  helper::dSPACESingleInputCommand(command_add_num0, sequence);
+  helper::dSPACESingleInputCommand(command_cancel, sequence);
+  ASSERT_EQ(sequence.length(), 0);
+}
+
+TEST(dSPACEModifierCommandCollection, backspaceErasesLastInput) {
+  const int command_add_phaseA = 17;
+  const int command_add_num0 = 0;
+  const int command_backspace = 22;
+  InputSequence sequence;
+
+  helper::dSPACESingleInputCommand(command_add_phaseA, sequence);
+  helper::dSPACESingleInputCommand(command_add_num0, sequence);
+  helper::dSPACESingleInputCommand(command_backspace, sequence);
+  ASSERT_EQ(sequence, "A");
+}
+
+TEST(dSPACEModifierCommandCollection, backspaceDoesNotModifyEmptySequence) {
+  const int command_backspace = 22;
+  InputSequence sequence;
+
+  helper::dSPACESingleInputCommand(command_backspace, sequence);
+  ASSERT_EQ(sequence.length(), 0);
+}
+
+TEST(dSPACEModifierCommandCollection, applyResetSequence) {
+  const int command_reset = 23;
+  InputSequence sequence;
+
+  helper::dSPACESingleInputCommand(command_reset, sequence);
+  ASSERT_EQ(sequence, "ABCD0");
+}
+
+TEST(dSPACEModifierCommandCollection, resetSequenceOverridesPreviousInput) {
+  const int command_add_phaseA = 17;
+  const int command_add_num0 = 0;
+  const int command_reset = 23;
+  InputSequence sequence;
+
+  helper::dSPACESingleInputCommand(command_add_phaseA, sequence);
+  helper::dSPACESingleInputCommand(command_add_num0, sequence);
+  helper::dSPACESingleInputCommand(command_reset, sequence);
+  ASSERT_EQ(sequence, "ABCD0");
+}
+
+TEST(dSPACEModifierCommandCollection, handleUnknownCommand) {
+  const int command_unknown = 25;
+  InputSequence sequence;
+
+  helper::dSPACESingleInputCommand(command_unknown, sequence);
+  ASSERT_EQ(sequence, "?");
+}
+
+TEST(dSPACEModifierCommandCollection, apply0To16balancedInputSequence) {
+  const int MODE_BEGINS = 29;
+  for (int i = 0; i <= 16; i++) {
+    const int command = MODE_BEGINS + i;
+    const std::string balanced_sequence = "ABC" + std::to_string(i);
+    InputSequence sequence;
+
+    helper::dSPACEBalancedInputCommand(command, sequence);
+    ASSERT_EQ(sequence, balanced_sequence.c_str());
+  }
+}
+
+TEST(dSPACELoadProfile, createFilenames0to999) {
   for (unsigned int number = 0; number < 1000; number++) {
+    std::string file_number;
+    if (number < 10)
+      file_number += "00";
+    else if (number < 100)
+      file_number += "0";
+    file_number += std::to_string(number);
+    const std::string expected = "PRFL" + file_number + ".txt";
+
     char filename[12] = {"PRFL000.txt"};
     createFilename(number, filename);
-    std::string expected{"PRFL"};
-    if (number < 10)
-      expected += "00";
-    else if (number < 100)
-      expected += "0";
-    expected += std::to_string(number) + ".txt";
 
-    ASSERT_EQ(0, strcmp(filename, expected.c_str()));
+    ASSERT_STREQ(filename, expected.c_str());
   }
 }
