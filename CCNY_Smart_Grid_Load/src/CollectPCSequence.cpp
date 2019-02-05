@@ -7,11 +7,11 @@ extern XBee* xbee;
 extern Timer* timer;
 
 InputSequence collectPCSequence() {
-  InputSequence PC_input;
+  InputSequence PC_sequence;
   while (xbee->hasBufferedData())
-    PC_input.addInput(
-        static_cast<char>(xbee->readByte()));  // read data into input
-  return PC_input;
+    PC_sequence.addInput(
+        static_cast<char>(xbee->readByte()));  // read data into sequence
+  return PC_sequence;
 }
 
 void emptyTheBuffer() {

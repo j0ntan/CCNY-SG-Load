@@ -86,13 +86,13 @@ void followDPSACEManualCommand(const int& commandID, InputSequence& input) {
 }  // namespace
 
 InputSequence collectDSPACESequence() {
-  InputSequence input;
+  InputSequence dSPACE_sequence;
   do {
     int receivedByte = readNextUniqueByte();
     removeBufferedByteCopies(receivedByte);
-    followDPSACEManualCommand(receivedByte, input);
+    followDPSACEManualCommand(receivedByte, dSPACE_sequence);
   } while (xbee->hasBufferedData());
-  return input;
+  return dSPACE_sequence;
 }
 
 unsigned int readRequestedProfileNumber() {
