@@ -66,7 +66,7 @@ void loop() {
     } else if (receivedDSPACELoadProfile()) {
       activateLoadProfile();
     } else
-      emptyTheBuffer();
+      xbee->clearBuffer();
   }
 }
 

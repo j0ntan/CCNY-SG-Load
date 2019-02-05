@@ -4,6 +4,10 @@
 #include <HardwareSerial.h>
 #include "XBee.h"
 
+extern "C" {
+void delay(unsigned long);
+}
+
 class HardwareXBee : public XBee {
  public:
   HardwareXBee(HardwareSerial& serial) : _serial(serial) {}
@@ -15,6 +19,12 @@ class HardwareXBee : public XBee {
 
   int bytesAvailable() const final { return _serial.available(); }
   bool hasBufferedData() const final { return _serial.available() > 0; }
+  void clearBuffer() const final {
+    while (hasBufferedData()) {
+      readByte();
+      delay(5);  // guard time, allow incoming data to fill buffer
+    }
+  }
   int readByte() const final { return _serial.read(); }
   int peekByte() const final { return _serial.peek(); }
 

@@ -8,9 +8,6 @@
 extern XBee* xbee;
 extern Timer* timer;
 
-// defined in 'CollectPCSequence.cpp'; will be refactored out
-void emptyTheBuffer();
-
 namespace {
 const uint8_t DSPACE_SINGLE_INPUT_BOUND = 28;
 
@@ -98,7 +95,7 @@ InputSequence collectDSPACESequence() {
 unsigned int readRequestedProfileNumber() {
   static const unsigned int PROFILE_MODE_OFFSET = 46;
   int profile_number = readNextUniqueByte();
-  emptyTheBuffer();
+  xbee->clearBuffer();
   return profile_number - PROFILE_MODE_OFFSET + 1;
 }
 

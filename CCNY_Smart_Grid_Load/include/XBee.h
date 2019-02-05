@@ -7,6 +7,7 @@ class XBee {
 
   virtual int bytesAvailable() const = 0;
   virtual bool hasBufferedData() const = 0;
+  virtual void clearBuffer() const = 0;
   virtual int readByte() const = 0;
   virtual int peekByte() const = 0;
 };

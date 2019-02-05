@@ -9,8 +9,6 @@ InputSequence collectKeypadSequence();
 //*************************** PC Serial collection ***************************//
 InputSequence collectPCSequence();
 
-void emptyTheBuffer();
-
 //************************* dSPACE manual collection *************************//
 InputSequence collectDSPACESequence();
 

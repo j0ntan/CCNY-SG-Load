@@ -13,10 +13,3 @@ InputSequence collectPCSequence() {
         static_cast<char>(xbee->readByte()));  // read data into sequence
   return PC_sequence;
 }
-
-void emptyTheBuffer() {
-  while (xbee->hasBufferedData()) {
-    xbee->readByte();
-    timer->delay(5);  // guard time, allow incoming data to fill buffer
-  }
-}
