@@ -75,7 +75,7 @@ void waitForButtonRelease() {
 }
 }  // namespace
 
-InputSequence recordKeypadSequence() {
+InputSequence collectKeypadSequence() {
   InputSequence keypad_sequence;
   bool sequence_terminated = false;
 

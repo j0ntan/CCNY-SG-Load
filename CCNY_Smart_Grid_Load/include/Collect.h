@@ -4,18 +4,18 @@
 class InputSequence;
 
 //**************************** KEYPAD collection *****************************//
-InputSequence recordKeypadSequence();
+InputSequence collectKeypadSequence();
 
 //*************************** PC Serial collection ***************************//
-InputSequence collectPCSerialData();
+InputSequence collectPCSequence();
 
 void emptyTheBuffer();
 
 //************************* dSPACE manual collection *************************//
-InputSequence collectDSPACEManualData();
+InputSequence collectDSPACESequence();
 
 //************************* dSPACE Load Profile Mode *************************//
-unsigned int readProfileNumberFromSerial();
+unsigned int readRequestedProfileNumber();
 
 void createFilename(const unsigned int& profile_number, char* buffer);
 

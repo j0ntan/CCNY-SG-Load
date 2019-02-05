@@ -6,7 +6,7 @@
 extern XBee* xbee;
 extern Timer* timer;
 
-InputSequence collectPCSerialData() {
+InputSequence collectPCSequence() {
   InputSequence PC_input;
   while (xbee->hasBufferedData())
     PC_input.addInput(

@@ -85,7 +85,7 @@ void followDPSACEManualCommand(const int& commandID, InputSequence& input) {
 }
 }  // namespace
 
-InputSequence collectDSPACEManualData() {
+InputSequence collectDSPACESequence() {
   InputSequence input;
   do {
     int receivedByte = readNextUniqueByte();
@@ -95,7 +95,7 @@ InputSequence collectDSPACEManualData() {
   return input;
 }
 
-unsigned int readProfileNumberFromSerial() {
+unsigned int readRequestedProfileNumber() {
   static const unsigned int PROFILE_MODE_OFFSET = 46;
   int profile_number = readNextUniqueByte();
   emptyTheBuffer();
