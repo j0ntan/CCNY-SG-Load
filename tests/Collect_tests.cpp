@@ -2,6 +2,7 @@
 #include <Keypad_mock.h>
 #include <Timer_mock.h>
 #include <InputSequence.h>
+#include <XBee.h>
 #include <Collect.h>
 #include <memory>
 #include <string.h>
@@ -158,9 +159,42 @@ TEST_F(KeyPressCollection, canApplyResetSequenceAfterErasingInputs) {
   ASSERT_EQ(collectKeypadSequence(), resetSequence);
 }
 
-/*
-XBee* xbee = nullptr;  // unused, but needed to compile
+class XBeeMock : public XBee {
+ public:
+  ~XBeeMock() override = default;
 
+  MOCK_CONST_METHOD0(bytesAvailable, int());
+  MOCK_CONST_METHOD0(hasBufferedData, bool());
+  MOCK_CONST_METHOD0(clearBuffer, void());
+  MOCK_CONST_METHOD0(readByte, int());
+  MOCK_CONST_METHOD0(peekByte, int());
+};
+
+XBeeMock xbeeMock;
+XBee* xbee = &xbeeMock;
+
+TEST(PCInputCollection, collectSimpleSequence) {
+  EXPECT_CALL(xbeeMock, hasBufferedData())
+      .WillOnce(Return(true))
+      .WillOnce(Return(true))
+      .WillOnce(Return(true))
+      .WillOnce(Return(true))
+      .WillOnce(Return(true))
+      .WillOnce(Return(true))
+      .WillOnce(Return(false));
+
+  EXPECT_CALL(xbeeMock, readByte())
+      .WillOnce(Return(static_cast<int>('A')))
+      .WillOnce(Return(static_cast<int>('1')))
+      .WillOnce(Return(static_cast<int>('B')))
+      .WillOnce(Return(static_cast<int>('2')))
+      .WillOnce(Return(static_cast<int>('C')))
+      .WillOnce(Return(static_cast<int>('3')));
+
+  ASSERT_EQ(collectPCSequence(), "A1B2C3");
+}
+
+/*
 TEST(dSPACEInputAdditionCommandCollection, addNums0To16ToSequence) {
   for (int command = 0; command <= 16; command++) {
     const std::string cmd_str = std::to_string(command);
