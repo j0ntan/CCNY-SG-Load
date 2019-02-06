@@ -192,49 +192,41 @@ TEST(PCInputCollection, collectSimpleSequence) {
   ASSERT_EQ(collectPCSequence(), "A1B2C3");
 }
 
+void setExpectationsForSingleInput(int input_value, int number_of_copies,
+                                   bool last_input) {
+  EXPECT_CALL(xbeeMock, readByte())
+      .WillOnce(Return(input_value));  // read first byte
+  for (int i = 0; i < number_of_copies; ++i) {
+    EXPECT_CALL(xbeeMock, peekByte())
+        .WillOnce(Return(input_value));  // peek and find a copy
+    EXPECT_CALL(xbeeMock, readByte());   // discard copy
+    EXPECT_CALL(timerMock, delay(_));
+  }
+  EXPECT_CALL(xbeeMock, peekByte())
+      .WillOnce(Return(-1));  // find different byte or empty buffer
+
+  EXPECT_CALL(xbeeMock, hasBufferedData()).WillOnce(Return(!last_input));
+}
+
+TEST(dSPACEInputAdditionCommandCollection, recordSimpleTransmission) {
+  const char intended_sequence[] = "A14BC8D1";
+
+  InSequence s;
+  // dSPACE transmission:
+  // AAAAAAAAAAAA1111111222BBBBBBBBBCCCC44444444444444444DDDDDD11111111111111
+  setExpectationsForSingleInput(17, 12, false);  // transmit 'A', 12 times
+  setExpectationsForSingleInput(1, 7, false);    // transmit '1', 7 times
+  setExpectationsForSingleInput(4, 3, false);    // transmit '4', 3 times
+  setExpectationsForSingleInput(18, 9, false);   // transmit 'B', 9 times
+  setExpectationsForSingleInput(19, 4, false);   // transmit 'C', 4 times
+  setExpectationsForSingleInput(8, 13, false);   // transmit '8', 13 times
+  setExpectationsForSingleInput(20, 6, false);   // transmit 'D', 6 times
+  setExpectationsForSingleInput(1, 14, true);    // transmit '1', 14 times
+
+  ASSERT_EQ(collectDSPACESequence(), intended_sequence);
+}
+
 /*
-TEST(dSPACEInputAdditionCommandCollection, addNums0To16ToSequence) {
-  for (int command = 0; command <= 16; command++) {
-    const std::string cmd_str = std::to_string(command);
-    InputSequence sequence;
-
-    helper::dSPACESingleInputCommand(command, sequence);
-    ASSERT_EQ(sequence, cmd_str.c_str());
-  }
-}
-
-TEST(dSPACEInputAdditionCommandCollection, addEachPhaseToSequence) {
-  const char phases[] = {'A', 'B', 'C', 'D'};
-  for (int i = 0; i < 4; ++i) {
-    const std::string phase_str(1, phases[i]);
-    const int command = 17 + i;
-    InputSequence sequence;
-
-    helper::dSPACESingleInputCommand(command, sequence);
-    ASSERT_EQ(sequence, phase_str.c_str());
-  }
-}
-
-TEST(dSPACEInputAdditionCommandCollection, addPhaseThenNumToSequence) {
-  const int command_add_phaseA = 17;
-  const int command_add_num0 = 0;
-  InputSequence sequence;
-
-  helper::dSPACESingleInputCommand(command_add_phaseA, sequence);
-  helper::dSPACESingleInputCommand(command_add_num0, sequence);
-  ASSERT_EQ(sequence, "A0");
-}
-
-TEST(dSPACEInputAdditionCommandCollection, addNumThenPhaseToSequence) {
-  const int command_add_num8 = 8;
-  const int command_add_phaseB = 18;
-  InputSequence sequence;
-
-  helper::dSPACESingleInputCommand(command_add_num8, sequence);
-  helper::dSPACESingleInputCommand(command_add_phaseB, sequence);
-  ASSERT_EQ(sequence, "8B");
-}
-
 TEST(dSPACEModifierCommandCollection, cancelEmptySequence) {
   const int command_cancel = 21;
   InputSequence sequence;
