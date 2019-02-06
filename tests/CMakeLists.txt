@@ -1,6 +1,5 @@
 add_subdirectory(thirdparty/googletest)
 
-set(SG_LOAD_INCLUDE_DIR ${CMAKE_HOME_DIRECTORY}/CCNY_Smart_Grid_Load/include)
 set(MOCKS_DIR ${CMAKE_HOME_DIRECTORY}/tests)
 
 add_executable(COLLECT_tests
