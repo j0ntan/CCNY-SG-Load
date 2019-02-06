@@ -305,7 +305,6 @@ TEST(dSPACEModifierCommandCollection, applyBalancedInputSequence) {
   ASSERT_EQ(collectDSPACESequence(), intended_sequence);
 }
 
-/*
 TEST(dSPACELoadProfile, createFilenames0to999) {
   for (unsigned int number = 0; number < 1000; number++) {
     std::string file_number;
@@ -322,4 +321,3 @@ TEST(dSPACELoadProfile, createFilenames0to999) {
     ASSERT_STREQ(filename, expected.c_str());
   }
 }
-*/
