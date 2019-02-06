@@ -11,12 +11,12 @@
 using namespace ::testing;
 
 Keypad* keypad = nullptr;
-Timer* timer = nullptr;
+NiceMock<TimerMock> timerMock;
+Timer* timer = &timerMock;
 
 class KeyPressCollection : public Test {
  public:
   std::unique_ptr<NiceMock<KeypadMock>> keypadMock;
-  std::unique_ptr<NiceMock<TimerMock>> timerMock;
   InputSequence emptySequence;
   InputSequence fullACSequence;
   InputSequence resetSequence;
@@ -24,8 +24,6 @@ class KeyPressCollection : public Test {
   void SetUp() final {
     keypadMock = std::make_unique<NiceMock<KeypadMock>>();
     keypad = keypadMock.get();
-    timerMock = std::make_unique<NiceMock<TimerMock>>();
-    timer = timerMock.get();
 
     fullACSequence.addInput("ABC16");
     resetSequence.addInput("ABCD0");
