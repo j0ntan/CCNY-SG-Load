@@ -226,87 +226,86 @@ TEST(dSPACEInputAdditionCommandCollection, recordSimpleTransmission) {
   ASSERT_EQ(collectDSPACESequence(), intended_sequence);
 }
 
-/*
 TEST(dSPACEModifierCommandCollection, cancelEmptySequence) {
-  const int command_cancel = 21;
-  InputSequence sequence;
+  InSequence s;
+  // dSPACE transmission: (CANCEL)
+  setExpectationsForSingleInput(21, 5, true);  // transmit CANCEL, 5 times
 
-  helper::dSPACESingleInputCommand(command_cancel, sequence);
-  ASSERT_EQ(sequence.length(), 0);
+  ASSERT_EQ(collectDSPACESequence().length(), 0);
 }
 
 TEST(dSPACEModifierCommandCollection, cancelNonEmptySequence) {
-  const int command_add_phaseA = 17;
-  const int command_add_num0 = 0;
-  const int command_cancel = 21;
-  InputSequence sequence;
+  InSequence s;
+  // dSPACE transmission: AAAAAAAAAAAA00000000(CANCEL)
+  setExpectationsForSingleInput(17, 12, false);  // transmit 'A', 12 times
+  setExpectationsForSingleInput(0, 8, false);    // transmit '0', 8 times
+  setExpectationsForSingleInput(21, 3, true);    // transmit CANCEL, 3 times
 
-  helper::dSPACESingleInputCommand(command_add_phaseA, sequence);
-  helper::dSPACESingleInputCommand(command_add_num0, sequence);
-  helper::dSPACESingleInputCommand(command_cancel, sequence);
-  ASSERT_EQ(sequence.length(), 0);
+  ASSERT_EQ(collectDSPACESequence().length(), 0);
 }
 
 TEST(dSPACEModifierCommandCollection, backspaceErasesLastInput) {
-  const int command_add_phaseA = 17;
-  const int command_add_num0 = 0;
-  const int command_backspace = 22;
-  InputSequence sequence;
+  const char intended_sequence[] = "A";
 
-  helper::dSPACESingleInputCommand(command_add_phaseA, sequence);
-  helper::dSPACESingleInputCommand(command_add_num0, sequence);
-  helper::dSPACESingleInputCommand(command_backspace, sequence);
-  ASSERT_EQ(sequence, "A");
+  InSequence s;
+  // dSPACE transmission: AAAAAAAAAAAA00000000(BACKSPACE)
+  setExpectationsForSingleInput(17, 12, false);  // transmit 'A', 12 times
+  setExpectationsForSingleInput(0, 8, false);    // transmit '0', 8 times
+  setExpectationsForSingleInput(22, 3, true);    // transmit BACKSPACE, 3 times
+
+  ASSERT_EQ(collectDSPACESequence(), intended_sequence);
 }
 
 TEST(dSPACEModifierCommandCollection, backspaceDoesNotModifyEmptySequence) {
-  const int command_backspace = 22;
-  InputSequence sequence;
+  InSequence s;
+  // dSPACE transmission: (BACKSPACE)
+  setExpectationsForSingleInput(22, 3, true);  // transmit BACKSPACE, 3 times
 
-  helper::dSPACESingleInputCommand(command_backspace, sequence);
-  ASSERT_EQ(sequence.length(), 0);
+  ASSERT_EQ(collectDSPACESequence().length(), 0);
 }
 
 TEST(dSPACEModifierCommandCollection, applyResetSequence) {
-  const int command_reset = 23;
-  InputSequence sequence;
+  const char intended_sequence[] = "ABCD0";
 
-  helper::dSPACESingleInputCommand(command_reset, sequence);
-  ASSERT_EQ(sequence, "ABCD0");
+  InSequence s;
+  // dSPACE transmission: (RESET)
+  setExpectationsForSingleInput(23, 13, true);  // transmit RESET, 13 times
+
+  ASSERT_EQ(collectDSPACESequence(), intended_sequence);
 }
 
 TEST(dSPACEModifierCommandCollection, resetSequenceOverridesPreviousInput) {
-  const int command_add_phaseA = 17;
-  const int command_add_num0 = 0;
-  const int command_reset = 23;
-  InputSequence sequence;
+  const char intended_sequence[] = "ABCD0";
 
-  helper::dSPACESingleInputCommand(command_add_phaseA, sequence);
-  helper::dSPACESingleInputCommand(command_add_num0, sequence);
-  helper::dSPACESingleInputCommand(command_reset, sequence);
-  ASSERT_EQ(sequence, "ABCD0");
+  InSequence s;
+  // dSPACE transmission: AAAAAAAAAAAA00000000(RESET)
+  setExpectationsForSingleInput(17, 12, false);  // transmit 'A', 12 times
+  setExpectationsForSingleInput(0, 8, false);    // transmit '0', 8 times
+  setExpectationsForSingleInput(23, 3, true);    // transmit RESET, 3 times
+
+  ASSERT_EQ(collectDSPACESequence(), intended_sequence);
 }
 
 TEST(dSPACEModifierCommandCollection, handleUnknownCommand) {
-  const int command_unknown = 25;
-  InputSequence sequence;
+  InSequence s;
+  // dSPACE transmission: (UNKNOWN)
+  setExpectationsForSingleInput(25, 5, true);  // transmit UNKNOWN, 5 times
 
-  helper::dSPACESingleInputCommand(command_unknown, sequence);
-  ASSERT_EQ(sequence, "?");
+  ASSERT_EQ(collectDSPACESequence(), "?");
 }
 
-TEST(dSPACEModifierCommandCollection, apply0To16balancedInputSequence) {
-  const int MODE_BEGINS = 29;
-  for (int i = 0; i <= 16; i++) {
-    const int command = MODE_BEGINS + i;
-    const std::string balanced_sequence = "ABC" + std::to_string(i);
-    InputSequence sequence;
+TEST(dSPACEModifierCommandCollection, applyBalancedInputSequence) {
+  const char intended_sequence[] = "ABC11";
 
-    helper::dSPACEBalancedInputCommand(command, sequence);
-    ASSERT_EQ(sequence, balanced_sequence.c_str());
-  }
+  InSequence s;
+  // dSPACE transmission: (BALANCED, 11)
+  setExpectationsForSingleInput(40, 8,
+                                true);  // transmit BALANCED(11), 8 times
+
+  ASSERT_EQ(collectDSPACESequence(), intended_sequence);
 }
 
+/*
 TEST(dSPACELoadProfile, createFilenames0to999) {
   for (unsigned int number = 0; number < 1000; number++) {
     std::string file_number;
