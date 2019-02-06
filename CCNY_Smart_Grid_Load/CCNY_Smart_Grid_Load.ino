@@ -54,19 +54,19 @@ void setup() {
 void loop() {
   InputSequence user_input;
   if (keypadButtonWasPressed()) {
-    user_input = recordKeypadSequence();
+    user_input = collectKeypadSequence();
     processInputString(user_input);
   } else if (xbee->hasBufferedData()) {
     if (receivedPCSerialData()) {
-      user_input = collectPCSerialData();
+      user_input = collectPCSequence();
       processInputString(user_input);
     } else if (receivedDSPACEManualData()) {
-      user_input = collectDSPACEManualData();
+      user_input = collectDSPACESequence();
       processInputString(user_input);
     } else if (receivedDSPACELoadProfile()) {
       activateLoadProfile();
     } else
-      emptyTheBuffer();
+      xbee->clearBuffer();
   }
 }
 
@@ -84,7 +84,7 @@ void processInputString(const InputSequence& input) {
 }
 
 void activateLoadProfile() {
-  unsigned int number = readProfileNumberFromSerial();
+  unsigned int number = readRequestedProfileNumber();
   char filename[12] = {"PRFL000.txt"};
   createFilename(number, filename);
 

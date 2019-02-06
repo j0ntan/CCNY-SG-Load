@@ -5,7 +5,10 @@ set(MOCKS_DIR ${CMAKE_HOME_DIRECTORY}/tests)
 
 add_executable(COLLECT_tests
         Collect_tests.cpp
-        ${CMAKE_HOME_DIRECTORY}/CCNY_Smart_Grid_Load/src/InputSequence.cpp)
+        ${CMAKE_HOME_DIRECTORY}/CCNY_Smart_Grid_Load/src/InputSequence.cpp
+        ${CMAKE_HOME_DIRECTORY}/CCNY_Smart_Grid_Load/src/CollectKeypadSequence.cpp
+        ${CMAKE_HOME_DIRECTORY}/CCNY_Smart_Grid_Load/src/CollectPCSequence.cpp
+        ${CMAKE_HOME_DIRECTORY}/CCNY_Smart_Grid_Load/src/CollectdSPACESequence.cpp)
 target_include_directories(COLLECT_tests PRIVATE ${SG_LOAD_INCLUDE_DIR} ${MOCKS_DIR})
 target_link_libraries(COLLECT_tests gmock_main)
 
