@@ -1,0 +1,5 @@
+add_library(CollectdSPACESequence STATIC src/CollectdSPACESequence.cpp)
+add_library(CollectKeypadSequence STATIC src/CollectKeypadSequence.cpp)
+add_library(CollectPCSequence STATIC src/CollectPCSequence.cpp)
+add_library(InputSequence STATIC src/InputSequence.cpp)
+add_library(LoadProfile STATIC src/LoadProfile.cpp)
