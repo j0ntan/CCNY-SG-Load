@@ -17,16 +17,10 @@ Timer* timer = &timerMock;
 class KeyPressCollection : public Test {
  public:
   std::unique_ptr<NiceMock<KeypadMock>> keypadMock;
-  InputSequence emptySequence;
-  InputSequence fullACSequence;
-  InputSequence resetSequence;
 
   void SetUp() final {
     keypadMock = std::make_unique<NiceMock<KeypadMock>>();
     keypad = keypadMock.get();
-
-    fullACSequence.addInput("ABC16");
-    resetSequence.addInput("ABCD0");
   }
 };
 
@@ -57,7 +51,7 @@ TEST_F(KeyPressCollection, recordSimpleSequence) {
       .WillOnce(Return(Keypad::ButtonID::NUM6))   // Press '6'
       .WillOnce(Return(Keypad::ButtonID::HASH));  // Press '#' (end sequence)
 
-  ASSERT_EQ(collectKeypadSequence(), fullACSequence);
+  ASSERT_EQ(collectKeypadSequence(), "ABC16");
 }
 
 TEST_F(KeyPressCollection, holdingHashEndsSequenceWithoutModification) {
@@ -97,7 +91,7 @@ TEST_F(KeyPressCollection, holdingNumberSetsBalancedLoadSequence) {
       .WillOnce(Return(false))  // don't hold '1'
       .WillOnce(Return(true));  // hold '6' (prepend & end sequence)
 
-  ASSERT_EQ(collectKeypadSequence(), fullACSequence);
+  ASSERT_EQ(collectKeypadSequence(), "ABC16");
 }
 
 TEST_F(KeyPressCollection, pressingStarRemovesPreviousInput) {
@@ -111,7 +105,7 @@ TEST_F(KeyPressCollection, pressingStarRemovesPreviousInput) {
       .WillOnce(Return(Keypad::ButtonID::NUM6))   // Press '6'
       .WillOnce(Return(Keypad::ButtonID::HASH));  // Press '#' (end sequence)
 
-  ASSERT_EQ(collectKeypadSequence(), fullACSequence);
+  ASSERT_EQ(collectKeypadSequence(), "ABC16");
 }
 
 TEST_F(KeyPressCollection, inputFollowedByHoldingStarCancelsSequence) {
@@ -125,7 +119,7 @@ TEST_F(KeyPressCollection, inputFollowedByHoldingStarCancelsSequence) {
       .WillOnce(Return(false))  // don't hold '1'
       .WillOnce(Return(true));  // hold '#' (cancel sequence)
 
-  ASSERT_EQ(emptySequence, collectKeypadSequence());
+  ASSERT_EQ(collectKeypadSequence().length(), 0);
 }
 
 TEST_F(KeyPressCollection,
@@ -136,7 +130,7 @@ TEST_F(KeyPressCollection,
   EXPECT_CALL(*keypadMock, anyButtonHeld())
       .WillOnce(Return(true));  // hold '*' (reset & end sequence)
 
-  ASSERT_EQ(collectKeypadSequence(), resetSequence);
+  ASSERT_EQ(collectKeypadSequence(), "ABCD0");
 }
 
 TEST_F(KeyPressCollection, canApplyResetSequenceAfterErasingInputs) {
@@ -154,7 +148,7 @@ TEST_F(KeyPressCollection, canApplyResetSequenceAfterErasingInputs) {
       .WillOnce(Return(false))  // don't hold '*'
       .WillOnce(Return(true));  // hold '*' (reset & end sequence)
 
-  ASSERT_EQ(collectKeypadSequence(), resetSequence);
+  ASSERT_EQ(collectKeypadSequence(), "ABCD0");
 }
 
 class XBeeMock : public XBee {

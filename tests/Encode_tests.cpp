@@ -5,26 +5,21 @@
 
 using namespace ::testing;
 
-class EncodeValues : public Test {
- public:
-  RelayState balancedState{5, 5, 5, 2};
-  RelayState unbalancedState{1, 2, 3, 1};
+TEST(EncodeValues, setBitsForValuesZeroToSixteen) {
   const uint8_t RESET_VALUE = 0xFF;
-  uint8_t msb = RESET_VALUE, lsb = RESET_VALUE;
-};
 
-TEST_F(EncodeValues, setBitsForValuesZeroToSixteen) {
   for (uint8_t value = 0; value <= 8; value++) {
+    uint8_t msb = RESET_VALUE, lsb = RESET_VALUE;
     auto decimal_equivalent = (pow(2, 8) - 1) - (pow(2, value) - 1);
     auto expected = static_cast<uint8_t>(decimal_equivalent);
 
     helper::setPhaseBits(msb, lsb, value);
     EXPECT_EQ(msb, 0xFF);
     EXPECT_EQ(lsb, expected);
-    msb = lsb = RESET_VALUE;
   }
 
   for (uint8_t value = 9; value <= 16; value++) {
+    uint8_t msb = RESET_VALUE, lsb = RESET_VALUE;
     auto decimal_equivalent = (pow(2, 8) - 1) - (pow(2, value - 8) - 1);
     auto expected = static_cast<uint8_t>(decimal_equivalent);
 
@@ -41,7 +36,8 @@ bool operator==(const ACRelayBits& lhs, const ACRelayBits& rhs) {
          lhs.phaseC_LSB == rhs.phaseC_LSB && lhs.phaseC_MSB == rhs.phaseC_MSB;
 }
 
-TEST_F(EncodeValues, encodeBalancedRelayValues) {
+TEST(EncodeValues, encodeBalancedRelayValues) {
+  const RelayState balancedState{5, 5, 5, 2};
   auto result = encode(balancedState);
   auto zero_inverted =
       static_cast<uint8_t>(~static_cast<uint8_t>(pow(2, 0) - 1));
@@ -52,7 +48,8 @@ TEST_F(EncodeValues, encodeBalancedRelayValues) {
   ASSERT_EQ(result, equivalent);
 }
 
-TEST_F(EncodeValues, encodeUnbalancedRelayValues) {
+TEST(EncodeValues, encodeUnbalancedRelayValues) {
+  const RelayState unbalancedState{1, 2, 3, 1};
   auto result = encode(unbalancedState);
   auto zero_inverted =
       static_cast<uint8_t>(~static_cast<uint8_t>(pow(2, 0) - 1));
