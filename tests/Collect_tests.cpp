@@ -186,25 +186,23 @@ TEST(PCInputCollection, collectSimpleSequence) {
   ASSERT_EQ(collectPCSequence(), "A1B2C3");
 }
 
-void setExpectationsForSingleInput(int input_value, int number_of_copies,
-                                   bool last_input) {
+void setExpectationsForSingleInput(int input_numerical_value,
+                                   int num_of_times_sent, bool is_last_input) {
   EXPECT_CALL(xbeeMock, readByte())
-      .WillOnce(Return(input_value));  // read first byte
-  for (int i = 0; i < number_of_copies; ++i) {
+      .WillOnce(Return(input_numerical_value));  // read first byte
+  for (int i = 0; i < num_of_times_sent; ++i) {
     EXPECT_CALL(xbeeMock, peekByte())
-        .WillOnce(Return(input_value));  // peek and find a copy
-    EXPECT_CALL(xbeeMock, readByte());   // discard copy
+        .WillOnce(Return(input_numerical_value));  // peek and find a copy
+    EXPECT_CALL(xbeeMock, readByte());             // discard copy
     EXPECT_CALL(timerMock, delay(_));
   }
   EXPECT_CALL(xbeeMock, peekByte())
       .WillOnce(Return(-1));  // find different byte or empty buffer
 
-  EXPECT_CALL(xbeeMock, hasBufferedData()).WillOnce(Return(!last_input));
+  EXPECT_CALL(xbeeMock, hasBufferedData()).WillOnce(Return(!is_last_input));
 }
 
 TEST(dSPACEInputAdditionCommandCollection, recordSimpleTransmission) {
-  const char intended_sequence[] = "A14BC8D1";
-
   InSequence s;
   // dSPACE transmission:
   // AAAAAAAAAAAA1111111222BBBBBBBBBCCCC44444444444444444DDDDDD11111111111111
@@ -217,7 +215,7 @@ TEST(dSPACEInputAdditionCommandCollection, recordSimpleTransmission) {
   setExpectationsForSingleInput(20, 6, false);   // transmit 'D', 6 times
   setExpectationsForSingleInput(1, 14, true);    // transmit '1', 14 times
 
-  ASSERT_EQ(collectDSPACESequence(), intended_sequence);
+  ASSERT_EQ(collectDSPACESequence(), "A14BC8D1");
 }
 
 TEST(dSPACEModifierCommandCollection, cancelEmptySequence) {
@@ -239,15 +237,13 @@ TEST(dSPACEModifierCommandCollection, cancelNonEmptySequence) {
 }
 
 TEST(dSPACEModifierCommandCollection, backspaceErasesLastInput) {
-  const char intended_sequence[] = "A";
-
   InSequence s;
   // dSPACE transmission: AAAAAAAAAAAA00000000(BACKSPACE)
   setExpectationsForSingleInput(17, 12, false);  // transmit 'A', 12 times
   setExpectationsForSingleInput(0, 8, false);    // transmit '0', 8 times
   setExpectationsForSingleInput(22, 3, true);    // transmit BACKSPACE, 3 times
 
-  ASSERT_EQ(collectDSPACESequence(), intended_sequence);
+  ASSERT_EQ(collectDSPACESequence(), "A");
 }
 
 TEST(dSPACEModifierCommandCollection, backspaceDoesNotModifyEmptySequence) {
@@ -259,25 +255,21 @@ TEST(dSPACEModifierCommandCollection, backspaceDoesNotModifyEmptySequence) {
 }
 
 TEST(dSPACEModifierCommandCollection, applyResetSequence) {
-  const char intended_sequence[] = "ABCD0";
-
   InSequence s;
   // dSPACE transmission: (RESET)
   setExpectationsForSingleInput(23, 13, true);  // transmit RESET, 13 times
 
-  ASSERT_EQ(collectDSPACESequence(), intended_sequence);
+  ASSERT_EQ(collectDSPACESequence(), "ABCD0");
 }
 
 TEST(dSPACEModifierCommandCollection, resetSequenceOverridesPreviousInput) {
-  const char intended_sequence[] = "ABCD0";
-
   InSequence s;
   // dSPACE transmission: AAAAAAAAAAAA00000000(RESET)
   setExpectationsForSingleInput(17, 12, false);  // transmit 'A', 12 times
   setExpectationsForSingleInput(0, 8, false);    // transmit '0', 8 times
   setExpectationsForSingleInput(23, 3, true);    // transmit RESET, 3 times
 
-  ASSERT_EQ(collectDSPACESequence(), intended_sequence);
+  ASSERT_EQ(collectDSPACESequence(), "ABCD0");
 }
 
 TEST(dSPACEModifierCommandCollection, handleUnknownCommand) {
@@ -289,14 +281,12 @@ TEST(dSPACEModifierCommandCollection, handleUnknownCommand) {
 }
 
 TEST(dSPACEModifierCommandCollection, applyBalancedInputSequence) {
-  const char intended_sequence[] = "ABC11";
-
   InSequence s;
   // dSPACE transmission: (BALANCED, 11)
   setExpectationsForSingleInput(40, 8,
                                 true);  // transmit BALANCED(11), 8 times
 
-  ASSERT_EQ(collectDSPACESequence(), intended_sequence);
+  ASSERT_EQ(collectDSPACESequence(), "ABC11");
 }
 
 TEST(dSPACELoadProfile, createFilenames0to999) {
