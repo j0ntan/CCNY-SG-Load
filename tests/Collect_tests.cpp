@@ -2,6 +2,7 @@
 #include <Keypad_mock.h>
 #include <Timer_mock.h>
 #include <InputSequence.h>
+#include <InputSequence_utils.h>
 #include <XBee.h>
 #include <Collect.h>
 #include <memory>
@@ -23,24 +24,6 @@ class KeyPressCollection : public Test {
     keypad = keypadMock.get();
   }
 };
-
-bool operator==(const InputSequence& lhs, const InputSequence& rhs) {
-  if (lhs.length() == rhs.length()) {
-    const uint8_t length = lhs.length();
-    bool are_equal = true;
-    for (uint8_t i = 0; i < length && are_equal; ++i) {
-      are_equal = lhs[i] == rhs[i];
-    }
-    return are_equal;
-  } else
-    return false;
-}
-
-bool operator==(const InputSequence& lhs, const char* rhs) {
-  InputSequence temp;
-  temp.addInput(rhs);
-  return lhs == temp;
-}
 
 TEST_F(KeyPressCollection, recordSimpleSequence) {
   EXPECT_CALL(*keypadMock, getButtonID())

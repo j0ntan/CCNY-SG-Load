@@ -1,6 +1,7 @@
 #include <gmock/gmock.h>
 #include <TextFile.h>
 #include <InputSequence.h>
+#include "InputSequence_utils.h"
 #include <LoadProfile.h>
 #include <string>
 #include <limits.h>
@@ -24,21 +25,6 @@ class validateLoadProfile : public Test {
   InputSequence sequence;
   unsigned long duration = ULONG_MAX;
 };
-
-bool operator==(const InputSequence& lhs, const InputSequence& rhs) {
-  bool retval = lhs.length() == rhs.length();
-  if (retval) {
-    const uint8_t len = lhs.length();
-    for (uint8_t i = 0; i < len && retval; ++i) retval = lhs[i] == rhs[i];
-  }
-  return retval;
-}
-
-InputSequence initialized_Sequence(const char* str) {
-  InputSequence retval;
-  retval.addInput(str);
-  return retval;
-}
 
 TEST_F(validateLoadProfile, noLineAvailableForBlankFile) {
   EXPECT_CALL(file_mock, available()).WillOnce(Return(false));
