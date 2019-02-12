@@ -15,7 +15,7 @@ class TextFileMock : public TextFile {
   MOCK_METHOD0(available, int());
 };
 
-class TextFileMock_tests : public Test {
+class validateLoadProfile : public Test {
  public:
   TextFileMock* mock_ptr = new TextFileMock;
   TextFileMock& file_mock = *mock_ptr;
@@ -40,17 +40,17 @@ InputSequence initialized_Sequence(const char* str) {
   return retval;
 }
 
-TEST_F(TextFileMock_tests, noLineAvailableForBlankFile) {
+TEST_F(validateLoadProfile, noLineAvailableForBlankFile) {
   EXPECT_CALL(file_mock, available()).WillOnce(Return(false));
   ASSERT_FALSE(profile.lineAvailable());
 }
 
-TEST_F(TextFileMock_tests, lineAvailableForNonBlankFile) {
+TEST_F(validateLoadProfile, lineAvailableForNonBlankFile) {
   EXPECT_CALL(file_mock, available()).WillOnce(Return(true));
   ASSERT_TRUE(profile.lineAvailable());
 }
 
-TEST_F(TextFileMock_tests, readSingleSimpleLine) {
+TEST_F(validateLoadProfile, readSingleSimpleLine) {
   std::string file_line1{"0 0 0 0"};
   EXPECT_CALL(file_mock, readBytesUntil('\n', NotNull(), _))
       .WillOnce(SetArrayArgument<1>(file_line1.begin(), file_line1.end()));
@@ -60,7 +60,7 @@ TEST_F(TextFileMock_tests, readSingleSimpleLine) {
   ASSERT_EQ(duration, 0);
 }
 
-TEST_F(TextFileMock_tests, readSingleLineWithLengthBelowRequired) {
+TEST_F(validateLoadProfile, readSingleLineWithLengthBelowRequired) {
   std::string file_line1{"0000"};
   EXPECT_CALL(file_mock, readBytesUntil('\n', NotNull(), _))
       .WillOnce(SetArrayArgument<1>(file_line1.begin(), file_line1.end()));
@@ -70,7 +70,7 @@ TEST_F(TextFileMock_tests, readSingleLineWithLengthBelowRequired) {
   ASSERT_EQ(duration, 0);
 }
 
-TEST_F(TextFileMock_tests, readSingleLineWithInvalidChar) {
+TEST_F(validateLoadProfile, readSingleLineWithInvalidChar) {
   std::string file_line1{"0 0 0 a"};
   EXPECT_CALL(file_mock, readBytesUntil('\n', NotNull(), _))
       .WillOnce(SetArrayArgument<1>(file_line1.begin(), file_line1.end()));
@@ -80,7 +80,7 @@ TEST_F(TextFileMock_tests, readSingleLineWithInvalidChar) {
   ASSERT_EQ(duration, 0);
 }
 
-TEST_F(TextFileMock_tests, readSingleLineWithTooManySpaces) {
+TEST_F(validateLoadProfile, readSingleLineWithTooManySpaces) {
   std::string file_line1{"0 0 0 0 0"};
   EXPECT_CALL(file_mock, readBytesUntil('\n', NotNull(), _))
       .WillOnce(SetArrayArgument<1>(file_line1.begin(), file_line1.end()));
@@ -90,7 +90,7 @@ TEST_F(TextFileMock_tests, readSingleLineWithTooManySpaces) {
   ASSERT_EQ(duration, 0);
 }
 
-TEST_F(TextFileMock_tests, readSingleLineWithValidCharsInWrongOrder) {
+TEST_F(validateLoadProfile, readSingleLineWithValidCharsInWrongOrder) {
   std::string file_line1{"0 00  0"};
   EXPECT_CALL(file_mock, readBytesUntil('\n', NotNull(), _))
       .WillOnce(SetArrayArgument<1>(file_line1.begin(), file_line1.end()));
@@ -100,7 +100,7 @@ TEST_F(TextFileMock_tests, readSingleLineWithValidCharsInWrongOrder) {
   ASSERT_EQ(duration, 0);
 }
 
-TEST_F(TextFileMock_tests, readSingleLineWithMultipleDigitNumbers) {
+TEST_F(validateLoadProfile, readSingleLineWithMultipleDigitNumbers) {
   std::string file_line1{"16 40 543 1500"};
   EXPECT_CALL(file_mock, readBytesUntil('\n', NotNull(), _))
       .WillOnce(SetArrayArgument<1>(file_line1.begin(), file_line1.end()));
@@ -110,7 +110,7 @@ TEST_F(TextFileMock_tests, readSingleLineWithMultipleDigitNumbers) {
   ASSERT_EQ(duration, 1500);
 }
 
-TEST_F(TextFileMock_tests, readCommentLineFollowedByValidSequenceLine) {
+TEST_F(validateLoadProfile, readCommentLineFollowedByValidSequenceLine) {
   std::string file_line1{"// this line is a comment"};
   std::string file_line2{"1 2 3 4"};
   EXPECT_CALL(file_mock, readBytesUntil('\n', NotNull(), _))

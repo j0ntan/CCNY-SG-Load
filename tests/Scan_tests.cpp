@@ -3,7 +3,7 @@
 
 using namespace ::testing;
 
-class ScanInput : public Test {
+class validateInputScanning : public Test {
  public:
   TokenSet result;
 };
@@ -16,7 +16,7 @@ bool operator==(const TokenSet& lhs, const Token rhs[]) {
 
 bool operator==(const Token lhs[], const TokenSet& rhs) { return rhs == lhs; }
 
-TEST_F(ScanInput, validateInputCharacters) {
+TEST_F(validateInputScanning, scanEachIndividualInput) {
   const char NUMERICAL_INPUT[] = {'0', '1', '2', '3', '4',
                                   '5', '6', '7', '8', '9'};
   const char UPPERCASE_LETTER_INPUT[] = {'A', 'B', 'C', 'D'};
@@ -52,7 +52,7 @@ TEST_F(ScanInput, validateInputCharacters) {
   }
 }
 
-TEST_F(ScanInput, validateInitialization) {
+TEST_F(validateInputScanning, validateTokenSetInitialization) {
   const uint8_t SIZE = 5;
   const Token INITIALIZED_VALUES[] = {Token::INVALID, Token::INVALID,
                                       Token::INVALID, Token::INVALID,
@@ -63,7 +63,7 @@ TEST_F(ScanInput, validateInitialization) {
   ASSERT_EQ(result, INITIALIZED_VALUES);
 }
 
-TEST_F(ScanInput, sampleInputUppercase) {
+TEST_F(validateInputScanning, scanSequenceContainingUppercaseInput) {
   const Token EXPECTED[] = {Token::AC_phaseA, Token::AC_phaseB,
                             Token::AC_phaseC, Token::NUM1, Token::NUM0};
   InputSequence inputSequence;
@@ -74,7 +74,7 @@ TEST_F(ScanInput, sampleInputUppercase) {
   ASSERT_EQ(result, EXPECTED);
 }
 
-TEST_F(ScanInput, sampleInputLowercase) {
+TEST_F(validateInputScanning, scanSequenceContainingLowercaseInput) {
   const Token EXPECTED[] = {Token::AC_phaseA, Token::AC_phaseB,
                             Token::AC_phaseC, Token::NUM1, Token::NUM0};
   InputSequence inputSequence;
@@ -85,7 +85,7 @@ TEST_F(ScanInput, sampleInputLowercase) {
   ASSERT_EQ(result, EXPECTED);
 }
 
-TEST_F(ScanInput, sampleInputMixedCase) {
+TEST_F(validateInputScanning, scanSequenceContainingMixedCaseInput) {
   const Token EXPECTED[] = {Token::AC_phaseA, Token::AC_phaseB,
                             Token::AC_phaseC, Token::NUM1, Token::NUM0};
   InputSequence inputSequence;
@@ -96,7 +96,7 @@ TEST_F(ScanInput, sampleInputMixedCase) {
   ASSERT_EQ(result, EXPECTED);
 }
 
-TEST_F(ScanInput, sampleInputInvalidLetter) {
+TEST_F(validateInputScanning, scanSequenceContainingInvalidLetter) {
   const Token EXPECTED[] = {Token::AC_phaseA, Token::AC_phaseC, Token::INVALID,
                             Token::INVALID};
   InputSequence inputSequence;
@@ -107,7 +107,7 @@ TEST_F(ScanInput, sampleInputInvalidLetter) {
   ASSERT_EQ(result, EXPECTED);
 }
 
-TEST_F(ScanInput, sampleInputInvalidChar) {
+TEST_F(validateInputScanning, scanSequenceContainingInvalidCharacters) {
   const Token EXPECTED[] = {Token::AC_phaseC, Token::INVALID, Token::INVALID,
                             Token::INVALID, Token::INVALID};
   InputSequence inputSequence;
