@@ -24,8 +24,9 @@ class InputSequence {
   void addInput(const char* input_str);
   void removeLastInput();
 
- private:
   static const uint8_t SIZE = 12;  // 11 chars + null terminator
+
+ private:
   char buffer[SIZE] = {};
 };
 
