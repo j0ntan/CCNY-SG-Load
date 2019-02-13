@@ -13,11 +13,11 @@ target_link_libraries(COLLECT_tests
 
 add_executable(SCAN_tests Scan_tests.cpp)
 target_include_directories(SCAN_tests PRIVATE ${SG_LOAD_INCLUDE_DIR} ${MOCKS_DIR})
-target_link_libraries(SCAN_tests InputSequence gtest_main)
+target_link_libraries(SCAN_tests InputSequence ValidTokens gtest_main)
 
 add_executable(PARSE_tests Parse_tests.cpp)
 target_include_directories(PARSE_tests PRIVATE ${SG_LOAD_INCLUDE_DIR} ${MOCKS_DIR})
-target_link_libraries(PARSE_tests InputSequence gtest_main)
+target_link_libraries(PARSE_tests InputSequence ValidTokens gtest_main)
 
 add_executable(ENCODE_tests Encode_tests.cpp)
 target_include_directories(ENCODE_tests PRIVATE ${SG_LOAD_INCLUDE_DIR} ${MOCKS_DIR})
