@@ -31,6 +31,10 @@ add_executable(LOADPROFILE_tests LoadProfile_tests.cpp)
 target_include_directories(LOADPROFILE_tests PRIVATE ${SG_LOAD_INCLUDE_DIR})
 target_link_libraries(LOADPROFILE_tests InputSequence LoadProfile gmock_main)
 
+add_executable(RELAYSTATEGENERATOR_tests RelayStateGenerator_tests.cpp)
+target_include_directories(RELAYSTATEGENERATOR_tests PRIVATE ${SG_LOAD_INCLUDE_DIR})
+target_link_libraries(RELAYSTATEGENERATOR_tests RelayStateGenerator gtest_main)
+
 #[[
 # Below target not working due to multiple definition of helper functions
 # from Scan.h.
