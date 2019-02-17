@@ -5,6 +5,6 @@ class InputSequence;
 class RelayState;
 
 bool isValidSequence(const InputSequence& input);
-RelayState generateRelayState(const InputSequence& input);
+void recordNewRelayState(const InputSequence& input, RelayState& relayState);
 
 #endif  // RELAYSTATEGENERATOR

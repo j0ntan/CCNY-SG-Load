@@ -164,4 +164,4 @@ bool isValidSequence(const InputSequence& input) {
          hasNoLeadingZeros(analytics) && numbersAreWithinRange(analytics);
 }
 
-RelayState generateRelayState(const InputSequence& input) {}
+void recordNewRelayState(const InputSequence& input, RelayState& relayState) {}
