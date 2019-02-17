@@ -58,3 +58,7 @@ TEST(ValidateSequence, phasesOutOfOrderSequenceIsNotValid) {
   ASSERT_FALSE(isValidSequence(initialized_Sequence("B1AC2")));
   ASSERT_FALSE(isValidSequence(initialized_Sequence("D1C1")));
 }
+
+TEST(ValidateSequence, leadingZeroSequenceIsNotValid) {
+  ASSERT_FALSE(isValidSequence(initialized_Sequence("A01")));
+}

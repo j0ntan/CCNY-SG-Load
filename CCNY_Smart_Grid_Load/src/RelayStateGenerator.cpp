@@ -105,6 +105,14 @@ bool phasesInOrder(const InputAnalytics& analytics) {
         return false;
   return true;
 }
+
+bool hasNoLeadingZeros(const InputAnalytics& analytics) {
+  for (uint8_t i = 0; i < analytics.LENGTH; i++)
+    if (analytics.numerical_equivalents[i] == 0 && i + 1 < analytics.LENGTH &&
+        analytics.numerical_equivalents[i + 1] != InputSequence::SIZE)
+      return false;
+  return true;
+}
 }  // namespace
 
 bool isValidSequence(const InputSequence& input) {
@@ -113,7 +121,8 @@ bool isValidSequence(const InputSequence& input) {
          containsAtLeastOneNumber(analytics) &&
          containsAtLeastOnePhase(analytics) &&
          phasesAppearAtMostOnce(analytics) && beginsWithPhase(analytics) &&
-         endsWithNumber(analytics) && phasesInOrder(analytics);
+         endsWithNumber(analytics) && phasesInOrder(analytics) &&
+         hasNoLeadingZeros(analytics);
 }
 
 RelayState generateRelayState(const InputSequence& input) {}
