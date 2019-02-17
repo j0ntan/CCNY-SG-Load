@@ -53,3 +53,8 @@ TEST(ValidateSequence, phaseLastSequenceIsNotValid) {
 TEST(ValidateSequence, repeatedPhaseSequenceIsNotValid) {
   ASSERT_FALSE(isValidSequence(initialized_Sequence("A1BB2")));
 }
+
+TEST(ValidateSequence, phasesOutOfOrderSequenceIsNotValid) {
+  ASSERT_FALSE(isValidSequence(initialized_Sequence("B1AC2")));
+  ASSERT_FALSE(isValidSequence(initialized_Sequence("D1C1")));
+}

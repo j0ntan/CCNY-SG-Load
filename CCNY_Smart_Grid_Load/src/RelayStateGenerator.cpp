@@ -94,6 +94,17 @@ bool phasesAppearAtMostOnce(const InputAnalytics& analytics) {
   return analytics.count_phaseA <= 1 && analytics.count_phaseB <= 1 &&
          analytics.count_phaseC <= 1 && analytics.count_DC <= 1;
 }
+
+bool phasesInOrder(const InputAnalytics& analytics) {
+  uint8_t positions[4] = {analytics.position_phaseA, analytics.position_phaseB,
+                          analytics.position_phaseC, analytics.position_DC};
+  for (uint8_t current_phase = 1; current_phase < 4; ++current_phase)
+    for (uint8_t prev_phase = 0; prev_phase < current_phase; ++prev_phase)
+      if (positions[prev_phase] != InputSequence::SIZE &&
+          positions[prev_phase] > positions[current_phase])
+        return false;
+  return true;
+}
 }  // namespace
 
 bool isValidSequence(const InputSequence& input) {
@@ -102,7 +113,7 @@ bool isValidSequence(const InputSequence& input) {
          containsAtLeastOneNumber(analytics) &&
          containsAtLeastOnePhase(analytics) &&
          phasesAppearAtMostOnce(analytics) && beginsWithPhase(analytics) &&
-         endsWithNumber(analytics);
+         endsWithNumber(analytics) && phasesInOrder(analytics);
 }
 
 RelayState generateRelayState(const InputSequence& input) {}
