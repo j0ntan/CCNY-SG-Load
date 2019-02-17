@@ -113,6 +113,45 @@ bool hasNoLeadingZeros(const InputAnalytics& analytics) {
       return false;
   return true;
 }
+
+bool numbersAreWithinRange(const InputAnalytics& analytics) {
+  const uint8_t DC_MAX = 2;
+  const uint8_t AC_MAX = 16;
+
+  // check DC range
+  if (analytics.count_DC == 1 &&
+      (analytics.numerical_equivalents[analytics.position_DC + 1] > DC_MAX ||
+       analytics.position_DC != analytics.LENGTH - 2))
+    return false;
+
+  // check only single or double consecutive digits
+  for (uint8_t i = 1, consecutive_digits = 1; i < analytics.LENGTH; ++i) {
+    const bool found_consecutive_pair =
+        analytics.numerical_equivalents[i] != InputSequence::SIZE &&
+        i + 1 < analytics.LENGTH &&
+        analytics.numerical_equivalents[i + 1] != InputSequence::SIZE;
+    if (found_consecutive_pair)
+      ++consecutive_digits;
+    else if (analytics.numerical_equivalents[i] == InputSequence::SIZE)
+      consecutive_digits = 1;
+
+    if (consecutive_digits > 2) return false;
+  }
+
+  // check double digits for AC range
+  for (uint8_t i = 1; i < analytics.LENGTH; i++) {
+    const bool found_double_consecutive_digits =
+        analytics.numerical_equivalents[i] != InputSequence::SIZE &&
+        i + 1 < analytics.LENGTH &&
+        analytics.numerical_equivalents[i + 1] != InputSequence::SIZE;
+    const bool out_of_range = found_double_consecutive_digits &&
+                              (10 * analytics.numerical_equivalents[i] +
+                               analytics.numerical_equivalents[i + 1]) > AC_MAX;
+    if (found_double_consecutive_digits && out_of_range) return false;
+  }
+
+  return true;
+}
 }  // namespace
 
 bool isValidSequence(const InputSequence& input) {
@@ -122,7 +161,7 @@ bool isValidSequence(const InputSequence& input) {
          containsAtLeastOnePhase(analytics) &&
          phasesAppearAtMostOnce(analytics) && beginsWithPhase(analytics) &&
          endsWithNumber(analytics) && phasesInOrder(analytics) &&
-         hasNoLeadingZeros(analytics);
+         hasNoLeadingZeros(analytics) && numbersAreWithinRange(analytics);
 }
 
 RelayState generateRelayState(const InputSequence& input) {}
