@@ -84,13 +84,19 @@ bool beginsWithPhase(const InputAnalytics& analytics) {
   return analytics.position_phaseA == 0 || analytics.position_phaseB == 0 ||
          analytics.position_phaseC == 0 || analytics.position_DC == 0;
 }
+
+bool endsWithNumber(const InputAnalytics& analytics) {
+  return analytics.numerical_equivalents[analytics.LENGTH - 1] !=
+         InputSequence::SIZE;
+}
 }  // namespace
 
 bool isValidSequence(const InputSequence& input) {
   InputAnalytics analytics{input};
   return isNotEmpty(input) && containsOnlyValidChars(input) &&
          containsAtLeastOneNumber(analytics) &&
-         containsAtLeastOnePhase(analytics) && beginsWithPhase(analytics);
+         containsAtLeastOnePhase(analytics) && beginsWithPhase(analytics) &&
+         endsWithNumber(analytics);
 }
 
 RelayState generateRelayState(const InputSequence& input) {}

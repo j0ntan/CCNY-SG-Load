@@ -45,3 +45,7 @@ TEST(ValidateSequence, noPhaseSequenceIsNotValid) {
 TEST(ValidateSequence, numberFirstSequenceIsNotValid) {
   ASSERT_FALSE(isValidSequence(initialized_Sequence("1A")));
 }
+
+TEST(ValidateSequence, phaseLastSequenceIsNotValid) {
+  ASSERT_FALSE(isValidSequence(initialized_Sequence("A1B")));
+}
