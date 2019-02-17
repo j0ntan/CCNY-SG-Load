@@ -67,11 +67,18 @@ bool containsOnlyValidChars(const InputSequence& input) {
     if (charToToken(input[i]) == Token::INVALID) return false;
   return true;
 }
+
+bool containsAtLeastOneNumber(const InputAnalytics& analytics) {
+  for (uint8_t i = 0; i < analytics.LENGTH; i++)
+    if (analytics.numerical_equivalents[i] != InputSequence::SIZE) return true;
+  return false;
+}
 }  // namespace
 
 bool isValidSequence(const InputSequence& input) {
   InputAnalytics analytics{input};
-  return isNotEmpty(input) && containsOnlyValidChars(input);
+  return isNotEmpty(input) && containsOnlyValidChars(input) &&
+         containsAtLeastOneNumber(analytics);
 }
 
 RelayState generateRelayState(const InputSequence& input) {}

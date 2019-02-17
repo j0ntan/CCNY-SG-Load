@@ -33,3 +33,9 @@ TEST(ValidateSequence, invalidSymbolSequenceIsNotValid) {
   ASSERT_FALSE(isValidSequence(initialized_Sequence("a1!")));
   ASSERT_FALSE(isValidSequence(initialized_Sequence("_a1")));
 }
+
+TEST(ValidateSequence, noNumberSequenceIsNotValid) {
+  ASSERT_FALSE(isValidSequence(initialized_Sequence("abc")));
+}
+
+
