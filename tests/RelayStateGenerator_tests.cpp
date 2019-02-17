@@ -38,4 +38,6 @@ TEST(ValidateSequence, noNumberSequenceIsNotValid) {
   ASSERT_FALSE(isValidSequence(initialized_Sequence("abc")));
 }
 
-
+TEST(ValidateSequence, noPhaseSequenceIsNotValid) {
+  ASSERT_FALSE(isValidSequence(initialized_Sequence("123")));
+}
