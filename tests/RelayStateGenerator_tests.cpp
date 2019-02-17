@@ -49,3 +49,7 @@ TEST(ValidateSequence, numberFirstSequenceIsNotValid) {
 TEST(ValidateSequence, phaseLastSequenceIsNotValid) {
   ASSERT_FALSE(isValidSequence(initialized_Sequence("A1B")));
 }
+
+TEST(ValidateSequence, repeatedPhaseSequenceIsNotValid) {
+  ASSERT_FALSE(isValidSequence(initialized_Sequence("A1BB2")));
+}

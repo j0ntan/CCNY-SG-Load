@@ -89,13 +89,19 @@ bool endsWithNumber(const InputAnalytics& analytics) {
   return analytics.numerical_equivalents[analytics.LENGTH - 1] !=
          InputSequence::SIZE;
 }
+
+bool phasesAppearAtMostOnce(const InputAnalytics& analytics) {
+  return analytics.count_phaseA <= 1 && analytics.count_phaseB <= 1 &&
+         analytics.count_phaseC <= 1 && analytics.count_DC <= 1;
+}
 }  // namespace
 
 bool isValidSequence(const InputSequence& input) {
   InputAnalytics analytics{input};
   return isNotEmpty(input) && containsOnlyValidChars(input) &&
          containsAtLeastOneNumber(analytics) &&
-         containsAtLeastOnePhase(analytics) && beginsWithPhase(analytics) &&
+         containsAtLeastOnePhase(analytics) &&
+         phasesAppearAtMostOnce(analytics) && beginsWithPhase(analytics) &&
          endsWithNumber(analytics);
 }
 
