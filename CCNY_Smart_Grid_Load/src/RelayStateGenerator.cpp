@@ -79,13 +79,18 @@ bool containsAtLeastOnePhase(const InputAnalytics& analytics) {
     if (analytics.numerical_equivalents[i] == InputSequence::SIZE) return true;
   return false;
 }
+
+bool beginsWithPhase(const InputAnalytics& analytics) {
+  return analytics.position_phaseA == 0 || analytics.position_phaseB == 0 ||
+         analytics.position_phaseC == 0 || analytics.position_DC == 0;
+}
 }  // namespace
 
 bool isValidSequence(const InputSequence& input) {
   InputAnalytics analytics{input};
   return isNotEmpty(input) && containsOnlyValidChars(input) &&
          containsAtLeastOneNumber(analytics) &&
-         containsAtLeastOnePhase(analytics);
+         containsAtLeastOnePhase(analytics) && beginsWithPhase(analytics);
 }
 
 RelayState generateRelayState(const InputSequence& input) {}

@@ -41,3 +41,7 @@ TEST(ValidateSequence, noNumberSequenceIsNotValid) {
 TEST(ValidateSequence, noPhaseSequenceIsNotValid) {
   ASSERT_FALSE(isValidSequence(initialized_Sequence("123")));
 }
+
+TEST(ValidateSequence, numberFirstSequenceIsNotValid) {
+  ASSERT_FALSE(isValidSequence(initialized_Sequence("1A")));
+}
