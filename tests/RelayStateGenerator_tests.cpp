@@ -1,7 +1,17 @@
 #include <gtest/gtest.h>
+#include <RelayState.h>
 #include <InputSequence.h>
 #include "InputSequence_utils.h"
 #include <RelayStateGenerator.h>
+
+bool operator==(const RelayState& lhs, const RelayState& rhs) {
+  return lhs.phaseA == rhs.phaseA && lhs.phaseB == rhs.phaseB &&
+         lhs.phaseC == rhs.phaseC && lhs.DC == rhs.DC;
+}
+
+bool operator!=(const RelayState& lhs, const RelayState& rhs) {
+  return !(lhs == rhs);
+}
 
 TEST(ValidateSequence, emptySequenceIsNotValid) {
   ASSERT_FALSE(isValidSequence(InputSequence{}));
@@ -69,4 +79,34 @@ TEST(ValidateSequence, outOfRangeNumbersSequenceIsNotValid) {
   ASSERT_FALSE(isValidSequence(initialized_Sequence("A101")));
   ASSERT_FALSE(isValidSequence(initialized_Sequence("D3")));
   ASSERT_FALSE(isValidSequence(initialized_Sequence("D12")));
+}
+
+TEST(recordNewState, simpleSequence) {
+  RelayState s1{0, 0, 0, 0};
+  recordNewRelayState(initialized_Sequence("A1"), s1);
+  ASSERT_EQ(s1, (RelayState{1, 0, 0, 0}));
+}
+
+TEST(recordNewState, balancedSequence) {
+  RelayState s1{0, 0, 0, 0};
+  recordNewRelayState(initialized_Sequence("ABC5"), s1);
+  ASSERT_EQ(s1, (RelayState{5, 5, 5, 0}));
+}
+
+TEST(recordNewState, unbalancedSequence) {
+  RelayState s1{0, 0, 0, 0};
+  recordNewRelayState(initialized_Sequence("A1B2C3D1"), s1);
+  ASSERT_EQ(s1, (RelayState{1, 2, 3, 1}));
+}
+
+TEST(recordNewState, multipleSimpleSequences) {
+  RelayState s1{0, 0, 0, 0};
+  recordNewRelayState(initialized_Sequence("A1"), s1);
+  ASSERT_EQ(s1, (RelayState{1, 0, 0, 0}));
+  recordNewRelayState(initialized_Sequence("A8"), s1);
+  ASSERT_EQ(s1, (RelayState{8, 0, 0, 0}));
+  recordNewRelayState(initialized_Sequence("C6"), s1);
+  ASSERT_EQ(s1, (RelayState{8, 0, 6, 0}));
+  recordNewRelayState(initialized_Sequence("B10"), s1);
+  ASSERT_EQ(s1, (RelayState{8, 10, 6, 0}));
 }

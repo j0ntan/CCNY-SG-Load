@@ -152,6 +152,17 @@ bool numbersAreWithinRange(const InputAnalytics& analytics) {
 
   return true;
 }
+
+uint8_t readProceedingValue(const InputAnalytics& analytics, uint8_t start) {
+  while (analytics.numerical_equivalents[start] == InputSequence::SIZE) ++start;
+  const bool double_digit_value =
+      start + 1 < analytics.LENGTH &&
+      analytics.numerical_equivalents[start + 1] != InputSequence::SIZE;
+  if (double_digit_value)
+    return 10 + analytics.numerical_equivalents[start + 1];
+  else
+    return analytics.numerical_equivalents[start];
+}
 }  // namespace
 
 bool isValidSequence(const InputSequence& input) {
@@ -164,4 +175,18 @@ bool isValidSequence(const InputSequence& input) {
          hasNoLeadingZeros(analytics) && numbersAreWithinRange(analytics);
 }
 
-void recordNewRelayState(const InputSequence& input, RelayState& relayState) {}
+void recordNewRelayState(const InputSequence& input, RelayState& relayState) {
+  InputAnalytics analytics{input};
+
+  if (analytics.count_phaseA == 1)
+    relayState.phaseA =
+        readProceedingValue(analytics, analytics.position_phaseA);
+  if (analytics.count_phaseB == 1)
+    relayState.phaseB =
+        readProceedingValue(analytics, analytics.position_phaseB);
+  if (analytics.count_phaseC == 1)
+    relayState.phaseC =
+        readProceedingValue(analytics, analytics.position_phaseC);
+  if (analytics.count_DC == 1)
+    relayState.DC = readProceedingValue(analytics, analytics.position_DC);
+}
