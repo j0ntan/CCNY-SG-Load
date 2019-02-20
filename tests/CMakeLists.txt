@@ -38,13 +38,19 @@ target_link_libraries(RELAYSTATEGENERATOR_tests
         InputSequence_utils
         gtest_main)
 
-#[[
-# Below target not working due to multiple definition of helper functions
-# from Scan.h.
-add_executable(ALL_tests Collect_tests.cpp
-        Scan_tests.cpp
-        Parse_tests.cpp
-        Encode_tests.cpp)
+add_executable(ALL_tests
+        Collect_tests.cpp
+        Encode_tests.cpp
+        InputSequence_tests.cpp
+        LoadProfile_tests.cpp
+        RelayStateGenerator_tests.cpp)
 target_include_directories(ALL_tests PRIVATE ${SG_LOAD_INCLUDE_DIR} ${MOCKS_DIR})
-target_link_libraries(ALL_tests PRIVATE gmock_main)
-#]]
+target_link_libraries(ALL_tests
+        InputSequence
+        CollectKeypadSequence
+        CollectPCSequence
+        CollectdSPACESequence
+        LoadProfile
+        InputSequence_utils
+        RelayStateGenerator
+        gmock_main)
