@@ -11,8 +11,7 @@
 #include "include/LoadProfile.h"
 #include "include/Monitor.h"
 #include "include/Collect.h"
-#include "include/Scan.h"
-#include "include/Parse.h"
+#include "include/RelayStateGenerator.h"
 #include "include/Encode.h"
 #include "include/Output.h"
 
@@ -71,16 +70,12 @@ void loop() {
 }
 
 void processInputString(const InputSequence& input) {
-  TokenSet tokens = scan(input);
-  if (!tokens.containsInvalid()) {
-    ParseAnalysis analysis = analyzeTokens(tokens);
-    if (hasNoParseErrors(analysis)) {
-      parseNewRelayState(analysis, relay_state);
-      ACRelayBits bits = encode(relay_state);
-      outputAllRelays(bits, relay_state.DC, relay1_output, relay2_output);
-    }  // else, parse error reported
-  } else
-    ;  // report invalid char error
+  if (isValidSequence(input)) {
+    recordNewRelayState(input, relay_state);
+    ACRelayBits bits = encode(relay_state);
+    outputAllRelays(bits, relay_state.DC, relay1_output, relay2_output);
+  }
+  // else, display error message
 }
 
 void activateLoadProfile() {
