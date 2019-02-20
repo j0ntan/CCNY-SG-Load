@@ -2,6 +2,9 @@ add_subdirectory(thirdparty/googletest)
 
 set(MOCKS_DIR ${CMAKE_HOME_DIRECTORY}/tests)
 
+add_library(InputSequence_utils STATIC InputSequence_utils.cpp)
+target_include_directories(InputSequence_utils PRIVATE ${SG_LOAD_INCLUDE_DIR})
+
 add_executable(COLLECT_tests Collect_tests.cpp)
 target_include_directories(COLLECT_tests PRIVATE ${SG_LOAD_INCLUDE_DIR} ${MOCKS_DIR})
 target_link_libraries(COLLECT_tests
@@ -9,6 +12,7 @@ target_link_libraries(COLLECT_tests
         CollectKeypadSequence
         CollectPCSequence
         CollectdSPACESequence
+        InputSequence_utils
         gmock_main)
 
 add_executable(ENCODE_tests Encode_tests.cpp)
@@ -21,11 +25,18 @@ target_link_libraries(INPUTSEQUENCE_tests InputSequence gmock_main)
 
 add_executable(LOADPROFILE_tests LoadProfile_tests.cpp)
 target_include_directories(LOADPROFILE_tests PRIVATE ${SG_LOAD_INCLUDE_DIR})
-target_link_libraries(LOADPROFILE_tests InputSequence LoadProfile gmock_main)
+target_link_libraries(LOADPROFILE_tests
+        LoadProfile
+        InputSequence_utils
+        InputSequence
+        gmock_main)
 
 add_executable(RELAYSTATEGENERATOR_tests RelayStateGenerator_tests.cpp)
 target_include_directories(RELAYSTATEGENERATOR_tests PRIVATE ${SG_LOAD_INCLUDE_DIR})
-target_link_libraries(RELAYSTATEGENERATOR_tests RelayStateGenerator gtest_main)
+target_link_libraries(RELAYSTATEGENERATOR_tests
+        RelayStateGenerator
+        InputSequence_utils
+        gtest_main)
 
 #[[
 # Below target not working due to multiple definition of helper functions
