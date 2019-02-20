@@ -21,6 +21,10 @@ void outputAllRelays(const ACRelayBits& ACvalues, const uint8_t& DCvalue,
   helper::outputToDCRelays(DCvalue, DC_relay1_output, DC_relay2_output);
 }
 
+class RelayState;
+
+void outputNewRelayState(const RelayState& newRelayState);
+
 void helper::outputBitsToShiftRegisters(const ACRelayBits& bits) {
   shiftregister.shiftByte(bits.phaseC_MSB);
   shiftregister.shiftByte(bits.phaseC_LSB);
