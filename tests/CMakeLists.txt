@@ -17,7 +17,7 @@ target_link_libraries(COLLECT_tests
 
 add_executable(ENCODE_tests Encode_tests.cpp)
 target_include_directories(ENCODE_tests PRIVATE ${SG_LOAD_INCLUDE_DIR} ${MOCKS_DIR})
-target_link_libraries(ENCODE_tests gmock_main)
+target_link_libraries(ENCODE_tests Encode gmock_main)
 
 add_executable(INPUTSEQUENCE_tests InputSequence_tests.cpp)
 target_include_directories(INPUTSEQUENCE_tests PRIVATE ${SG_LOAD_INCLUDE_DIR})
@@ -53,4 +53,5 @@ target_link_libraries(ALL_tests
         LoadProfile
         InputSequence_utils
         RelayStateGenerator
+        Encode
         gmock_main)

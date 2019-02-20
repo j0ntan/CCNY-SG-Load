@@ -2,7 +2,8 @@
 #define ENCODE_H
 
 #include <stdint.h>
-#include "RelayState.h"
+
+class RelayState;
 
 typedef uint8_t byte;
 
@@ -15,24 +16,6 @@ struct ACRelayBits {
   byte phaseC_LSB = 0xFF;
 };
 
-namespace helper {
-void setPhaseBits(byte& MSB, byte& LSB, const uint8_t& setVal) {
-  if (setVal > 8) {
-    MSB = MSB << (setVal - 8);
-    LSB = 0x00;
-  } else {
-    MSB = 0xFF;
-    LSB = LSB << setVal;
-  }
-}
-}  // namespace helper
-
-ACRelayBits encode(const RelayState& vals) {
-  ACRelayBits result;
-  helper::setPhaseBits(result.phaseA_MSB, result.phaseA_LSB, vals.phaseA);
-  helper::setPhaseBits(result.phaseB_MSB, result.phaseB_LSB, vals.phaseB);
-  helper::setPhaseBits(result.phaseC_MSB, result.phaseC_LSB, vals.phaseC);
-  return result;
-}
+ACRelayBits encode(const RelayState& vals);
 
 #endif  // ENCODE_H

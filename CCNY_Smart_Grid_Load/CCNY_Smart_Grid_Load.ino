@@ -11,6 +11,7 @@
 #include "include/LoadProfile.h"
 #include "include/Monitor.h"
 #include "include/Collect.h"
+#include "include/RelayState.h"
 #include "include/RelayStateGenerator.h"
 #include "include/Encode.h"
 #include "include/Output.h"
