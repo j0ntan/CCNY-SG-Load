@@ -13,7 +13,6 @@
 #include "include/Collect.h"
 #include "include/RelayState.h"
 #include "include/RelayStateGenerator.h"
-#include "include/Encode.h"
 #include "include/ShiftRegister.h"
 #include "include/Output.h"
 
@@ -74,8 +73,7 @@ void loop() {
 void processInputString(const InputSequence& input) {
   if (isValidSequence(input)) {
     recordNewRelayState(input, relay_state);
-    ACRelayBits bits = encode(relay_state);
-    outputAllRelays(bits, relay_state.DC, relay1_output, relay2_output);
+    outputNewRelayState(relay_state);
   }
   // else, display error message
 }
