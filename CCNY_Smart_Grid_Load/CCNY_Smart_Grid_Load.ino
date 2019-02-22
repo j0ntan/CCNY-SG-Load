@@ -14,6 +14,7 @@
 #include "include/RelayState.h"
 #include "include/RelayStateGenerator.h"
 #include "include/Encode.h"
+#include "include/ShiftRegister.h"
 #include "include/Output.h"
 
 //
