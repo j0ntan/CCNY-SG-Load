@@ -16,8 +16,10 @@ target_link_libraries(COLLECT_tests
         gmock_main)
 
 add_executable(ENCODE_tests Encode_tests.cpp)
-target_include_directories(ENCODE_tests PRIVATE ${SG_LOAD_INCLUDE_DIR} ${MOCKS_DIR})
-target_link_libraries(ENCODE_tests gmock_main)
+target_include_directories(ENCODE_tests PRIVATE
+        ${SG_LOAD_INCLUDE_DIR}
+        ${CMAKE_HOME_DIRECTORY}/CCNY_Smart_Grid_Load/src)
+target_link_libraries(ENCODE_tests Encode gmock_main)
 
 add_executable(INPUTSEQUENCE_tests InputSequence_tests.cpp)
 target_include_directories(INPUTSEQUENCE_tests PRIVATE ${SG_LOAD_INCLUDE_DIR})
@@ -44,7 +46,10 @@ add_executable(ALL_tests
         InputSequence_tests.cpp
         LoadProfile_tests.cpp
         RelayStateGenerator_tests.cpp)
-target_include_directories(ALL_tests PRIVATE ${SG_LOAD_INCLUDE_DIR} ${MOCKS_DIR})
+target_include_directories(ALL_tests PRIVATE
+        ${SG_LOAD_INCLUDE_DIR}
+        ${MOCKS_DIR}
+        ${CMAKE_HOME_DIRECTORY}/CCNY_Smart_Grid_Load/src)
 target_link_libraries(ALL_tests
         InputSequence
         CollectKeypadSequence
@@ -53,4 +58,5 @@ target_link_libraries(ALL_tests
         LoadProfile
         InputSequence_utils
         RelayStateGenerator
+        Encode
         gmock_main)

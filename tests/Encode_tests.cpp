@@ -1,34 +1,10 @@
 #include <gmock/gmock.h>
 #include <RelayState.h>
 #include <Encode.h>
-#include <cmath>
+#include <utility>
+#include <vector>
 
 using namespace ::testing;
-
-TEST(EncodeValues, setBitsForValuesZeroToSixteen) {
-  const uint8_t RESET_VALUE = 0xFF;
-
-  for (uint8_t value = 0; value <= 8; value++) {
-    uint8_t msb = RESET_VALUE, lsb = RESET_VALUE;
-    auto decimal_equivalent = (pow(2, 8) - 1) - (pow(2, value) - 1);
-    auto expected = static_cast<uint8_t>(decimal_equivalent);
-
-    helper::setPhaseBits(msb, lsb, value);
-    EXPECT_EQ(msb, 0xFF);
-    EXPECT_EQ(lsb, expected);
-  }
-
-  for (uint8_t value = 9; value <= 16; value++) {
-    uint8_t msb = RESET_VALUE, lsb = RESET_VALUE;
-    auto decimal_equivalent = (pow(2, 8) - 1) - (pow(2, value - 8) - 1);
-    auto expected = static_cast<uint8_t>(decimal_equivalent);
-
-    helper::setPhaseBits(msb, lsb, value);
-    EXPECT_EQ(msb, expected);
-    EXPECT_EQ(lsb, 0x00);
-    msb = lsb = RESET_VALUE;
-  }
-}
 
 bool operator==(const ACRelayBits& lhs, const ACRelayBits& rhs) {
   return lhs.phaseA_LSB == rhs.phaseA_LSB && lhs.phaseA_MSB == rhs.phaseA_MSB &&
@@ -36,30 +12,55 @@ bool operator==(const ACRelayBits& lhs, const ACRelayBits& rhs) {
          lhs.phaseC_LSB == rhs.phaseC_LSB && lhs.phaseC_MSB == rhs.phaseC_MSB;
 }
 
+TEST(EncodeValues, setBitsForValuesZeroToSixteen) {
+  typedef std::pair<uint8_t, uint8_t> phase_bits_t;
+
+  const std::vector<phase_bits_t> phase_bits_sequence = {
+      {0b11111111, 0b11111111}, {0b11111111, 0b11111110},
+      {0b11111111, 0b11111100}, {0b11111111, 0b11111000},
+      {0b11111111, 0b11110000}, {0b11111111, 0b11100000},
+      {0b11111111, 0b11000000}, {0b11111111, 0b10000000},
+      {0b11111111, 0b00000000}, {0b11111110, 0b00000000},
+      {0b11111100, 0b00000000}, {0b11111000, 0b00000000},
+      {0b11110000, 0b00000000}, {0b11100000, 0b00000000},
+      {0b11000000, 0b00000000}, {0b10000000, 0b00000000},
+      {0b00000000, 0b00000000}};  // outputs for AC relays are active-low
+  for (uint8_t state_value = 0; state_value <= 16; state_value++)
+    ASSERT_EQ((ACRelayBits{phase_bits_sequence[state_value].first,
+                           phase_bits_sequence[state_value].second, 0xFF, 0xFF,
+                           0xFF, 0xFF}),
+              encode(RelayState{state_value, 0, 0, 0}));
+}
+
 TEST(EncodeValues, encodeBalancedRelayValues) {
-  const RelayState balancedState{5, 5, 5, 2};
-  auto result = encode(balancedState);
-  auto zero_inverted =
-      static_cast<uint8_t>(~static_cast<uint8_t>(pow(2, 0) - 1));
-  auto five_inverted =
-      static_cast<uint8_t>(~static_cast<uint8_t>(pow(2, 5) - 1));
-  ACRelayBits equivalent{zero_inverted, five_inverted, zero_inverted,
-                         five_inverted, zero_inverted, five_inverted};
-  ASSERT_EQ(result, equivalent);
+  // chosen arbitrarily
+  const uint8_t AC_balanced_value = 5;
+  const uint8_t DC_value = 2;
+
+  const uint8_t balanced_bits = 0b11100000;  // must match balanced value
+
+  const RelayState balancedState{AC_balanced_value, AC_balanced_value,
+                                 AC_balanced_value, DC_value};
+  ASSERT_EQ((ACRelayBits{0xFF, balanced_bits, 0xFF, balanced_bits, 0xFF,
+                         balanced_bits}),
+            encode(balancedState));
 }
 
 TEST(EncodeValues, encodeUnbalancedRelayValues) {
-  const RelayState unbalancedState{1, 2, 3, 1};
-  auto result = encode(unbalancedState);
-  auto zero_inverted =
-      static_cast<uint8_t>(~static_cast<uint8_t>(pow(2, 0) - 1));
-  auto one_inverted =
-      static_cast<uint8_t>(~static_cast<uint8_t>(pow(2, 1) - 1));
-  auto two_inverted =
-      static_cast<uint8_t>(~static_cast<uint8_t>(pow(2, 2) - 1));
-  auto three_inverted =
-      static_cast<uint8_t>(~static_cast<uint8_t>(pow(2, 3) - 1));
-  ACRelayBits equivalent{zero_inverted, one_inverted,  zero_inverted,
-                         two_inverted,  zero_inverted, three_inverted};
-  ASSERT_EQ(result, equivalent);
+  // chosen arbitrarily
+  const uint8_t phaseA_val = 1;
+  const uint8_t phaseB_val = 2;
+  const uint8_t phaseC_val = 3;
+  const uint8_t DC_value = 1;
+
+  // must match chosen values
+  const uint8_t phaseA_bits = 0b11111110;
+  const uint8_t phaseB_bits = 0b11111100;
+  const uint8_t phaseC_bits = 0b11111000;
+
+  const RelayState unbalancedState{phaseA_val, phaseB_val, phaseC_val,
+                                   DC_value};
+  ASSERT_EQ(
+      (ACRelayBits{0xFF, phaseA_bits, 0xFF, phaseB_bits, 0xFF, phaseC_bits}),
+      encode(unbalancedState));
 }
