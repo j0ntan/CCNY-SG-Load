@@ -1,7 +1,7 @@
 #include "../include/RelayState.h"
 #include "../include/ShiftRegister.h"
 #include "../include/DigitalIO.h"
-#include "../include/Encode.h"
+#include "Encode.h"
 
 // Globals defined in main application
 extern ShiftRegister shiftregister;

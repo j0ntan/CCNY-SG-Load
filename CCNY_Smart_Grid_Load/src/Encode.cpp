@@ -1,4 +1,4 @@
-#include "../include/Encode.h"
+#include "Encode.h"
 #include "../include/RelayState.h"
 
 namespace {
