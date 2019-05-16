@@ -2,12 +2,16 @@
 #include "../include/InputSequence.h"
 #include "../include/RelayState.h"
 
+namespace {
+const auto& INIT_VAL = InputSequence::SIZE;
+}
+
 class InputAnalytics {
  public:
-  uint8_t position_phaseA = InputSequence::SIZE;
-  uint8_t position_phaseB = InputSequence::SIZE;
-  uint8_t position_phaseC = InputSequence::SIZE;
-  uint8_t position_DC = InputSequence::SIZE;
+  uint8_t position_phaseA = INIT_VAL;
+  uint8_t position_phaseB = INIT_VAL;
+  uint8_t position_phaseC = INIT_VAL;
+  uint8_t position_DC = INIT_VAL;
 
   uint8_t count_phaseA = 0;
   uint8_t count_phaseB = 0;
@@ -18,9 +22,9 @@ class InputAnalytics {
   const uint8_t LENGTH;
 
   explicit InputAnalytics(const InputSequence& input) : LENGTH{input.length()} {
-    // init to sentinel value, InputSequence::SIZE
+    // init to sentinel value, INIT_VAL
     for (uint8_t i = 0; i < InputSequence::SIZE; ++i)
-      numerical_equivalents[i] = InputSequence::SIZE;
+      numerical_equivalents[i] = INIT_VAL;
 
     // analyze each char
     for (uint8_t i = 0; i < LENGTH; ++i) switch (charToToken(input[i])) {
@@ -70,7 +74,7 @@ bool containsOnlyValidChars(const InputSequence& input) {
 
 bool containsAtLeastOneNumber(const InputAnalytics& analytics) {
   for (uint8_t i = 0; i < analytics.LENGTH; i++)
-    if (analytics.numerical_equivalents[i] != InputSequence::SIZE) return true;
+    if (analytics.numerical_equivalents[i] != INIT_VAL) return true;
   return false;
 }
 
@@ -85,8 +89,7 @@ bool beginsWithPhase(const InputAnalytics& analytics) {
 }
 
 bool endsWithNumber(const InputAnalytics& analytics) {
-  return analytics.numerical_equivalents[analytics.LENGTH - 1] !=
-         InputSequence::SIZE;
+  return analytics.numerical_equivalents[analytics.LENGTH - 1] != INIT_VAL;
 }
 
 bool phasesAppearAtMostOnce(const InputAnalytics& analytics) {
@@ -99,7 +102,7 @@ bool phasesInOrder(const InputAnalytics& analytics) {
                           analytics.position_phaseC, analytics.position_DC};
   for (uint8_t current_phase = 1; current_phase < 4; ++current_phase)
     for (uint8_t prev_phase = 0; prev_phase < current_phase; ++prev_phase)
-      if (positions[prev_phase] != InputSequence::SIZE &&
+      if (positions[prev_phase] != INIT_VAL &&
           positions[prev_phase] > positions[current_phase])
         return false;
   return true;
@@ -108,7 +111,7 @@ bool phasesInOrder(const InputAnalytics& analytics) {
 bool hasNoLeadingZeros(const InputAnalytics& analytics) {
   for (uint8_t i = 0; i < analytics.LENGTH; i++)
     if (analytics.numerical_equivalents[i] == 0 && i + 1 < analytics.LENGTH &&
-        analytics.numerical_equivalents[i + 1] != InputSequence::SIZE)
+        analytics.numerical_equivalents[i + 1] != INIT_VAL)
       return false;
   return true;
 }
@@ -126,12 +129,12 @@ bool numbersAreWithinRange(const InputAnalytics& analytics) {
   // check only single or double consecutive digits
   for (uint8_t i = 1, consecutive_digits = 1; i < analytics.LENGTH; ++i) {
     const bool found_consecutive_pair =
-        analytics.numerical_equivalents[i] != InputSequence::SIZE &&
+        analytics.numerical_equivalents[i] != INIT_VAL &&
         i + 1 < analytics.LENGTH &&
-        analytics.numerical_equivalents[i + 1] != InputSequence::SIZE;
+        analytics.numerical_equivalents[i + 1] != INIT_VAL;
     if (found_consecutive_pair)
       ++consecutive_digits;
-    else if (analytics.numerical_equivalents[i] == InputSequence::SIZE)
+    else if (analytics.numerical_equivalents[i] == INIT_VAL)
       consecutive_digits = 1;
 
     if (consecutive_digits > 2) return false;
@@ -140,9 +143,9 @@ bool numbersAreWithinRange(const InputAnalytics& analytics) {
   // check double digits for AC range
   for (uint8_t i = 1; i < analytics.LENGTH; i++) {
     const bool found_double_consecutive_digits =
-        analytics.numerical_equivalents[i] != InputSequence::SIZE &&
+        analytics.numerical_equivalents[i] != INIT_VAL &&
         i + 1 < analytics.LENGTH &&
-        analytics.numerical_equivalents[i + 1] != InputSequence::SIZE;
+        analytics.numerical_equivalents[i + 1] != INIT_VAL;
     const bool out_of_range = found_double_consecutive_digits &&
                               (10 * analytics.numerical_equivalents[i] +
                                analytics.numerical_equivalents[i + 1]) > AC_MAX;
@@ -153,10 +156,10 @@ bool numbersAreWithinRange(const InputAnalytics& analytics) {
 }
 
 uint8_t readProceedingValue(const InputAnalytics& analytics, uint8_t start) {
-  while (analytics.numerical_equivalents[start] == InputSequence::SIZE) ++start;
+  while (analytics.numerical_equivalents[start] == INIT_VAL) ++start;
   const bool double_digit_value =
       start + 1 < analytics.LENGTH &&
-      analytics.numerical_equivalents[start + 1] != InputSequence::SIZE;
+      analytics.numerical_equivalents[start + 1] != INIT_VAL;
   if (double_digit_value)
     return 10 + analytics.numerical_equivalents[start + 1];
   else
