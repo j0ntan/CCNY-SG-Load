@@ -1,12 +1,15 @@
 #include "../include/InputSequence.h"
 #include "../include/XBee.h"
 #include "../include/Timer.h"
+#include "../include/Display/LCD.h"
+#include "../include/Display/MessagesList.h"
 #include <stdint.h>
 #include <stdlib.h>
 
 // Globals defined in main application
 extern XBee* xbee;
 extern Timer* timer;
+extern Display::LCD* lcd;
 
 namespace {
 const uint8_t DSPACE_SINGLE_INPUT_BOUND = 28;
@@ -42,30 +45,46 @@ void dSPACESingleInputCommand(const int& commandID, InputSequence& input) {
     case 15:
     case 16:
       input.addInput(itoa(commandID, str, 10));
+      lcd->printMsg(Display::dspace_sequence);
+      lcd->printInput(input, 2);
       break;
     case 17:
       input.addInput('A');
+      lcd->printMsg(Display::dspace_sequence);
+      lcd->printInput(input, 2);
       break;
     case 18:
       input.addInput('B');
+      lcd->printMsg(Display::dspace_sequence);
+      lcd->printInput(input, 2);
       break;
     case 19:
       input.addInput('C');
+      lcd->printMsg(Display::dspace_sequence);
+      lcd->printInput(input, 2);
       break;
     case 20:
       input.addInput('D');
+      lcd->printMsg(Display::dspace_sequence);
+      lcd->printInput(input, 2);
       break;
     case 21:  // CANCEL
       input.cancelSequence();
+      lcd->printMsg(Display::cancel_sequence);
       break;
     case 22:  // BACKSPACE
       input.removeLastInput();
+      lcd->printMsg(Display::dspace_sequence);
+      lcd->printInput(input, 2);
       break;
     case 23:  // RESET
       input.applyResetSequence();
+      lcd->printMsg(Display::load_reset);
       break;
     default:
       input.addInput('?');
+      lcd->printMsg(Display::dspace_sequence);
+      lcd->printInput(input, 2);
   }  // end switch
 }
 

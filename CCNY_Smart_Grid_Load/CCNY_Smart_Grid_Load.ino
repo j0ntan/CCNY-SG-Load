@@ -7,6 +7,8 @@
 #include "include/HardwareKeypad.h"
 #include "include/HardwareXBee.h"
 #include "include/HardwareSDFlash.h"
+#include "include/HardwareRNG.h"
+#include "include/Display/HardwareLCD.h"
 #include "include/InputSequence.h"
 #include "include/LoadProfile.h"
 #include "include/Monitor.h"
@@ -15,6 +17,8 @@
 #include "include/RelayStateGenerator.h"
 #include "include/ShiftRegister.h"
 #include "include/Output.h"
+#include "include/Display/MessagesList.h"
+#include "include/Display/StatusMsgSequences.h"
 
 //
 // SG-Load Arduino I/O pin mapping:
@@ -45,10 +49,13 @@ ShiftRegister shiftregister{serial_data_output, SR_clock_output,
                             ST_clock_output};
 XBee* xbee = new HardwareXBee{Serial};
 SDFlash* sd = new HardwareSDFlash{53};
+BernoulliRNG* rng = new HardwareRNG(0.2);
+Display::LCD* lcd = new Display::HardwareLCD(0x27);
 
 void setup() {
   Serial.begin(9600);
   Serial.setTimeout(10);
+  Display::initializationSequence(*rng);
 }
 
 void loop() {
@@ -74,6 +81,8 @@ void processInputString(const InputSequence& input) {
   if (isValidSequence(input)) {
     recordNewRelayState(input, relay_state);
     outputNewRelayState(relay_state);
+    lcd->printMsg(Display::load_idle_state);
+    Display::updateIdleState(relay_state);
   }
   // else, display error message
 }
@@ -92,5 +101,6 @@ void activateLoadProfile() {
       processInputString(profile_input);
       timer->delay(duration);
     }
-  }  // else, report SD card or File error
+  } else
+    lcd->printMsg(Display::SD_file_open_error);
 }

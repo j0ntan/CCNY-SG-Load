@@ -1,6 +1,11 @@
 #include "../src/ValidTokens.h"
 #include "../include/InputSequence.h"
 #include "../include/RelayState.h"
+#include "../include/Display/MessagesList.h"
+#include "../include/Display/LCD.h"
+
+// Globals defined in main application
+extern Display::LCD* lcd;
 
 namespace {
 const auto& INIT_VAL = InputSequence::SIZE;
@@ -68,33 +73,49 @@ bool isNotEmpty(const InputSequence& input) { return input.length() != 0; }
 bool containsOnlyValidChars(const InputSequence& input) {
   const uint8_t LENGTH = input.length();
   for (uint8_t i = 0; i < LENGTH; ++i)
-    if (charToToken(input[i]) == Token::INVALID) return false;
+    if (charToToken(input[i]) == Token::INVALID) {
+      lcd->printMsg(Display::invalid_char_error);
+      lcd->printChar(input[i], 2, 15);
+      return false;
+    }
   return true;
 }
 
 bool containsAtLeastOneNumber(const InputAnalytics& analytics) {
   for (uint8_t i = 0; i < analytics.LENGTH; i++)
     if (analytics.numerical_equivalents[i] != INIT_VAL) return true;
+  lcd->printMsg(Display::missing_number_error);
   return false;
 }
 
 bool containsAtLeastOnePhase(const InputAnalytics& analytics) {
-  return analytics.count_phaseA || analytics.count_phaseB ||
-         analytics.count_phaseC || analytics.count_DC;
+  const bool RESULT = analytics.count_phaseA || analytics.count_phaseB ||
+                      analytics.count_phaseC || analytics.count_DC;
+  if (!RESULT) lcd->printMsg(Display::missing_phase_error);
+  return RESULT;
 }
 
 bool beginsWithPhase(const InputAnalytics& analytics) {
-  return analytics.position_phaseA == 0 || analytics.position_phaseB == 0 ||
-         analytics.position_phaseC == 0 || analytics.position_DC == 0;
+  const bool RESULT =
+      analytics.position_phaseA == 0 || analytics.position_phaseB == 0 ||
+      analytics.position_phaseC == 0 || analytics.position_DC == 0;
+  if (!RESULT) lcd->printMsg(Display::no_starting_phase_error);
+  return RESULT;
 }
 
 bool endsWithNumber(const InputAnalytics& analytics) {
-  return analytics.numerical_equivalents[analytics.LENGTH - 1] != INIT_VAL;
+  const bool RESULT =
+      analytics.numerical_equivalents[analytics.LENGTH - 1] != INIT_VAL;
+  if (!RESULT) lcd->printMsg(Display::numerical_ending_error);
+  return RESULT;
 }
 
 bool phasesAppearAtMostOnce(const InputAnalytics& analytics) {
-  return analytics.count_phaseA <= 1 && analytics.count_phaseB <= 1 &&
-         analytics.count_phaseC <= 1 && analytics.count_DC <= 1;
+  const bool RESULT = analytics.count_phaseA <= 1 &&
+                      analytics.count_phaseB <= 1 &&
+                      analytics.count_phaseC <= 1 && analytics.count_DC <= 1;
+  if (!RESULT) lcd->printMsg(Display::repeating_phase_error);
+  return RESULT;
 }
 
 bool phasesInOrder(const InputAnalytics& analytics) {
@@ -103,16 +124,20 @@ bool phasesInOrder(const InputAnalytics& analytics) {
   for (uint8_t current_phase = 1; current_phase < 4; ++current_phase)
     for (uint8_t prev_phase = 0; prev_phase < current_phase; ++prev_phase)
       if (positions[prev_phase] != INIT_VAL &&
-          positions[prev_phase] > positions[current_phase])
+          positions[prev_phase] > positions[current_phase]) {
+        lcd->printMsg(Display::unordered_phases_error);
         return false;
+      }
   return true;
 }
 
 bool hasNoLeadingZeros(const InputAnalytics& analytics) {
   for (uint8_t i = 0; i < analytics.LENGTH; i++)
     if (analytics.numerical_equivalents[i] == 0 && i + 1 < analytics.LENGTH &&
-        analytics.numerical_equivalents[i + 1] != INIT_VAL)
+        analytics.numerical_equivalents[i + 1] != INIT_VAL) {
+      lcd->printMsg(Display::leading_zero_error);
       return false;
+    }
   return true;
 }
 
@@ -123,8 +148,10 @@ bool numbersAreWithinRange(const InputAnalytics& analytics) {
   // check DC range
   if (analytics.count_DC == 1 &&
       (analytics.numerical_equivalents[analytics.position_DC + 1] > DC_MAX ||
-       analytics.position_DC != analytics.LENGTH - 2))
+       analytics.position_DC != analytics.LENGTH - 2)) {
+    lcd->printMsg(Display::DC_out_of_range_error);
     return false;
+  }
 
   // check only single or double consecutive digits
   for (uint8_t i = 1, consecutive_digits = 1; i < analytics.LENGTH; ++i) {
@@ -137,7 +164,10 @@ bool numbersAreWithinRange(const InputAnalytics& analytics) {
     else if (analytics.numerical_equivalents[i] == INIT_VAL)
       consecutive_digits = 1;
 
-    if (consecutive_digits > 2) return false;
+    if (consecutive_digits > 2) {
+      lcd->printMsg(Display::digits_out_of_range_error);
+      return false;
+    }
   }
 
   // check double digits for AC range
@@ -149,7 +179,10 @@ bool numbersAreWithinRange(const InputAnalytics& analytics) {
     const bool out_of_range = found_double_consecutive_digits &&
                               (10 * analytics.numerical_equivalents[i] +
                                analytics.numerical_equivalents[i + 1]) > AC_MAX;
-    if (found_double_consecutive_digits && out_of_range) return false;
+    if (found_double_consecutive_digits && out_of_range) {
+      lcd->printMsg(Display::AC_out_of_range_error);
+      return false;
+    }
   }
 
   return true;
