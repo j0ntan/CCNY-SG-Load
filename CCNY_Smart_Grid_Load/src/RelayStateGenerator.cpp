@@ -75,9 +75,8 @@ bool containsAtLeastOneNumber(const InputAnalytics& analytics) {
 }
 
 bool containsAtLeastOnePhase(const InputAnalytics& analytics) {
-  for (uint8_t i = 0; i < analytics.LENGTH; i++)
-    if (analytics.numerical_equivalents[i] == InputSequence::SIZE) return true;
-  return false;
+  return analytics.count_phaseA || analytics.count_phaseB ||
+         analytics.count_phaseC || analytics.count_DC;
 }
 
 bool beginsWithPhase(const InputAnalytics& analytics) {
