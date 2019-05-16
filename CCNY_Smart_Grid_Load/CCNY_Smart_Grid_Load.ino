@@ -62,14 +62,14 @@ void loop() {
   InputSequence user_input;
   if (keypadButtonWasPressed()) {
     user_input = collectKeypadSequence();
-    processInputString(user_input);
+    processInputSequence(user_input);
   } else if (xbee->hasBufferedData()) {
     if (receivedPCSerialData()) {
       user_input = collectPCSequence();
-      processInputString(user_input);
+      processInputSequence(user_input);
     } else if (receivedDSPACEManualData()) {
       user_input = collectDSPACESequence();
-      processInputString(user_input);
+      processInputSequence(user_input);
     } else if (receivedDSPACELoadProfile()) {
       activateLoadProfile();
     } else
@@ -77,7 +77,7 @@ void loop() {
   }
 }
 
-void processInputString(const InputSequence& input) {
+void processInputSequence(const InputSequence& input) {
   if (isValidSequence(input)) {
     recordNewRelayState(input, relay_state);
     outputNewRelayState(relay_state);
@@ -98,7 +98,7 @@ void activateLoadProfile() {
       InputSequence profile_input;
       unsigned long duration = 0;
       profile.readLine(profile_input, duration);
-      processInputString(profile_input);
+      processInputSequence(profile_input);
       timer->delay(duration);
     }
   } else
