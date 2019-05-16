@@ -1,11 +1,14 @@
 #include "../include/Keypad.h"
 #include "../include/InputSequence.h"
 #include "../include/Timer.h"
+#include "../include/Display/LCD.h"
+#include "../include/Display/MessagesList.h"
 #include <ctype.h>
 
 // Globals defined in main application
 extern Keypad* keypad;
 extern Timer* timer;
+extern Display::LCD* lcd;
 
 namespace {
 char ButtonIDToChar(const Keypad::ButtonID& pressed) {
@@ -52,10 +55,13 @@ void actionOnButtonHold(InputSequence& input, const Keypad::ButtonID& pressed) {
     case Keypad::ButtonID::D:
       break;  // do nothing
     case Keypad::ButtonID::STAR:
-      if (input.length() > 0)
+      if (input.length() > 0) {
         input.cancelSequence();
-      else
+        lcd->printMsg(Display::cancel_sequence);
+      } else {
         input.applyResetSequence();
+        lcd->printMsg(Display::load_reset);
+      }
       break;
     default:
       uint8_t amount = static_cast<uint8_t>(ButtonIDToChar(pressed) - '0');
@@ -91,8 +97,12 @@ InputSequence collectKeypadSequence() {
       sequence_terminated = true;
     } else if (pressed == Keypad::ButtonID::STAR) {
       keypad_sequence.removeLastInput();
+      lcd->printMsg(Display::keypad_sequence);
+      lcd->printInput(keypad_sequence, 2);
     } else {
       keypad_sequence.addInput(ButtonIDToChar(pressed));
+      lcd->printMsg(Display::keypad_sequence);
+      lcd->printInput(keypad_sequence, 2);
     }
 
     waitForButtonRelease();
