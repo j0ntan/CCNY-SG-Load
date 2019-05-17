@@ -5,7 +5,7 @@ set(MOCKS_DIR ${CMAKE_HOME_DIRECTORY}/tests)
 add_library(testing_utils_InputSequence STATIC InputSequence_utils.cpp)
 target_include_directories(testing_utils_InputSequence PRIVATE ${SG_LOAD_INCLUDE_DIR})
 
-add_executable(testing_Collect Collect_tests.cpp)
+add_executable(testing_Collect Collect.cpp)
 target_include_directories(testing_Collect PRIVATE ${SG_LOAD_INCLUDE_DIR} ${MOCKS_DIR})
 target_link_libraries(testing_Collect
         InputSequence
@@ -15,17 +15,17 @@ target_link_libraries(testing_Collect
         testing_utils_InputSequence
         gmock_main)
 
-add_executable(testing_Encode Encode_tests.cpp)
+add_executable(testing_Encode Encode.cpp)
 target_include_directories(testing_Encode PRIVATE
         ${SG_LOAD_INCLUDE_DIR}
         ${CMAKE_HOME_DIRECTORY}/CCNY_Smart_Grid_Load/src)
 target_link_libraries(testing_Encode Encode gmock_main)
 
-add_executable(testing_InputSequence InputSequence_tests.cpp)
+add_executable(testing_InputSequence InputSequence.cpp)
 target_include_directories(testing_InputSequence PRIVATE ${SG_LOAD_INCLUDE_DIR})
 target_link_libraries(testing_InputSequence InputSequence gmock_main)
 
-add_executable(testing_LoadProfile LoadProfile_tests.cpp)
+add_executable(testing_LoadProfile LoadProfile.cpp)
 target_include_directories(testing_LoadProfile PRIVATE ${SG_LOAD_INCLUDE_DIR})
 target_link_libraries(testing_LoadProfile
         LoadProfile
@@ -33,7 +33,7 @@ target_link_libraries(testing_LoadProfile
         InputSequence
         gmock_main)
 
-add_executable(testing_RelayStateGenerator RelayStateGenerator_tests.cpp)
+add_executable(testing_RelayStateGenerator RelayStateGenerator.cpp)
 target_include_directories(testing_RelayStateGenerator PRIVATE ${SG_LOAD_INCLUDE_DIR})
 target_link_libraries(testing_RelayStateGenerator
         RelayStateGenerator
@@ -41,11 +41,11 @@ target_link_libraries(testing_RelayStateGenerator
         gtest_main)
 
 add_executable(ALL_tests
-        Collect_tests.cpp
-        Encode_tests.cpp
-        InputSequence_tests.cpp
-        LoadProfile_tests.cpp
-        RelayStateGenerator_tests.cpp)
+        Collect.cpp
+        Encode.cpp
+        InputSequence.cpp
+        LoadProfile.cpp
+        RelayStateGenerator.cpp)
 target_include_directories(ALL_tests PRIVATE
         ${SG_LOAD_INCLUDE_DIR}
         ${MOCKS_DIR}
