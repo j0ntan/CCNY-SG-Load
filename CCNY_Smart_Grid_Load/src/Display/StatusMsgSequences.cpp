@@ -3,7 +3,7 @@
 #include "../../include/BernoulliRNG.h"
 #include "../../include/Display/MessagesList.h"
 #include "../../include/Display/LCD.h"
-#include <stdlib.h>
+#include <stdio.h>
 
 // Globals defined in main application
 extern Display::LCD* lcd;
@@ -25,12 +25,12 @@ void Display::initializationSequence(const BernoulliRNG& rng) {
 
 void Display::updateIdleState(const RelayState& state) {
   char AC_phases_str[Display::COLS + 1] = "A:   B:   C:";
-  itoa(state.phaseA, AC_phases_str + 2, 10);
-  itoa(state.phaseB, AC_phases_str + 7, 10);
-  itoa(state.phaseC, AC_phases_str + 12, 10);
+  snprintf(AC_phases_str + 2, 2, "%d", state.phaseA);
+  snprintf(AC_phases_str + 7, 2, "%d", state.phaseA);
+  snprintf(AC_phases_str + 12, 2, "%d", state.phaseA);
 
   char DC_str[Display::COLS + 1] = "D:";
-  itoa(state.DC, DC_str + 2, 10);
+  snprintf(DC_str + 2, 1, "$d", state.DC);
 
   lcd->printLine(AC_phases_str, 2);
   lcd->printLine(DC_str, 3);

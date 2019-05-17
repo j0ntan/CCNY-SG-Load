@@ -4,7 +4,7 @@
 #include "../include/Display/LCD.h"
 #include "../include/Display/MessagesList.h"
 #include <stdint.h>
-#include <stdlib.h>
+#include <stdio.h>
 
 // Globals defined in main application
 extern XBee* xbee;
@@ -44,7 +44,8 @@ void dSPACESingleInputCommand(const int& commandID, InputSequence& input) {
     case 14:
     case 15:
     case 16:
-      input.addInput(itoa(commandID, str, 10));
+      snprintf(str, STR_SIZE, "%d", commandID);
+      input.addInput(str);
       lcd->printMsg(Display::dspace_sequence);
       lcd->printInput(input, 2);
       break;
