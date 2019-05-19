@@ -1,12 +1,12 @@
 add_subdirectory(thirdparty/googletest)
 
-set(MOCKS_DIR ${CMAKE_HOME_DIRECTORY}/tests)
+set(TESTS_DIR ${CMAKE_HOME_DIRECTORY}/tests)
 
 add_library(testing_utils_InputSequence STATIC InputSequence_utils.cpp)
 target_include_directories(testing_utils_InputSequence PRIVATE ${SG_LOAD_INCLUDE_DIR})
 
 add_executable(testing_Collect Collect.cpp)
-target_include_directories(testing_Collect PRIVATE ${SG_LOAD_INCLUDE_DIR} ${MOCKS_DIR})
+target_include_directories(testing_Collect PRIVATE ${SG_LOAD_INCLUDE_DIR} ${TESTS_DIR})
 target_link_libraries(testing_Collect
         InputSequence
         CollectKeypadSequence
@@ -48,7 +48,7 @@ add_executable(ALL_tests
         RelayStateGenerator.cpp)
 target_include_directories(ALL_tests PRIVATE
         ${SG_LOAD_INCLUDE_DIR}
-        ${MOCKS_DIR}
+        ${TESTS_DIR}
         ${CMAKE_HOME_DIRECTORY}/CCNY_Smart_Grid_Load/src)
 target_link_libraries(ALL_tests
         InputSequence
