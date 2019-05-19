@@ -1,6 +1,6 @@
 #include <gmock/gmock.h>
-#include <Keypad_mock.h>
-#include <Timer_mock.h>
+#include <mocks/Keypad.h>
+#include <mocks/Timer.h>
 #include <InputSequence.h>
 #include <InputSequence_utils.h>
 #include <XBee.h>
