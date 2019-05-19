@@ -1,7 +1,7 @@
 #include <gmock/gmock.h>
 #include <TextFile.h>
 #include <InputSequence.h>
-#include "InputSequence_utils.h"
+#include <utils/InputSequence.h>
 #include <LoadProfile.h>
 #include <string>
 #include <limits.h>

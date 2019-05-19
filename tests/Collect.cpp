@@ -2,7 +2,7 @@
 #include <mocks/Keypad.h>
 #include <mocks/Timer.h>
 #include <InputSequence.h>
-#include <InputSequence_utils.h>
+#include <utils/InputSequence.h>
 #include <XBee.h>
 #include <Collect.h>
 #include <memory>

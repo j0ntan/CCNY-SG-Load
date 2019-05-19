@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <RelayState.h>
 #include <InputSequence.h>
-#include "InputSequence_utils.h"
+#include <utils/InputSequence.h>
 #include <RelayStateGenerator.h>
 
 bool operator==(const RelayState& lhs, const RelayState& rhs) {

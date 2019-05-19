@@ -1,9 +1,7 @@
 add_subdirectory(thirdparty/googletest)
+add_subdirectory(utils)
 
 set(TESTS_DIR ${CMAKE_HOME_DIRECTORY}/tests)
-
-add_library(testing_utils_InputSequence STATIC InputSequence_utils.cpp)
-target_include_directories(testing_utils_InputSequence PRIVATE ${SG_LOAD_INCLUDE_DIR})
 
 add_executable(testing_Collect Collect.cpp)
 target_include_directories(testing_Collect PRIVATE ${SG_LOAD_INCLUDE_DIR} ${TESTS_DIR})
@@ -26,7 +24,7 @@ target_include_directories(testing_InputSequence PRIVATE ${SG_LOAD_INCLUDE_DIR})
 target_link_libraries(testing_InputSequence InputSequence gmock_main)
 
 add_executable(testing_LoadProfile LoadProfile.cpp)
-target_include_directories(testing_LoadProfile PRIVATE ${SG_LOAD_INCLUDE_DIR})
+target_include_directories(testing_LoadProfile PRIVATE ${SG_LOAD_INCLUDE_DIR} ${TESTS_DIR})
 target_link_libraries(testing_LoadProfile
         LoadProfile
         testing_utils_InputSequence
@@ -34,7 +32,7 @@ target_link_libraries(testing_LoadProfile
         gmock_main)
 
 add_executable(testing_RelayStateGenerator RelayStateGenerator.cpp)
-target_include_directories(testing_RelayStateGenerator PRIVATE ${SG_LOAD_INCLUDE_DIR})
+target_include_directories(testing_RelayStateGenerator PRIVATE ${SG_LOAD_INCLUDE_DIR} ${TESTS_DIR})
 target_link_libraries(testing_RelayStateGenerator
         RelayStateGenerator
         testing_utils_InputSequence
