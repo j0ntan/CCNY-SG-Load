@@ -3,15 +3,6 @@ add_subdirectory(utils)
 
 set(TESTS_DIR ${CMAKE_HOME_DIRECTORY}/tests)
 
-add_executable(testing_Collect Collect.cpp)
-target_include_directories(testing_Collect PRIVATE ${SG_LOAD_INCLUDE_DIR} ${TESTS_DIR})
-target_link_libraries(testing_Collect
-        InputSequence
-        CollectPCSequence
-        CollectdSPACESequence
-        testing_utils_InputSequence
-        gmock_main)
-
 add_executable(testing_CollectKeypadSequence CollectKeypadSequence.cpp)
 target_include_directories(testing_CollectKeypadSequence PRIVATE ${SG_LOAD_INCLUDE_DIR} ${TESTS_DIR})
 target_link_libraries(testing_CollectKeypadSequence
@@ -65,7 +56,6 @@ target_link_libraries(testing_RelayStateGenerator
         gtest_main)
 
 add_executable(ALL_tests
-        Collect.cpp
         Encode.cpp
         InputSequence.cpp
         LoadProfile.cpp
