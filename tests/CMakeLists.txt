@@ -30,6 +30,15 @@ target_link_libraries(testing_CollectPCSequence
         CollectPCSequence
         gmock_main)
 
+add_executable(testing_CollectdSPACESequence CollectdSPACESequence.cpp)
+target_include_directories(testing_CollectdSPACESequence PRIVATE ${SG_LOAD_INCLUDE_DIR} ${TESTS_DIR})
+target_link_libraries(testing_CollectdSPACESequence
+        testing_globals
+        testing_utils_InputSequence
+        InputSequence
+        CollectdSPACESequence
+        gmock_main)
+
 add_executable(testing_Encode Encode.cpp)
 target_include_directories(testing_Encode PRIVATE
         ${SG_LOAD_INCLUDE_DIR}
