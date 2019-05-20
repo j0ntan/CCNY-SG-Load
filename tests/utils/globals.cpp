@@ -1,10 +1,12 @@
 #include <Keypad.h>
 #include <Timer.h>
+#include <XBee.h>
 #include <Display/LCD.h>
 #include <Display/MessagesList.h>
 
 Keypad* keypad = nullptr;
 Timer* timer = nullptr;
+XBee* xbee = nullptr;
 Display::LCD* lcd = nullptr;
 
 namespace Display {
