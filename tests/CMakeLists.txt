@@ -56,6 +56,9 @@ target_link_libraries(testing_RelayStateGenerator
         gtest_main)
 
 add_executable(ALL_tests
+        CollectKeypadSequence.cpp
+        CollectPCSequence.cpp
+        CollectdSPACESequence.cpp
         Encode.cpp
         InputSequence.cpp
         LoadProfile.cpp
@@ -70,6 +73,7 @@ target_link_libraries(ALL_tests
         CollectPCSequence
         CollectdSPACESequence
         LoadProfile
+        testing_globals
         testing_utils_InputSequence
         RelayStateGenerator
         Encode
