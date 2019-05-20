@@ -21,6 +21,15 @@ target_link_libraries(testing_CollectKeypadSequence
         CollectKeypadSequence
         gmock_main)
 
+add_executable(testing_CollectPCSequence CollectPCSequence.cpp)
+target_include_directories(testing_CollectPCSequence PRIVATE ${SG_LOAD_INCLUDE_DIR} ${TESTS_DIR})
+target_link_libraries(testing_CollectPCSequence
+        testing_globals
+        testing_utils_InputSequence
+        InputSequence
+        CollectPCSequence
+        gmock_main)
+
 add_executable(testing_Encode Encode.cpp)
 target_include_directories(testing_Encode PRIVATE
         ${SG_LOAD_INCLUDE_DIR}

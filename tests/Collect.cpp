@@ -27,27 +27,6 @@ class XBeeMock : public XBee {
 XBeeMock xbeeMock;
 XBee* xbee = &xbeeMock;
 
-TEST(PCInputCollection, collectSimpleSequence) {
-  EXPECT_CALL(xbeeMock, hasBufferedData())
-      .WillOnce(Return(true))
-      .WillOnce(Return(true))
-      .WillOnce(Return(true))
-      .WillOnce(Return(true))
-      .WillOnce(Return(true))
-      .WillOnce(Return(true))
-      .WillOnce(Return(false));
-
-  EXPECT_CALL(xbeeMock, readByte())
-      .WillOnce(Return(static_cast<int>('A')))
-      .WillOnce(Return(static_cast<int>('1')))
-      .WillOnce(Return(static_cast<int>('B')))
-      .WillOnce(Return(static_cast<int>('2')))
-      .WillOnce(Return(static_cast<int>('C')))
-      .WillOnce(Return(static_cast<int>('3')));
-
-  ASSERT_EQ(collectPCSequence(), "A1B2C3");
-}
-
 void setExpectationsForSingleInput(int input_numerical_value,
                                    int num_of_times_sent, bool is_last_input) {
   EXPECT_CALL(xbeeMock, readByte())
