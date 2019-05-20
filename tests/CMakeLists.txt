@@ -53,7 +53,9 @@ target_include_directories(testing_RelayStateGenerator PRIVATE ${SG_LOAD_INCLUDE
 target_link_libraries(testing_RelayStateGenerator
         RelayStateGenerator
         testing_utils_InputSequence
-        gtest_main)
+        testing_globals
+        InputSequence
+        gmock_main)
 
 add_executable(ALL_tests
         CollectKeypadSequence.cpp
