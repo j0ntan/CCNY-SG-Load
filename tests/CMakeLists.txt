@@ -1,4 +1,3 @@
-add_subdirectory(thirdparty/googletest)
 add_subdirectory(utils)
 
 set(TESTS_DIR ${CMAKE_HOME_DIRECTORY}/tests)
