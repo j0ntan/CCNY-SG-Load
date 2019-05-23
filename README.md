@@ -11,9 +11,9 @@ This section summarizes the steps needed to upload the control system sketch to 
 *Note: The Arduino should already have the latest sketch version uploaded. The installation steps are only needed when debugging or upgrading this sketch.*
 
 ### Install & Run
-1. Download or clone the repo into your `Arduino/sketches` directory.
-2. Install the [New LiquidCrystal](https://bitbucket.org/fmalpartida/new-liquidcrystal) library, replacing the default LCD library.
-3. Upload the `CCNY_Smart_Grid_Load.ino` sketch using the Arduino IDE.
+1. [Download](https://github.com/j0ntan/CCNY-SG-Load/archive/master.zip) or clone ( `git clone https://github.com/j0ntan/CCNY-SG-Load.git` ) the repo into your **Arduino sketchbook location** directory, which may be under `{YourUserName}\Documents\Arduino` on a Windows machine.
+2. Install the [New LiquidCrystal](https://bitbucket.org/fmalpartida/new-liquidcrystal) library, which replaces the usage of the default LCD library.
+3. Open & upload the `CCNY_Smart_Grid_Load.ino` sketch using the Arduino IDE.
 4. Switch the Arduino to external power and observe the LCD startup message to verify the sketch upload.
 
 ### Basic Input
