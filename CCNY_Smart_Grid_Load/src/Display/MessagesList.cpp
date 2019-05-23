@@ -17,7 +17,7 @@ extern const Display::Message initialization_1 PROGMEM = {
     "        CCNY        ", "   Smart Grid Lab   ", "  Prof. A. Mohamed  ",
     "      ST 6/643      ", Display::Duration::LONG};
 extern const Display::Message initialization_2 PROGMEM = {
-    "                    ", "Author: J. Gamboa   ", "Code version: ?.?   ",
+    "                    ", "Author: J. Gamboa   ", "Code ver.: 5.11.0",
     "                    ", Display::Duration::SHORTER};
 extern const Display::Message initialization_3 PROGMEM = {
     "                    ", "                    ", "  Ready for input.  ",
